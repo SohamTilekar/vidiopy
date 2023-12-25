@@ -1,4 +1,6 @@
+import asyncio
 from pprint import pprint
+import time
 from typing import (Any, Callable, Self, Optional, Generator,
                     )
 import os
@@ -173,13 +175,61 @@ class VideoClip(Clip):
                         threads=None, ffmpeg_params=None,
                         logger='bar', over_write_output=True):
 
+        asyncio.run(self.write_video_file_async(filename, fps, codec, bitrate, audio, audio_fps,
+                                                preset, pixel_format, audio_nbytes,
+                                                audio_codec, audio_bitrate, audio_bufsize,
+                                                main_tmp_dir, remove_temp, write_logfile,
+                                                verbose, threads, ffmpeg_params, logger,
+                                                over_write_output))
+        
+        # with tempfile.TemporaryDirectory(dir=main_tmp_dir if main_tmp_dir else None, delete=remove_temp) as tmp_dir:
+        #     frame_count = 0
+        #     num_digits_frames = len(str(self.n_frames()))
+        #     for frame in self.iter_frames_t(fps=fps if fps is not None else 0):
+        #         frame_path = os.path.join(tmp_dir, f"frame_{frame_count:0{num_digits_frames}d}.png")
+        #         iio.imwrite(frame_path, frame)
+        #         frame_count += 1
+
+        #     ffmpeg_command = f"""\
+        #     ffmpeg {'-y' if over_write_output else ''} \
+        #     {f'-framerate {fps if fps else self.fps if self.fps else 24}'} \
+        #     -i {os.path.join(tmp_dir, f'frame_%0{num_digits_frames}d.png')} \
+        #     {'-c:v '+codec if codec else ''} \
+        #     {'-pix_fmt '+pixel_format if pixel_format else ''} \
+        #     {'-b:v '+str(bitrate) if bitrate else ''} \
+        #     -preset {preset} \
+        #     {filename}
+        #     """
+
+        #     # Run the FFmpeg command using subprocess
+        #     subprocess.run(ffmpeg_command, shell=True)
+
+    async def write_frame(self, frame, frame_path):
+        # Asynchronously write the frame using iio.write
+        await asyncio.to_thread(iio.imwrite, frame_path, frame)
+
+    async def write_video_file_async(self, filename, fps=None, codec=None,
+                                     bitrate=None, audio=True, audio_fps=44100,
+                                     preset="medium", pixel_format=None,
+                                     audio_nbytes=4, audio_codec=None,
+                                     audio_bitrate=None, audio_bufsize=2000,
+                                     main_tmp_dir=None, remove_temp=True,
+                                     write_logfile=False, verbose=True,
+                                     threads=None, ffmpeg_params=None,
+                                     logger='bar', over_write_output=True):
+
         with tempfile.TemporaryDirectory(dir=main_tmp_dir if main_tmp_dir else None, delete=remove_temp) as tmp_dir:
             frame_count = 0
             num_digits_frames = len(str(self.n_frames()))
+            
+            tasks = []
             for frame in self.iter_frames_t(fps=fps if fps is not None else 0):
                 frame_path = os.path.join(tmp_dir, f"frame_{frame_count:0{num_digits_frames}d}.png")
-                iio.imwrite(frame_path, frame)
+                tasks.append(self.write_frame(frame, frame_path))
                 frame_count += 1
+            
+            # Wait for all frame writing tasks to complete
+            await asyncio.gather(*tasks)
 
             ffmpeg_command = f"""\
             ffmpeg {'-y' if over_write_output else ''} \
@@ -222,4 +272,7 @@ class VideoFileClip(VideoClip):
 
 if __name__ == '__main__':
     clip = VideoFileClip(r'D:\soham_code\video_py\video_py\test\sintel_with_14_chapters.mp4')
+    st = time.perf_counter()
     clip.write_video_file(r'D:\soham_code\video_py\video_py\test\test_sintel_with_14_chapters.mp4', fps=25)
+    ed = time.perf_counter()
+    print(f"Time taken: {ed-st}")
