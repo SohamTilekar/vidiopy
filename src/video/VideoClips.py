@@ -1,10 +1,6 @@
-import asyncio
-from pprint import pprint
 import time
-from typing import (Any, Callable, Self, Optional, Generator,
+from typing import (Any, Callable, Self, Generator,
                     )
-import os
-import tempfile
 from copy import copy as _copy
 import imageio as iio
 import ffmpegio
@@ -168,96 +164,49 @@ class VideoClip(Clip):
     def write_video_file(self, filename, fps=None, codec=None,
                         bitrate=None, audio=True, audio_fps=44100,
                         preset="medium", pixel_format=None,
-                        audio_nbytes=4, audio_codec=None,
-                        audio_bitrate=None, audio_bufsize=2000,
-                        main_tmp_dir=None, remove_temp=True,
+                        audio_codec=None, audio_bitrate=None,
                         write_logfile=False, verbose=True,
-                        threads=None, ffmpeg_params=None,
+                        threads=None, ffmpeg_params: dict[str, str] | None = None,
                         logger='bar', over_write_output=True):
 
-        asyncio.run(self.write_video_file_async(filename, fps, codec, bitrate, audio, audio_fps,
-                                                preset, pixel_format, audio_nbytes,
-                                                audio_codec, audio_bitrate, audio_bufsize,
-                                                main_tmp_dir, remove_temp, write_logfile,
-                                                verbose, threads, ffmpeg_params, logger,
-                                                over_write_output))
+        final_fps = fps if fps is not None else self.fps if self.fps else 24
+
+        ffmped_options = {
+            **(ffmpeg_params if ffmpeg_params else {})
+        }
+        if threads:
+            ffmped_options['threads'] = threads
+        if codec:
+            ffmped_options['vcodec'] = codec
+        if bitrate:
+            ffmped_options['b:v'] = bitrate
+        if preset:
+            ffmped_options['preset'] = preset
+        if pixel_format:
+            ffmped_options['pix_fmt'] = pixel_format
         
-        # with tempfile.TemporaryDirectory(dir=main_tmp_dir if main_tmp_dir else None, delete=remove_temp) as tmp_dir:
-        #     frame_count = 0
-        #     num_digits_frames = len(str(self.n_frames()))
-        #     for frame in self.iter_frames_t(fps=fps if fps is not None else 0):
-        #         frame_path = os.path.join(tmp_dir, f"frame_{frame_count:0{num_digits_frames}d}.png")
-        #         iio.imwrite(frame_path, frame)
-        #         frame_count += 1
-
-        #     ffmpeg_command = f"""\
-        #     ffmpeg {'-y' if over_write_output else ''} \
-        #     {f'-framerate {fps if fps else self.fps if self.fps else 24}'} \
-        #     -i {os.path.join(tmp_dir, f'frame_%0{num_digits_frames}d.png')} \
-        #     {'-c:v '+codec if codec else ''} \
-        #     {'-pix_fmt '+pixel_format if pixel_format else ''} \
-        #     {'-b:v '+str(bitrate) if bitrate else ''} \
-        #     -preset {preset} \
-        #     {filename}
-        #     """
-
-        #     # Run the FFmpeg command using subprocess
-        #     subprocess.run(ffmpeg_command, shell=True)
-
-    async def write_frame(self, frame, frame_path):
-        # Asynchronously write the frame using iio.write
-        await asyncio.to_thread(iio.imwrite, frame_path, frame)
-
-    async def write_video_file_async(self, filename, fps=None, codec=None,
-                                     bitrate=None, audio=True, audio_fps=44100,
-                                     preset="medium", pixel_format=None,
-                                     audio_nbytes=4, audio_codec=None,
-                                     audio_bitrate=None, audio_bufsize=2000,
-                                     main_tmp_dir=None, remove_temp=True,
-                                     write_logfile=False, verbose=True,
-                                     threads=None, ffmpeg_params=None,
-                                     logger='bar', over_write_output=True):
-
-        with tempfile.TemporaryDirectory(dir=main_tmp_dir if main_tmp_dir else None, delete=remove_temp) as tmp_dir:
-            frame_count = 0
-            num_digits_frames = len(str(self.n_frames()))
-            
-            tasks = []
-            for frame in self.iter_frames_t(fps=fps if fps is not None else 0):
-                frame_path = os.path.join(tmp_dir, f"frame_{frame_count:0{num_digits_frames}d}.png")
-                tasks.append(self.write_frame(frame, frame_path))
-                frame_count += 1
-            
-            # Wait for all frame writing tasks to complete
-            await asyncio.gather(*tasks)
-
-            ffmpeg_command = f"""\
-            ffmpeg {'-y' if over_write_output else ''} \
-            {f'-framerate {fps if fps else self.fps if self.fps else 24}'} \
-            -i {os.path.join(tmp_dir, f'frame_%0{num_digits_frames}d.png')} \
-            {'-c:v '+codec if codec else ''} \
-            {'-pix_fmt '+pixel_format if pixel_format else ''} \
-            {'-b:v '+str(bitrate) if bitrate else ''} \
-            -preset {preset} \
-            {filename}
-            """
-
-            # Run the FFmpeg command using subprocess
-            subprocess.run(ffmpeg_command, shell=True)
+        ffmpegio.video.write(filename, final_fps, self.clip, overwrite=over_write_output, show_log=True, )
 
 class VideoFileClip(VideoClip):
-    def __init__(self, filename: str, audio: bool = False, target_resolution: tuple[int, int] | None = None):
+    def __init__(self, filename: str, transparent=True, pix_fmt_in=None, audio: bool = False, target_resolution: tuple[int, int] | None = None, preset='medium'):
         super().__init__()
-        # Note: Uncomment and modify options as needed
-        # options = {'preset': 'medium', 'pix_fmt_in': 'rgb24', 'pix_fmt': 'rgb24', 'crf': '22'}
-        # self.clip = ffmpegio.video.read(filename, show_log=True, options=options)[1]
         video_basic_data = ffmpegio.probe.video_streams_basic(filename)[0]
-        self.clip = ffmpegio.video.read(filename, show_log=True)[1]
+        ffmpeg_options = {
+            'pix_fmt': 'rgba' if transparent else 'rgb24',
+            'preset': preset,
+        }
+        if pix_fmt_in is not None:
+            ffmpeg_options['pix_fmt'] = pix_fmt_in
+        if target_resolution is not None:
+            ffmpeg_options['vf'] = f'scale={target_resolution[0]}:{target_resolution[1]}'
+
+        frame_rate, video_frame_data = ffmpegio.video.read(filename, show_log=True, **ffmpeg_options)
+        self.clip = video_frame_data
         self.set_start(0.0)
         self.set_duration(video_basic_data['duration'])
         self.set_size(wh=(video_basic_data['width'], video_basic_data['height']))
         self.set_make_frame(self.vid_make_frame)
-        self.set_fps(video_basic_data['frame_rate'])
+        self.set_fps(frame_rate)
 
     def vid_make_frame(self, t, is_time=True) -> np.ndarray:
         if is_time:
@@ -271,7 +220,7 @@ class VideoFileClip(VideoClip):
             raise AttributeError("Object does not have 'clip' attribute.")
 
 if __name__ == '__main__':
-    clip = VideoFileClip(r'D:\soham_code\video_py\video_py\test\sintel_with_14_chapters.mp4')
+    clip = VideoFileClip(r'D:\soham_code\video_py\video_py\test\sintel_with_14_chapters.mp4', transparent=False)
     st = time.perf_counter()
     clip.write_video_file(r'D:\soham_code\video_py\video_py\test\test_sintel_with_14_chapters.mp4', fps=25)
     ed = time.perf_counter()
