@@ -4,8 +4,8 @@ from typing import (Any, Callable, Self, Generator,
 from copy import copy as _copy
 import imageio as iio
 import ffmpegio
-# from src.audio.AudioClip import AudioClip
-# from src.Clip import Clip
+# from ..audio.AudioClip import AudioClip
+# from ..Clip import Clip
 import numpy as np
 import functools
 import subprocess
