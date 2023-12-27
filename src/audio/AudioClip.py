@@ -16,8 +16,6 @@ class AudioClip(Clip):
         self.duration: NumOrNone = None
         self.bitrate = None
         self.channels = None
-        self.channel_layout = None
-        self.codec_name = None
         self.sample_rate = None
 
     def _array2audio_segent(self) -> AudioSegment:
@@ -61,6 +59,7 @@ class AudioClip(Clip):
         ffmpegio.audio.write(output_file_name, sample_rate if sample_rate else self.sample_rate, self.clip, overwrite=True,**ffmpeg_options)
 
 class AudioFileClip(AudioClip):
+    """Makes Audio CLip From any Media"""
     def __init__(self, filename: str) -> None:
         super().__init__()
         audio_basic_data = ffmpegio.probe.audio_streams_basic(filename)[0]
@@ -83,10 +82,12 @@ class AudioFileClip(AudioClip):
             self.bitrate
         elif self.sample_rate:
             self.sample_rate
-
+        ...
         data = ffmpegio.audio.read(filename, **options)
         return data[1]
 
+
+
 if __name__ == '__main__':
-    audio = AudioFileClip(r'D:\soham_code\video_py\video_py\test\crunching.mp3')
+    audio = AudioFileClip(r'D:\soham_code\video_py\video_py\test\chaplin.mp4')
     audio.write_audio_file(r'D:\soham_code\video_py\video_py\test\test.wav')
