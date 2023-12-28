@@ -101,8 +101,6 @@ class VideoClip(Clip):
 
     def set_fps(self, fps):
         self.fps = fps
-    
-
 
     def get_frame(self, t, is_pil=None):
         if is_pil is not None:
@@ -141,6 +139,12 @@ class VideoClip(Clip):
             while x <= self.duration:
                 yield self.get_frame(x, is_pil=False)
                 x += time_dif
+
+    def fx(self, func, *args, **kwargs):
+        clip = []
+        for frame in self.itrate_all_frames_pil():
+            clip.append(func(frame, *args, **kwargs))
+        self.clip = np.array(clip)
 
     def write_videofile(self, filename, fps=None, codec=None,   
                         bitrate=None, audio=False, audio_fps=44100,
@@ -240,6 +244,13 @@ class VideoFileClip(VideoClip):
         else:
             raise ValueError("Clip is not an image or numpy array")
 
+    @override
+    def fx(self, func, *args, **kwargs):
+        clip = []
+        for frame in self.itrate_all_frames_array():
+            clip.append(func(frame, *args, **kwargs))
+        self.clip = np.array(clip)
+
     def make_frame_any_sub_cls(self, t):
         frame_num = t*self.fps
         return self.clip[int(frame_num)]
@@ -292,11 +303,17 @@ class ImageClip(VideoClip):
     def _import_image(self, image):
         return Image.open(image)
 
+    @override
+    def fx(self, func, *args, **kwargs):
+        self._array2image()
+        self.image = func(self.image, *args, **kwargs)
+        return self
+
     def _array2image(self):
         if isinstance(self.image, np.ndarray):
-            return Image.fromarray(self.image)
+            self.image = Image.fromarray(self.image)
         elif isinstance(self.image, Image.Image):
-            return self.image
+            ...
         elif self.image is None:
             raise ValueError("image is not Set.")
         else:
@@ -304,9 +321,9 @@ class ImageClip(VideoClip):
 
     def _image2array(self):
         if isinstance(self.image, Image.Image):
-            return np.array(self.image)
+            self.image = np.array(self.image)
         elif isinstance(self.image, np.ndarray):
-            return self.image
+            ...
         elif self.image is None:
             raise ValueError("image is not Set.")
         else:
