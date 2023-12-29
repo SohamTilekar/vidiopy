@@ -1,22 +1,24 @@
+import importlib
+
 from fractions import Fraction
 import os
 from pathlib import Path
-from typing import (Callable, override,
-                    )
-from copy import copy as _copy
+import tempfile
+from typing import (Callable, override, TypeAlias)
 from PIL import Image
 import ffmpegio
-# from ..Clip import Clip
-# from ..audio.AudioClip import AudioClip
 import numpy as np
-from PIL import Image, ImageColor, ImageFont, ImageDraw
-from pydub import AudioSegment
+from PIL import Image, ImageFont, ImageDraw
 
-class Clip:...
-class AudioClip:...
+src_folder = Path(__file__)
 
-type Num = int | float
-type NumOrNone = Num | None
+importlib.import_module('..Clip.Clip', str(src_folder))
+
+from ..Clip import Clip
+from ..audio.AudioClip import AudioFileClip, AudioClip
+
+Num: TypeAlias = int | float
+NumOrNone: TypeAlias = Num | None
 
 class VideoClip(Clip):
     def __init__(self) -> None:
@@ -88,7 +90,7 @@ class VideoClip(Clip):
         else:
             self.pos = lambda t: pos
 
-    def set_audio(self, audio):
+    def set_audio(self, audio: AudioClip):
         self.audio = audio
 
     def without_audio(self):
@@ -155,7 +157,7 @@ class VideoClip(Clip):
         self.clip = np.array(clip)
 
     def write_videofile(self, filename, fps=None, codec=None,   
-                        bitrate=None, audio=False, audio_fps=44100,
+                        bitrate=None, audio=True, audio_fps=44100,
                         preset="medium", pixel_format=None,
                         audio_codec=None, audio_bitrate=None,
                         write_logfile=False, verbose=True,
@@ -165,52 +167,56 @@ class VideoClip(Clip):
         video_np = np.asarray(tuple(self.iterate_frames_array_t(fps if fps else self.fps if self.fps else (_ for _ in ()
                                                                                                             ).throw(Exception('Make Frame is Not Set.')))))
 
-        print(video_np)
+        audio_name, _ = os.path.splitext(filename)
 
-        ffmpeg_options = {
-            'preset': preset,
-            **({'i': "audio -map 0:v -map 1:a -c:v copy -c:a copy"} if audio else {}),
-            **(ffmpeg_params if ffmpeg_params is not None else {}),
-            **({'c:v': codec} if codec else {}),
-            **({'b:v': bitrate} if bitrate else {}),
-            **({'pix_fmt': pixel_format} if pixel_format else {}),
-            **({'c:a': audio_codec} if audio_codec else {}),
-            **({'ar': audio_fps} if audio_fps else {}),
-            **({'b:a': audio_bitrate} if audio_bitrate else {}),
-            **({'threads': threads} if threads else {}),
-        }
-        ffmpegio.video.write(filename, 
-                             fps if fps else self.fps if self.fps else (_ for _ in ()).throw(Exception('Make Frame is Not Set.')),
-                             video_np,
-                             overwrite=over_write_output,
-                             show_log=True,
-                             **ffmpeg_options)
+        with tempfile.NamedTemporaryFile(suffix=".wav", prefix=audio_name + "_temp_audio_") as temp_audio_file:
+            if self.audio and audio:
+                self.audio.write_audio_file(temp_audio_file.name)
 
-    def write_imagesequence(self, nameformat, fps=None, dir='.', logger='bar'):
-        frame_number = 0
+            ffmpeg_options = {
+                'preset': preset,
+                **({'i': f"{temp_audio_file.name} -map 0:v -map 1:a -c:v copy -c:a copy"} if audio else {}),
+                **(ffmpeg_params if ffmpeg_params is not None else {}),
+                **({'c:v': codec} if codec else {}),
+                **({'b:v': bitrate} if bitrate else {}),
+                **({'pix_fmt': pixel_format} if pixel_format else {}),
+                **({'c:a': audio_codec} if audio_codec else {}),
+                **({'ar': audio_fps} if audio_fps else {}),
+                **({'b:a': audio_bitrate} if audio_bitrate else {}),
+                **({'threads': threads} if threads else {}),
+            }
+            ffmpegio.video.write(filename, 
+                                fps if fps else self.fps if self.fps else (_ for _ in ()).throw(Exception('Make Frame is Not Set.')),
+                                video_np,
+                                overwrite=over_write_output,
+                                show_log=True,
+                                **ffmpeg_options)
 
-        def save_frame(frame, frame_number):
-            file_path = os.path.join(dir, str(frame_number)+nameformat)
-            frame.save(file_path)
+        def write_imagesequence(self, nameformat, fps=None, dir='.', logger='bar'):
+            frame_number = 0
 
-        if dir!='.' and not os.path.exists(dir):
-            os.makedirs(dir)
+            def save_frame(frame, frame_number):
+                file_path = os.path.join(dir, str(frame_number)+nameformat)
+                frame.save(file_path)
 
-        if fps:
-            for frame in self.iterate_frames_pil_t(fps):
-                save_frame(frame, frame_number)
-                frame_number += 1
-        else:
-            if self.fps and self.duration:
-                for frame in self.iterate_frames_pil_t(self.fps):
+            if dir!='.' and not os.path.exists(dir):
+                os.makedirs(dir)
+
+            if fps:
+                for frame in self.iterate_frames_pil_t(fps):
                     save_frame(frame, frame_number)
                     frame_number += 1
             else:
-                print("Warning: FPS is not provided, and fps and duration are not set.")
+                if self.fps and self.duration:
+                    for frame in self.iterate_frames_pil_t(self.fps):
+                        save_frame(frame, frame_number)
+                        frame_number += 1
+                else:
+                    print("Warning: FPS is not provided, and fps and duration are not set.")
 
-                for frame in self.itrate_all_frames_pil():
-                    save_frame(frame, frame_number)
-                    frame_number += 1
+                    for frame in self.itrate_all_frames_pil():
+                        save_frame(frame, frame_number)
+                        frame_number += 1
 
     def to_ImageClip(self, t):
         return Data2ImageClip(self.get_frame(t))
@@ -227,9 +233,9 @@ class VideoFileClip(VideoClip):
         self.set_make_frame_any(self.make_frame_any_sub_cls)
         self.set_make_frame(self.make_frame_sub_cls)
         self.set_make_frame_pil(self.make_frame_pil_sub_cls)
-        # if audio:
-        #     audio = AudioSegment.from_file(filename)
-        #     self.set_audio(audio)
+        if audio:
+            audio = AudioFileClip(filename)
+            self.set_audio(audio)
 
     def _array2image(self):
         if isinstance(self.clip[0], np.ndarray):
@@ -283,7 +289,6 @@ class VideoFileClip(VideoClip):
         return ffmpegio.video.read(file_name, show_log=True, **options)[1]
 
 class ImageClip(VideoClip):
-    
     def __init__(self, image: str | Path | None = None, fps: NumOrNone = None, duration: NumOrNone = None):
         super().__init__()
         self.image = self._import_image(image) if image else None
@@ -455,7 +460,7 @@ class TextClip(Data2ImageClip):
         super().__init__(image, fps=fps, duration=duration)
 
 class CompositeVideoClip(VideoClip):
-    def __init__(self, clips: list[VideoClip], size=None, bg_color=None, use_bgclip=False, fps=None):
+    def __init__(self, clips: list[VideoClip], size=None, bg_color=None, use_bgclip=False, fps=None, audio=None):
         super().__init__()
         if not use_bgclip:
             max_width = 0
@@ -493,7 +498,11 @@ class CompositeVideoClip(VideoClip):
                 if obj.duration > duration:
                     duration = obj.duration
 
-        print(f'{duration=}')
+        if audio is not None:
+            if isinstance(audio, AudioClip):
+                self.set_audio(audio)
+            else:
+                raise TypeError('Audio Clip Audio is type is invalid.')
 
         self.set_make_frame_any(self.make_frame_composite_any)
         self.set_make_frame(self.make_frame_composite)

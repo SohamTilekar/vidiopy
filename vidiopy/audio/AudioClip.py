@@ -89,5 +89,4 @@ class AudioFileClip(AudioClip):
 
 
 if __name__ == '__main__':
-    audio = AudioFileClip(r'D:\soham_code\video_py\video_py\test\chaplin.mp4')
-    audio.write_audio_file(r'D:\soham_code\video_py\video_py\test\test.wav')
+    ...
