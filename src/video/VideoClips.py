@@ -10,6 +10,7 @@ import ffmpegio
 # from ..audio.AudioClip import AudioClip
 import numpy as np
 from PIL import Image, ImageColor, ImageFont, ImageDraw
+from pydub import AudioSegment
 
 class Clip:...
 class AudioClip:...
@@ -87,6 +88,9 @@ class VideoClip(Clip):
         else:
             self.pos = lambda t: pos
 
+    def set_audio(self, audio):
+        self.audio = audio
+
     def without_audio(self):
         self.audio = None
 
@@ -103,12 +107,12 @@ class VideoClip(Clip):
         self.fps = fps
 
     def get_frame(self, t, is_pil=None):
-        if is_pil is not None:
-            return self.make_frame_any(t)
+        if is_pil == (None or False):
+            return self.make_frame(t)
         elif is_pil == True:
             return self.make_frame_pil(t)
         else:
-            return self.make_frame(t)
+            return self.make_frame_any(t)
 
     def itrate_all_frames_array(self):
         x = 0
@@ -127,18 +131,22 @@ class VideoClip(Clip):
     def iterate_frames_pil_t(self, fps: Num):
         time_dif = 1 / fps
         x = 0
-        if self.duration is not None:
-            while x <= self.duration:
+        if self.end is not None:
+            while x <= self.end:
                 yield self.get_frame(x, is_pil=True)
                 x += time_dif
+        else:
+            raise ValueError('end Is None')
 
     def iterate_frames_array_t(self, fps: Num):
         time_dif = 1 / fps
         x = 0
-        if self.duration is not None:
-            while x <= self.duration:
+        if self.end is not None:
+            while x <= self.end:
                 yield self.get_frame(x, is_pil=False)
                 x += time_dif
+        else:
+            raise ValueError('end Is None')
 
     def fx(self, func, *args, **kwargs):
         clip = []
@@ -157,6 +165,8 @@ class VideoClip(Clip):
         video_np = np.asarray(tuple(self.iterate_frames_array_t(fps if fps else self.fps if self.fps else (_ for _ in ()
                                                                                                             ).throw(Exception('Make Frame is Not Set.')))))
 
+        print(video_np)
+
         ffmpeg_options = {
             'preset': preset,
             **({'i': "audio -map 0:v -map 1:a -c:v copy -c:a copy"} if audio else {}),
@@ -169,7 +179,6 @@ class VideoClip(Clip):
             **({'b:a': audio_bitrate} if audio_bitrate else {}),
             **({'threads': threads} if threads else {}),
         }
-
         ffmpegio.video.write(filename, 
                              fps if fps else self.fps if self.fps else (_ for _ in ()).throw(Exception('Make Frame is Not Set.')),
                              video_np,
@@ -207,7 +216,7 @@ class VideoClip(Clip):
         return Data2ImageClip(self.get_frame(t))
 
 class VideoFileClip(VideoClip):
-    def __init__(self, filename, ffmpeg_options=None):
+    def __init__(self, filename, audio=True, ffmpeg_options=None):
         super().__init__()
         video_data = ffmpegio.probe.video_streams_basic(filename)[0]
         self.clip = self._import_video_clip(filename, ffmpeg_options)
@@ -215,8 +224,12 @@ class VideoFileClip(VideoClip):
         self.size = (video_data['width'], video_data['height'])
         self.start = 0.0
         self.end = self.duration = video_data['duration']
+        self.set_make_frame_any(self.make_frame_any_sub_cls)
         self.set_make_frame(self.make_frame_sub_cls)
         self.set_make_frame_pil(self.make_frame_pil_sub_cls)
+        # if audio:
+        #     audio = AudioSegment.from_file(filename)
+        #     self.set_audio(audio)
 
     def _array2image(self):
         if isinstance(self.clip[0], np.ndarray):
@@ -263,24 +276,6 @@ class VideoFileClip(VideoClip):
         frame_num = t*self.fps
         return Image.fromarray(self.clip[int(frame_num)])
 
-    @override
-    def iterate_frames_array_t(self, fps: Num):
-        frame_t_dif = (1 / fps)
-        st_0 = 0.0
-        self._image2array()
-        while st_0 < self.duration if self.duration is not None else (_ for _ in ()).throw(Exception('Duration is Not Set.')):
-            yield self.make_frame(st_0)
-            st_0 += frame_t_dif
-
-    @override
-    def iterate_frames_pil_t(self, fps: Num):
-        frame_t_dif = (1 / fps)
-        st_0 = 0.0
-        self._array2image()
-        while st_0 < self.duration if self.duration is not None else fps if fps else (_ for _ in ()).throw(Exception('Duration is Not Set.')):
-            yield self.make_frame_pil(st_0)
-            st_0 += frame_t_dif
-
     def _import_video_clip(self, file_name, ffmpeg_options):
         options = {
                             **(ffmpeg_options if ffmpeg_options else {})
@@ -299,6 +294,7 @@ class ImageClip(VideoClip):
         self.duration = duration
         self.start = 0.0
         self.end = self.duration
+        self.size = self.image.size if self.image is not None else None
 
     def _import_image(self, image):
         return Image.open(image)
@@ -344,6 +340,7 @@ class Data2ImageClip(ImageClip):
     def __init__(self, data: np.ndarray | Image.Image, fps: NumOrNone = None, duration: NumOrNone = None):
         super().__init__(fps=fps, duration=duration)
         self.image = self._import_image(data)
+        self.size = self.image.size
 
     @override
     def _import_image(self, image):
@@ -364,6 +361,7 @@ class ImageSequenceClip(VideoClip):
         self.duration = (len(self.images)*(fps if fps is not None else 0) if fps else None)
         self.start = 0.0
         self.end = self.duration
+        self.size = self.images[0].size
 
     def _import_images(self, images):
             if isinstance(images, (str, Path)):
@@ -455,6 +453,107 @@ class TextClip(Data2ImageClip):
         draw.text((0, 0), text, font=font, align='center', fill=txt_color) # type: ignore
 
         super().__init__(image, fps=fps, duration=duration)
+
+class CompositeVideoClip(VideoClip):
+    def __init__(self, clips: list[VideoClip], size=None, bg_color=None, use_bgclip=False, fps=None):
+        super().__init__()
+        if not use_bgclip:
+            max_width = 0
+            max_height = 0
+
+            for my_class in clips:
+                if my_class.size is None:
+                    raise ValueError("Size cannot be None")
+
+                width, height = my_class.size
+                max_width = max(max_width, width)
+                max_height = max(max_height, height)
+            
+            self.bg_clip = Data2ImageClip(Image.new('RGBA', (max_width, max_height), bg_color if bg_color else (0, 0, 0, 0)))
+            self.clips = clips
+            self.balnk_bg_Image = Image.new('RGBA', 
+                                        self.bg_clip.size if self.bg_clip.size is not None else 
+                                        self.size if self.size else 
+                                        (_ for _ in ()).throw(Exception('Bg_clip has no attr size.')), 
+                                        (0, 0, 0, 0))
+        else:
+            self.bg_clip = clips[0]
+            self.clips = clips[1:]
+        
+        if fps:
+            self.set_fps(fps)
+        else:
+            fpss = [c.fps for c in clips if getattr(c, 'fps', None) is not None and isinstance(c.fps, (int, float))]
+            self.set_fps(max(fpss) if fpss else None)
+        
+        duration = 0
+
+        for obj in clips:
+            if hasattr(obj, 'duration') and obj.duration is not None:
+                if obj.duration > duration:
+                    duration = obj.duration
+
+        print(f'{duration=}')
+
+        self.set_make_frame_any(self.make_frame_composite_any)
+        self.set_make_frame(self.make_frame_composite)
+        self.set_make_frame_pil(self.make_frame_composite_pil)
+        self.size = size
+        self.bg_color = bg_color
+        self.use_bgclip = use_bgclip
+        self.duration = duration
+        self.start = 0.0
+        self.end = self.duration
+
+    def make_frame_composite(self, t):
+        return np.array(self.make_frame_composite_pil(t))
+
+    def make_frame_composite_any(self, t):
+        self.make_frame_composite_pil(t)
+
+    def make_frame_composite_pil(self, t):
+        bg_image = None
+        if self.bg_clip.start is not None and self.bg_clip.end is None:
+            if self.bg_clip.start <= t:
+                bg_image = self.bg_clip.make_frame_pil(t)
+            else:
+                bg_image = None
+        elif self.bg_clip.start is None and self.bg_clip.end is not None:
+            if self.bg_clip.end >= t:
+                bg_image = self.bg_clip.make_frame_pil(t)
+            else:
+                bg_image = None
+        elif self.bg_clip.start is None and self.bg_clip.end is None:
+                bg_image = self.bg_clip.make_frame_pil(t)
+
+        if bg_image is None:
+            bg_image = self.balnk_bg_Image.copy()
+
+        for clip in self.clips:
+            st = clip.start
+            ed = clip.end
+            if st is None and ed is not None:
+                if ed >= t:
+                    pos = clip.pos(t)
+                    clip_frame: Image.Image = clip.make_frame_pil(t)
+                    bg_image.paste(clip_frame, pos, mask=clip_frame)
+            elif st is not None and ed is None:
+                if st <= t:
+                    pos = clip.pos(t)
+                    clip_frame: Image.Image = clip.make_frame_pil(t)
+                    bg_image.paste(clip_frame, pos, mask=clip_frame)
+            elif st is None and ed is None:
+                pos = clip.pos(t)
+                clip_frame: Image.Image = clip.make_frame_pil(t)
+                bg_image.paste(clip_frame, pos, mask=clip_frame if clip_frame.mode=='RGBA' else None)
+            elif st is not None and ed is not None:
+                if st <= t <= ed:
+                    pos = clip.pos(t)
+                    clip_frame: Image.Image = clip.make_frame_pil(t)
+                    bg_image.paste(clip_frame, pos, mask=clip_frame if clip_frame.mode=='RGBA' else None)
+            else:
+                raise ValueError(f'{clip.start=}, {clip.end=} are invalid.')
+        return bg_image
 
 if __name__ == '__main__':
     ...
