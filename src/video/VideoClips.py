@@ -1,8 +1,8 @@
 from fractions import Fraction
 import os
 from pathlib import Path
-from typing import (Callable, override,
-                    )
+from typing import Callable
+
 from copy import copy as _copy
 from PIL import Image
 import ffmpegio
@@ -15,8 +15,8 @@ from pydub import AudioSegment
 class Clip:...
 class AudioClip:...
 
-type Num = int | float
-type NumOrNone = Num | None
+Num = int | float
+NumOrNone = Num | None
 
 class VideoClip(Clip):
     def __init__(self) -> None:
@@ -257,8 +257,7 @@ class VideoFileClip(VideoClip):
         else:
             raise ValueError("Clip is not an image or numpy array")
 
-    @override
-    def fx(self, func, *args, **kwargs):
+    def fx(self, func: Callable, *args, **kwargs):
         clip = []
         for frame in self.itrate_all_frames_array():
             clip.append(func(frame, *args, **kwargs))
@@ -299,8 +298,7 @@ class ImageClip(VideoClip):
     def _import_image(self, image):
         return Image.open(image)
 
-    @override
-    def fx(self, func, *args, **kwargs):
+    def fx(self, func: Callable, *args, **kwargs):
         self._array2image()
         self.image = func(self.image, *args, **kwargs)
         return self
@@ -342,7 +340,6 @@ class Data2ImageClip(ImageClip):
         self.image = self._import_image(data)
         self.size = self.image.size
 
-    @override
     def _import_image(self, image):
         if isinstance(image, np.ndarray):
             return Image.fromarray(image)
@@ -415,7 +412,6 @@ class ImageSequenceClip(VideoClip):
             raise ValueError(f"Frame index {frame_index} exceeds the number of images in the sequence.")
         return self.images[frame_index]
 
-    @override
     def iterate_frames_array_t(self, fps: Num):
         frame_t_dif = (1 / fps)
         st_0 = 0.0
@@ -423,7 +419,6 @@ class ImageSequenceClip(VideoClip):
             yield self.make_frame(st_0)
             st_0 += frame_t_dif
 
-    @override
     def iterate_frames_pil_t(self, fps: Num):
         frame_t_dif = (1 / fps)
         st_0 = 0.0
