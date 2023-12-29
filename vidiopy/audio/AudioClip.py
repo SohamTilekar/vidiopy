@@ -3,11 +3,12 @@ import numpy as np
 import ffmpegio
 from pydub import AudioSegment
 # from ..Clip import Clip
+from typing import Union, Optional
 
 class Clip:...
 
-type Num = int | float
-type NumOrNone = None | Num
+Num = int | float
+NumOrNone = None | Num
 
 class AudioClip(Clip):
     def __init__(self) -> None:
@@ -20,7 +21,7 @@ class AudioClip(Clip):
 
     def _array2audio_segent(self) -> AudioSegment:
         if isinstance(self.clip, np.ndarray):
-            audio = AudioSegment(self.clip.tobytes(), frame_rate=self.sample_rate, 
+            audio = AudioSegment(self.clip.tobytes(), frame_rate=self.sample_rate,
                                 sample_width=self.clip.dtype.itemsize, channels=self.channels)
             self.clip = audio
             return audio
@@ -30,7 +31,7 @@ class AudioClip(Clip):
             raise ValueError("Clip is Not Set")
         else:
             raise TypeError("Clip must be a numpy array or a pydub.AudioSegment")
-        
+
     def _audio_segment2array(self) -> np.ndarray[Any, Any]:
         if isinstance(self.clip, AudioSegment):
             audio = np.ndarray(self.clip.get_array_of_samples())
@@ -45,7 +46,7 @@ class AudioClip(Clip):
 
 
     def write_audio_file(self, output_file_name, bitrate=None, channels=1, codec=None, sample_rate=44100, ffmpeg_aditional_options=None):
-        
+
         self._audio_segment2array()
 
         ffmpeg_options = {
