@@ -110,19 +110,19 @@ class VideoClip(Clip):
         else:
             return self.make_frame_any(t)
 
-    def itrate_all_frames_array(self):
+    def iterate_all_frames_array(self):
         x = 0
         while 1 > x:
             yield np.zeros((self.h, self.w, 3), dtype=np.uint8)
             x+=1
-        raise ValueError("Iterate all clip Methood Is not Set")
+        raise ValueError("Iterate all clip Method Is not Set")
 
-    def itrate_all_frames_pil(self):
+    def iterate_all_frames_pil(self):
         x = 0
         while 1 > x:
             yield np.zeros((self.h, self.w, 3), dtype=np.uint8)
             x+=1
-        raise ValueError("Iterate all clip Methood Is not Set")
+        raise ValueError("Iterate all clip Method Is not Set")
 
     def iterate_frames_pil_t(self, fps: Num):
         time_dif = 1 / fps
@@ -146,7 +146,7 @@ class VideoClip(Clip):
 
     def fx(self, func, *args, **kwargs):
         clip = []
-        for frame in self.itrate_all_frames_pil():
+        for frame in self.iterate_all_frames_pil():
             clip.append(func(frame, *args, **kwargs))
         self.clip = np.array(clip)
 
@@ -188,10 +188,10 @@ class VideoClip(Clip):
                             video_np, show_log=True, overwrite=over_write_output, **ffmpeg_options)
 
 
-    def write_imagesequence(self, nameformat, fps=None, dir='.', logger='bar'):
+    def write_imagesequence(self, nformat, fps=None, dir='.', logger='bar'):
         frame_number = 0
         def save_frame(frame, frame_number):
-            file_path = os.path.join(dir, str(frame_number)+nameformat)
+            file_path = os.path.join(dir, str(frame_number)+nformat)
             frame.save(file_path)
         if dir!='.' and not os.path.exists(dir):
             os.makedirs(dir)
@@ -206,7 +206,7 @@ class VideoClip(Clip):
                     frame_number += 1
             else:
                 print("Warning: FPS is not provided, and fps and duration are not set.")
-                for frame in self.itrate_all_frames_pil():
+                for frame in self.iterate_all_frames_pil():
                     save_frame(frame, frame_number)
                     frame_number += 1
 
@@ -257,7 +257,7 @@ class VideoFileClip(VideoClip):
 
     def fx(self, func: Callable, *args, **kwargs):
         clip = []
-        for frame in self.itrate_all_frames_array():
+        for frame in self.iterate_all_frames_array():
             clip.append(func(frame, *args, **kwargs))
         self.clip = np.array(clip)
 
@@ -463,7 +463,7 @@ class CompositeVideoClip(VideoClip):
             
             self.bg_clip = Data2ImageClip(Image.new('RGBA', (max_width, max_height), bg_color if bg_color else (0, 0, 0, 0)))
             self.clips = clips
-            self.balnk_bg_Image = Image.new('RGBA', 
+            self.blank_bg_Image = Image.new('RGBA', 
                                         self.bg_clip.size if self.bg_clip.size is not None else 
                                         self.size if self.size else 
                                         (_ for _ in ()).throw(Exception('Bg_clip has no attr size.')), 
@@ -535,7 +535,7 @@ class CompositeVideoClip(VideoClip):
                 bg_image = self.bg_clip.make_frame_pil(t)
 
         if bg_image is None:
-            bg_image = self.balnk_bg_Image.copy()
+            bg_image = self.blank_bg_Image.copy()
 
         for clip in self.clips:
             st = clip.start

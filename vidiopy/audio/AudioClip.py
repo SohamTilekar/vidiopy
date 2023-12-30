@@ -18,11 +18,11 @@ class AudioClip(Clip):
     def get_duration(self):
         return self.clip.duration_seconds if isinstance(self.clip, AudioSegment) else None
 
-    def write_audio_file(self, output_file_name, bitrate=None, codec=None, ffmpeg_aditional_options=None):
+    def write_audio_file(self, output_file_name, bitrate=None, codec=None, ffmpeg_additional_options=None):
         self.clip.export(output_file_name, 
                          bitrate=(bitrate if bitrate else None), 
                          codec=(codec if codec else None), 
-                         parameters=ffmpeg_aditional_options,
+                         parameters=ffmpeg_additional_options,
                          ) if self.clip is not None else (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))
 
 class AudioFileClip(AudioClip):
@@ -35,12 +35,12 @@ class AudioFileClip(AudioClip):
         self.sample_rate = audio_basic_data['sample_rate']
         self.clip: AudioSegment = self._import_audio(filename)
     ...
-    def _import_audio(self, filename, bitrate=None, sample_rate = None, *ffmpeg_aditional_options) -> AudioSegment:
+    def _import_audio(self, filename, bitrate=None, sample_rate = None, *ffmpeg_additional_options) -> AudioSegment:
         
         return AudioSegment.from_file(filename, parameters=[
                                                             # *((f'-ar {sample_rate}',)if sample_rate else ()),
                                                             # *((f'-b:a {bitrate}',) if bitrate else ()),
-                                                            *ffmpeg_aditional_options])
+                                                            *ffmpeg_additional_options])
 
 class CompositeAudioClip(AudioClip):
     def __init__(self, audios: list[AudioClip]) -> None:
