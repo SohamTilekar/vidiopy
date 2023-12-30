@@ -1,7 +1,7 @@
-from video.VideoClips import (VideoClip, TextClip, ColorClip, ImageClip, VideoFileClip, 
+from .video.VideoClips import (VideoClip, TextClip, ColorClip, ImageClip, VideoFileClip, 
                               Data2ImageClip, ImageSequenceClip, CompositeVideoClip)
 
-from Clip import Clip
+from .Clip import Clip
 
-from audio.AudioClip import(AudioClip, AudioFileClip)
+from .audio.AudioClip import(AudioClip, AudioFileClip)
 

@@ -1,5 +1,3 @@
-import importlib
-
 from fractions import Fraction
 import os
 from pathlib import Path
@@ -9,12 +7,9 @@ from PIL import Image
 import ffmpegio
 import numpy as np
 from PIL import Image, ImageFont, ImageDraw
-
-src_folder = Path(__file__)
-importlib.import_module('..Clip.Clip', str(src_folder))
-
+from pydub import AudioSegment
 from ..Clip import Clip
-from ..audio.AudioClip import AudioFileClip, AudioClip
+from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip, audio_segment2composite_audio_clip
 
 Num: TypeAlias = int | float
 NumOrNone: TypeAlias = Num | None
@@ -164,58 +159,56 @@ class VideoClip(Clip):
                         logger='bar', over_write_output=True):
         
         video_np = np.asarray(tuple(self.iterate_frames_array_t(fps if fps else self.fps if self.fps else (_ for _ in ()
-                                                                                                            ).throw(Exception('Make Frame is Not Set.')))))
+                                                                                                                         ).throw(Exception('Make Frame is Not Set.')))))
 
         audio_name, _ = os.path.splitext(filename)
 
-        with tempfile.NamedTemporaryFile(suffix=".wav", prefix=audio_name + "_temp_audio_") as temp_audio_file:
+
+        ffmpeg_options = {
+            'preset': preset,
+            **(ffmpeg_params if ffmpeg_params is not None else {}),
+            **({'c:v': codec} if codec else {}),
+            **({'b:v': bitrate} if bitrate else {}),
+            **({'pix_fmt': pixel_format} if pixel_format else {}),
+            **({'c:a': audio_codec} if audio_codec else {}),
+            **({'ar': audio_fps} if audio_fps else {}),
+            **({'b:a': audio_bitrate} if audio_bitrate else {}),
+            **({'threads': threads} if threads else {}),
+        }
+
+        with tempfile.NamedTemporaryFile(
+            suffix=".wav", prefix=audio_name + "_temp_audio_",
+            delete=True) as temp_audio_file:
             if self.audio and audio:
-                self.audio.write_audio_file(temp_audio_file.name)
+                self.audio.write_audio_file(temp_audio_file)
+                audio_file_name = temp_audio_file.name
 
-            ffmpeg_options = {
-                'preset': preset,
-                **({'i': f"{temp_audio_file.name} -map 0:v -map 1:a -c:v copy -c:a copy"} if audio else {}),
-                **(ffmpeg_params if ffmpeg_params is not None else {}),
-                **({'c:v': codec} if codec else {}),
-                **({'b:v': bitrate} if bitrate else {}),
-                **({'pix_fmt': pixel_format} if pixel_format else {}),
-                **({'c:a': audio_codec} if audio_codec else {}),
-                **({'ar': audio_fps} if audio_fps else {}),
-                **({'b:a': audio_bitrate} if audio_bitrate else {}),
-                **({'threads': threads} if threads else {}),
-            }
-            ffmpegio.video.write(filename, 
-                                fps if fps else self.fps if self.fps else (_ for _ in ()).throw(Exception('Make Frame is Not Set.')),
-                                video_np,
-                                overwrite=over_write_output,
-                                show_log=True,
-                                **ffmpeg_options)
+        ffmpegio.video.write(filename, 
+                            fps if fps else self.fps if self.fps else None,
+                            video_np, show_log=True, overwrite=over_write_output, **ffmpeg_options)
 
-        def write_imagesequence(self, nameformat, fps=None, dir='.', logger='bar'):
-            frame_number = 0
 
-            def save_frame(frame, frame_number):
-                file_path = os.path.join(dir, str(frame_number)+nameformat)
-                frame.save(file_path)
-
-            if dir!='.' and not os.path.exists(dir):
-                os.makedirs(dir)
-
-            if fps:
-                for frame in self.iterate_frames_pil_t(fps):
+    def write_imagesequence(self, nameformat, fps=None, dir='.', logger='bar'):
+        frame_number = 0
+        def save_frame(frame, frame_number):
+            file_path = os.path.join(dir, str(frame_number)+nameformat)
+            frame.save(file_path)
+        if dir!='.' and not os.path.exists(dir):
+            os.makedirs(dir)
+        if fps:
+            for frame in self.iterate_frames_pil_t(fps):
+                save_frame(frame, frame_number)
+                frame_number += 1
+        else:
+            if self.fps and self.duration:
+                for frame in self.iterate_frames_pil_t(self.fps):
                     save_frame(frame, frame_number)
                     frame_number += 1
             else:
-                if self.fps and self.duration:
-                    for frame in self.iterate_frames_pil_t(self.fps):
-                        save_frame(frame, frame_number)
-                        frame_number += 1
-                else:
-                    print("Warning: FPS is not provided, and fps and duration are not set.")
-
-                    for frame in self.itrate_all_frames_pil():
-                        save_frame(frame, frame_number)
-                        frame_number += 1
+                print("Warning: FPS is not provided, and fps and duration are not set.")
+                for frame in self.itrate_all_frames_pil():
+                    save_frame(frame, frame_number)
+                    frame_number += 1
 
     def to_ImageClip(self, t):
         return Data2ImageClip(self.get_frame(t))
@@ -284,7 +277,7 @@ class VideoFileClip(VideoClip):
         options = {
                             **(ffmpeg_options if ffmpeg_options else {})
         }
-        return ffmpegio.video.read(file_name, show_log=True, **options)[1]
+        return ffmpegio.video.read(file_name, **options)[1]
 
 class ImageClip(VideoClip):
     def __init__(self, image: str | Path | None = None, fps: NumOrNone = None, duration: NumOrNone = None):
@@ -492,11 +485,23 @@ class CompositeVideoClip(VideoClip):
                 if obj.duration > duration:
                     duration = obj.duration
 
-        if audio is not None:
-            if isinstance(audio, AudioClip):
-                self.set_audio(audio)
-            else:
-                raise TypeError('Audio Clip Audio is type is invalid.')
+        if audio:
+            h_fps = 0
+            for clip in self.clip:
+                if isinstance(clip.audio, AudioClip):
+                    if isinstance(clip.audio.clip, AudioSegment):
+                        if h_fps < clip.audio.clip.frame_rate:
+                            h_fps = clip.audio.clip.frame_rate
+
+
+            final_audio_list = []
+            for clip in self.clips:
+                if isinstance(clip.audio, AudioClip):
+                    final_audio_list.append(clip.audio.clip)
+                else:
+                    final_audio_list.append(AudioSegment.silent(int(clip.duration*1000) if clip.duration else 0, h_fps if h_fps else 44100))
+            self.audio = audio_segment2composite_audio_clip(final_audio_list)
+
 
         self.set_make_frame_any(self.make_frame_composite_any)
         self.set_make_frame(self.make_frame_composite)
@@ -559,4 +564,4 @@ class CompositeVideoClip(VideoClip):
         return bg_image
 
 if __name__ == '__main__':
-    ...
+    SystemExit()
