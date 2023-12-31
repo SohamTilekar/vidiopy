@@ -1,6 +1,8 @@
 from fractions import Fraction
 import os
+from copy import copy as copy_
 from pathlib import Path
+from re import T
 import tempfile
 from typing import (Callable, TypeAlias)
 from PIL import Image
@@ -10,9 +12,11 @@ from PIL import Image, ImageFont, ImageDraw
 from pydub import AudioSegment
 from ..Clip import Clip
 from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip, audio_segment2composite_audio_clip
+from ..decorators import *
 
 Num: TypeAlias = int | float
 NumOrNone: TypeAlias = Num | None
+
 
 class VideoClip(Clip):
     def __init__(self) -> None:
@@ -102,6 +106,17 @@ class VideoClip(Clip):
     def set_fps(self, fps):
         self.fps = fps
 
+    def __copy__(self):
+        cls = self.__class__
+        new_clip = cls.__new__(cls)
+        for attr in self.__dict__:
+            value = getattr(self, attr)
+            if attr in ("audio"):
+                value = copy_(value)
+            setattr(new_clip, attr, value)
+        return new_clip
+    copy = __copy__
+
     def get_frame(self, t, is_pil=None):
         if is_pil == (None or False):
             return self.make_frame(t)
@@ -144,11 +159,14 @@ class VideoClip(Clip):
         else:
             raise ValueError('end Is None')
 
+    def sub_fx(self):
+        ...
+
+    def fl(self, func, *args, **kwargs):
+        ...
+
     def fx(self, func, *args, **kwargs):
-        clip = []
-        for frame in self.iterate_all_frames_pil():
-            clip.append(func(frame, *args, **kwargs))
-        self.clip = np.array(clip)
+        ...
 
     def write_videofile(self, filename, fps=None, codec=None,   
                         bitrate=None, audio=True, audio_fps=44100,
@@ -211,7 +229,8 @@ class VideoClip(Clip):
                     frame_number += 1
 
     def to_ImageClip(self, t):
-        return Data2ImageClip(self.get_frame(t))
+        return Data2ImageClip(self.get_frame(t, is_pil=True))
+
 
 class VideoFileClip(VideoClip):
     def __init__(self, filename, audio=True, ffmpeg_options=None):
@@ -255,6 +274,24 @@ class VideoFileClip(VideoClip):
         else:
             raise ValueError("Clip is not an image or numpy array")
 
+    @requires_duration
+    @requires_start_end
+    def fl(self, f, *args, **kwargs):
+        clip = self.clip
+        st = self.start
+        ed = self.end
+        dur = self.duration
+        fps = self.fps
+        td = 1/fps
+        t = 0.0
+        self._array2image()
+        clip = []
+        while t <= dur:
+            frame = self.make_frame_pil(t)
+            clip.append(f(_do_not_pass=(frame, t, st, ed), *args, **kwargs))
+            t += td
+        self.clip = np.array(clip)
+
     def fx(self, func: Callable, *args, **kwargs):
         clip = []
         for frame in self.iterate_all_frames_array():
@@ -279,6 +316,7 @@ class VideoFileClip(VideoClip):
         }
         return ffmpegio.video.read(file_name, **options)[1]
 
+
 class ImageClip(VideoClip):
     def __init__(self, image: str | Path | None = None, fps: NumOrNone = None, duration: NumOrNone = None):
         super().__init__()
@@ -294,6 +332,10 @@ class ImageClip(VideoClip):
 
     def _import_image(self, image):
         return Image.open(image)
+
+    def fl(self, f, *args, **kwargs):
+        self._array2image()
+        self.image = f(_do_not_pass=(self.image, self.duration, self.start, self.end), *args, *kwargs)
 
     def fx(self, func: Callable, *args, **kwargs):
         self._array2image()
@@ -331,6 +373,22 @@ class ImageClip(VideoClip):
         self._array2image()
         return self.image
 
+    def to_video_clip(self, fps=None, duration=None, start=None, end=None):
+        if fps is None:
+            fps = self.fps
+        if duration is None:
+            duration = self.duration
+        if start is None:
+            start = self.start
+        if end is None:
+            end = self.end
+
+        if fps is None or duration is None or start is None or end is None:
+            raise ValueError("FPS, duration, start, and end must be set before converting to a video clip.")
+
+        frames = list(self.iterate_frames_array_t(fps))
+        return ImageSequenceClip(frames, fps=fps).set_start(start).set_end(end)
+
 class Data2ImageClip(ImageClip):
     def __init__(self, data: np.ndarray | Image.Image, fps: NumOrNone = None, duration: NumOrNone = None):
         super().__init__(fps=fps, duration=duration)
@@ -344,6 +402,7 @@ class Data2ImageClip(ImageClip):
             return image
         else:
             raise TypeError(f"{type(image)} is not an Image.Image or numpy array Type.")
+
 
 class ImageSequenceClip(VideoClip):
     def __init__(self, images: str | Path | list[str | Path | Image.Image | np.ndarray] | np.ndarray, fps: NumOrNone = None):
@@ -423,10 +482,12 @@ class ImageSequenceClip(VideoClip):
             yield self.make_frame_pil(st_0)
             st_0 += frame_t_dif
 
+
 class ColorClip(Data2ImageClip):
     def __init__(self, color: str | tuple[int, ...], mode='RGBA', size=(1, 1), fps=None, duration=None):
         data = Image.new(mode, size, color) # type: ignore
         super().__init__(data, fps=fps, duration=duration)
+
 
 class TextClip(Data2ImageClip):
     def __init__(self, text: str, font_pth: None | str = None, font_size: int = 20, txt_color: str | tuple[int, ...]=(255, 255, 255), 
@@ -445,6 +506,7 @@ class TextClip(Data2ImageClip):
         draw.text((0, 0), text, font=font, align='center', fill=txt_color) # type: ignore
 
         super().__init__(image, fps=fps, duration=duration)
+
 
 class CompositeVideoClip(VideoClip):
     def __init__(self, clips: list[VideoClip], size=None, bg_color=None, use_bgclip=False, fps=None, audio=None):
@@ -562,6 +624,7 @@ class CompositeVideoClip(VideoClip):
             else:
                 raise ValueError(f'{clip.start=}, {clip.end=} are invalid.')
         return bg_image
+
 
 if __name__ == '__main__':
     SystemExit()
