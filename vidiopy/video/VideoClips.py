@@ -723,7 +723,6 @@ class CompositeVideoClip(VideoClip):
         self.start = 0.0
         self.end = self.duration
 
-
     def _process_bgclip_audio(self):
         if self.bg_clip.duration or self.bg_clip.end:
             bg_audio = self._get_bg_audio_segment()
@@ -775,6 +774,22 @@ class CompositeVideoClip(VideoClip):
             audio_c = AudioSegment.silent(int(ac_ed * 1000))
 
         return audio_c
+
+    def to_video_clip(self, fps=None, duration=None, start=None, end=None):
+        if fps is None:
+            fps = self.fps
+        if duration is None:
+            duration = self.duration
+        if start is None:
+            start = self.start
+        if end is None:
+            end = self.end
+
+        if fps is None or duration is None or start is None or end is None:
+            raise ValueError("FPS, duration, start, and end must be set before converting to a video clip.")
+
+        frames = list(self.make_frame_composite(fps))
+        return ImageSequenceClip(frames, fps=fps).set_start(start).set_end(end)
 
     def overlay_audio(self, bg_audio, audio_c, start_time):
         return bg_audio.overlay(audio_c, int(start_time * 1000))
