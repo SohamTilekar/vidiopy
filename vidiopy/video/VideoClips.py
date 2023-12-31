@@ -1,4 +1,5 @@
 from fractions import Fraction
+from lib2to3.fixes.fix_metaclass import fixup_simple_stmt
 import os
 from copy import copy as copy_
 from pathlib import Path
@@ -301,12 +302,10 @@ class VideoFileClip(VideoClip):
             clip.append(f(_do_not_pass=(frame, t, st, ed), *args, **kwargs))
             t += td
         self.clip = np.array(clip)
+        return self
 
     def fx(self, func: Callable, *args, **kwargs):
-        clip = []
-        for frame in self.iterate_all_frames_array():
-            clip.append(func(frame, *args, **kwargs))
-        self.clip = np.array(clip)
+        func(*args, **kwargs)
         return self
 
     def make_frame_any_sub_cls(self, t):
@@ -351,7 +350,7 @@ class ImageClip(VideoClip):
 
     def fx(self, func: Callable, *args, **kwargs):
         self._array2image()
-        self.image = func(self.image, *args, **kwargs)
+        func(*args, **kwargs)
         return self
 
     def _array2image(self):
@@ -401,6 +400,7 @@ class ImageClip(VideoClip):
         frames = list(self.iterate_frames_array_t(fps))
         return ImageSequenceClip(frames, fps=fps).set_start(start).set_end(end)
 
+
 class Data2ImageClip(ImageClip):
     def __init__(self, data: np.ndarray | Image.Image, fps: NumOrNone = None, duration: NumOrNone = None):
         super().__init__(fps=fps, duration=duration)
@@ -448,6 +448,25 @@ class ImageSequenceClip(VideoClip):
         self.fps = fps
         self.duration = len(self.images)*fps
         return self
+
+    @requires_fps
+    @requires_duration
+    def fl(self, f, *args, **kwargs):
+        td = 1 / self.fps # type: ignore
+        t = 0.0
+        st = self.start
+        ed = self.end
+        frames = []
+        while t <= self.duration:
+            frames.append(f((self.make_frame_pil_sub_cls(t), t, st, ed), *args, **kwargs))
+            t += td
+        self.images = tuple(frames)
+        return self
+
+    @requires_fps
+    @requires_duration
+    def fx(self, func: Callable, *args, **kwargs):
+        func(*args, **kwargs)
 
     def _array2image(self):
         if isinstance(self.images[0], np.ndarray):
@@ -524,7 +543,10 @@ class TextClip(Data2ImageClip):
 class CompositeVideoClip(VideoClip):
     def __init__(self, clips: list[VideoClip], size=None, bg_color=None, use_bgclip=False, fps=None, audio=None):
         super().__init__()
-        if not use_bgclip:
+        if use_bgclip:
+            self.bg_clip = clips[0]
+            self.clips = clips[1:]
+        else:
             max_width = 0
             max_height = 0
 
@@ -543,9 +565,6 @@ class CompositeVideoClip(VideoClip):
                                         self.size if self.size else 
                                         (_ for _ in ()).throw(Exception('Bg_clip has no attr size.')), 
                                         (0, 0, 0, 0))
-        else:
-            self.bg_clip = clips[0]
-            self.clips = clips[1:]
         
         if fps:
             self.set_fps(fps)
@@ -555,29 +574,138 @@ class CompositeVideoClip(VideoClip):
         
         duration = 0
 
-        for obj in clips:
-            if hasattr(obj, 'duration') and obj.duration is not None:
-                if obj.duration > duration:
-                    duration = obj.duration
+        if use_bgclip:
+            duration = self.bg_clip.duration if self.bg_clip.duration is not None else (_ for _ in ()).throw(ValueError('Bg_clip duration is not Set.'))
+        else:
+            for obj in clips:
+                if hasattr(obj, 'duration') and obj.duration is not None:
+                    if obj.duration > duration:
+                        duration = obj.duration
+
 
         if audio:
-            h_fps = 0
-            for clip in clips:
-                if isinstance(clip.audio, AudioClip):
-                    if isinstance(clip.audio.clip, AudioSegment):
-                        if h_fps < clip.audio.clip.frame_rate:
-                            h_fps = clip.audio.clip.frame_rate
+            if use_bgclip:
+                if self.bg_clip.duration or self.bg_clip.end:
+                    if isinstance(self.bg_clip.audio, AudioClip):
+                        if isinstance(self.bg_clip.audio.clip, AudioSegment):
+                            a_fps = self.bg_clip.audio.clip.frame_rate
+                            bg_audio = self.bg_clip.audio.clip
+                            ast = self.bg_clip.start
+                            aed = self.bg_clip.end
+                            if aed is None: bg_audio = bg_audio[ast*1000:]
+                            else: bg_audio = bg_audio[ast*1000:aed*1000]
+                            for clip in self.clips:
+                                if clip.duration or clip.end:
+                                    ac_st = clip.start
+                                    ac_ed = clip.duration
+                                    if isinstance(clip.audio, AudioClip):
+                                        if isinstance(clip.audio.clip, AudioSegment):
+                                            audio_c = clip.audio.clip
+                                            if ac_ed is not None: audio_c = audio_c[ac_st*1000: ac_ed*1000]
+                                            else: audio_c = audio_c[ac_st*1000]
+                                            bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
 
+                                        else:
+                                            if ac_ed is not None:
+                                                audio_c = AudioSegment.silent(int(ac_ed*1000))
+                                                bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                                    else:
+                                        if ac_ed is not None:
+                                            audio_c = AudioSegment.silent(int(ac_ed*1000))
+                                            bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                                else:
+                                    raise ValueError('Clip Duration is Not Set')
+                        else:
+                            a_fps = 44100
+                            bg_audio = AudioSegment.silent(int((self.bg_clip.duration or self.bg_clip.end)*1000), a_fps) # type: ignore
+                            ast = self.bg_clip.start
+                            aed = self.bg_clip.end
+                            if aed is None: bg_audio = bg_audio[ast*1000:]
+                            else: bg_audio = bg_audio[ast*1000:aed*1000]
+                            for clip in self.clips:
+                                if clip.duration or clip.end:
+                                    ac_st = clip.start
+                                    ac_ed = clip.duration
+                                    if isinstance(clip.audio, AudioClip):
+                                        if isinstance(clip.audio.clip, AudioSegment):
+                                            audio_c = clip.audio.clip
+                                            if ac_ed is not None: audio_c = audio_c[ac_st*1000: ac_ed*1000]
+                                            else: audio_c = audio_c[ac_st*1000]
+                                            bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
 
-            final_audio_list = []
-            for clip in clips:
-                if isinstance(clip.audio, AudioClip):
-                    final_audio_list.append(clip.audio.clip)
+                                        else:
+                                            if ac_ed is not None:
+                                                audio_c = AudioSegment.silent(int(ac_ed*1000))
+                                                bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                                    else:
+                                        if ac_ed is not None:
+                                            audio_c = AudioSegment.silent(int(ac_ed*1000))
+                                            bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                                else:
+                                    raise ValueError('Clip Duration is Not Set')
+                    else:
+                        a_fps = 44100
+                        bg_audio = AudioSegment.silent(int((self.bg_clip.duration or self.bg_clip.end)*1000), a_fps) # type: ignore
+                        ast = self.bg_clip.start
+                        aed = self.bg_clip.end
+                        if aed is None: bg_audio = bg_audio[ast*1000:]
+                        else: bg_audio = bg_audio[ast*1000:aed*1000]
+                        for clip in self.clips:
+                            if clip.duration or clip.end:
+                                ac_st = clip.start
+                                ac_ed = clip.duration
+                                if isinstance(clip.audio, AudioClip):
+                                    if isinstance(clip.audio.clip, AudioSegment):
+                                        audio_c = clip.audio.clip
+                                        if ac_ed is not None: audio_c = audio_c[ac_st*1000: ac_ed*1000]
+                                        else: audio_c = audio_c[ac_st*1000]
+                                        bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                                    else:
+                                        if ac_ed is not None:
+                                            audio_c = AudioSegment.silent(int(ac_ed*1000))
+                                            bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                                else:
+                                    if ac_ed is not None:
+                                        audio_c = AudioSegment.silent(int(ac_ed*1000))
+                                        bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                            else:
+                                raise ValueError('Clip Duration is Not Set')
                 else:
-                    final_audio_list.append(AudioSegment.silent(int(clip.duration*1000) if clip.duration else 0, h_fps if h_fps else 44100))
-            self.audio = audio_segment2composite_audio_clip(final_audio_list)
+                    raise ValueError("Bg Clip 'Duration' and 'End' is Not Set")
+            else:
+                a_fps = 44100
+                bg_audio = AudioSegment.empty() # type: ignore
+                ast = self.bg_clip.start
+                aed = self.bg_clip.end
+                if aed is None: bg_audio = bg_audio[ast*1000:]
+                else: bg_audio = bg_audio[ast*1000:aed*1000]
+                for clip in self.clips:
+                    if clip.duration or clip.end:
+                        ac_st = clip.start
+                        ac_ed = clip.duration
+                        if isinstance(clip.audio, AudioClip):
+                            if isinstance(clip.audio.clip, AudioSegment):
+                                audio_c = clip.audio.clip
+                                if ac_ed is not None: audio_c = audio_c[ac_st*1000: ac_ed*1000]
+                                else: audio_c = audio_c[ac_st*1000]
+                                bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                            else:
+                                if ac_ed is not None:
+                                    audio_c = AudioSegment.silent(int(ac_ed*1000))
+                                    bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                        else:
+                            if ac_ed is not None:
+                                audio_c = AudioSegment.silent(int(ac_ed*1000))
+                                bg_audio.overlay(audio_c, int(ac_st*1000))  # type: ignore
+                    else:
+                        raise ValueError('Clip Duration is Not Set')
+                bg_audio.set_frame_rate(a_fps) # type: ignore
+        else:
+            audio_clip = None
 
-
+        audio_clip = AudioClip()
+        audio_clip.clip = bg_audio # type: ignore
+        self.audio = audio_clip
         self.set_make_frame_any(self.make_frame_composite_any)
         self.set_make_frame(self.make_frame_composite)
         self.set_make_frame_pil(self.make_frame_composite_pil)
