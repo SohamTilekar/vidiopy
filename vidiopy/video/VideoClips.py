@@ -4,7 +4,7 @@ from copy import copy as copy_
 from pathlib import Path
 from re import T
 import tempfile
-from typing import (Callable, TypeAlias)
+from typing import (Callable, TypeAlias, Self)
 from PIL import Image
 import ffmpegio
 import numpy as np
@@ -56,20 +56,23 @@ class VideoClip(Clip):
     
     def set_start(self, t, change_end=True):
         self.start = t
+        if self.start is None: return self
         if (self.duration is not None) and change_end:
             self.end = t + self.duration
         elif self.end is not None:
-            self.duration = self.end - self.start\
-    
-    def set_end(self, t, change_start=True):
+            self.duration = self.end - self.start
+        return self
+
+    def set_end(self, t, change_start=True) -> Self:
         self.end = t
-        if self.end is None: return
+        if self.end is None: return self
         if self.start is None:
             if self.duration is not None:
                 self.start = max(0, t - self.duration)
         else:
             self.duration = self.end - self.start
-    
+        return self
+
     def set_duration(self, t, change_end=True):
         self.duration = t
 
@@ -80,31 +83,39 @@ class VideoClip(Clip):
                 raise Exception("Cannot change clip start when new"
                                 "duration is None")
             self.start = self.end - t
-    
+        return self
+
     def set_position(self, pos, relative=False):
         self.relative_pos = relative
         if hasattr(pos, '__call__'):
             self.pos = pos
         else:
             self.pos = lambda t: pos
+        return self
 
     def set_audio(self, audio: AudioClip):
         self.audio = audio
+        return self
 
     def without_audio(self):
         self.audio = None
+        return self
 
     def set_make_frame(self, func):
         self.make_frame = func
+        return self
 
     def set_make_frame_pil(self, func):
         self.make_frame_pil = func
+        return self
 
     def set_make_frame_any(self, func):
         self.make_frame_any = func
+        return self
 
     def set_fps(self, fps):
         self.fps = fps
+        return self
 
     def __copy__(self):
         cls = self.__class__
@@ -205,7 +216,6 @@ class VideoClip(Clip):
                             fps if fps else self.fps if self.fps else None,
                             video_np, show_log=True, overwrite=over_write_output, **ffmpeg_options)
 
-
     def write_imagesequence(self, nformat, fps=None, dir='.', logger='bar'):
         frame_number = 0
         def save_frame(frame, frame_number):
@@ -297,6 +307,7 @@ class VideoFileClip(VideoClip):
         for frame in self.iterate_all_frames_array():
             clip.append(func(frame, *args, **kwargs))
         self.clip = np.array(clip)
+        return self
 
     def make_frame_any_sub_cls(self, t):
         frame_num = t*self.fps
@@ -336,6 +347,7 @@ class ImageClip(VideoClip):
     def fl(self, f, *args, **kwargs):
         self._array2image()
         self.image = f(_do_not_pass=(self.image, self.duration, self.start, self.end), *args, *kwargs)
+        return self
 
     def fx(self, func: Callable, *args, **kwargs):
         self._array2image()
@@ -435,6 +447,7 @@ class ImageSequenceClip(VideoClip):
     def set_fps(self, fps: Num):
         self.fps = fps
         self.duration = len(self.images)*fps
+        return self
 
     def _array2image(self):
         if isinstance(self.images[0], np.ndarray):
@@ -549,7 +562,7 @@ class CompositeVideoClip(VideoClip):
 
         if audio:
             h_fps = 0
-            for clip in self.clip:
+            for clip in clips:
                 if isinstance(clip.audio, AudioClip):
                     if isinstance(clip.audio.clip, AudioSegment):
                         if h_fps < clip.audio.clip.frame_rate:
@@ -557,7 +570,7 @@ class CompositeVideoClip(VideoClip):
 
 
             final_audio_list = []
-            for clip in self.clips:
+            for clip in clips:
                 if isinstance(clip.audio, AudioClip):
                     final_audio_list.append(clip.audio.clip)
                 else:
