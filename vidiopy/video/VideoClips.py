@@ -4,6 +4,7 @@ import os
 from copy import copy as copy_
 from pathlib import Path
 from re import T
+import subprocess
 import tempfile
 from typing import (Callable, TypeAlias, Self)
 from PIL import Image
@@ -206,16 +207,46 @@ class VideoClip(Clip):
             **({'threads': threads} if threads else {}),
         }
 
-        with tempfile.NamedTemporaryFile(
-            suffix=".wav", prefix=audio_name + "_temp_audio_",
-            delete=True) as temp_audio_file:
-            if self.audio and audio:
-                self.audio.write_audio_file(temp_audio_file)
-                audio_file_name = temp_audio_file.name
+        audio_file_name = None
+        temp_video_file_name = None
+        try:
+            
+            fps_to_use = fps if fps else self.fps if self.fps else None
+            dir__, file__ = os.path.split(filename)
+            temp_video_file = tempfile.NamedTemporaryFile(dir=dir__, suffix="video__temp__" + os.path.splitext(file__)[1], delete=False)
+            del dir__ ; del file__
+            temp_video_file_name = temp_video_file.name
+            temp_video_file.close()
+            ffmpegio.video.write(
+                temp_video_file_name,
+                fps_to_use,
+                video_np,
+                show_log=True,
+                overwrite=over_write_output,
+                **ffmpeg_options
+            )
 
-        ffmpegio.video.write(filename, 
-                            fps if fps else self.fps if self.fps else None,
-                            video_np, show_log=True, overwrite=over_write_output, **ffmpeg_options)
+            temp_audio_file = tempfile.NamedTemporaryFile(
+                suffix=".wav", prefix=audio_name + "_temp_audio_", delete=False
+            )
+
+            if self.audio and audio:
+                audio_file_name = temp_audio_file.name
+                temp_audio_file.close()
+                self.audio.write_audio_file(audio_file_name)
+                result = subprocess.run(f'ffmpeg -i {temp_video_file_name} -i {audio_file_name} -acodec copy {filename}'
+                                , capture_output=True, text=True)
+                print("Command output:", result.stdout)
+        except Exception as e:
+            raise e
+        finally:
+            if temp_video_file_name is not None:
+                os.remove(temp_video_file_name)
+            if audio_file_name is not None:
+                os.remove(audio_file_name)
+            if not self.audio and not audio and temp_video_file_name:
+                os.rename(temp_video_file_name, filename)
+
 
     def write_imagesequence(self, nformat, fps=None, dir='.', logger='bar'):
         frame_number = 0
