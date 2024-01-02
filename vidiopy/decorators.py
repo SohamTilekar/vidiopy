@@ -9,6 +9,15 @@ def requires_duration(f, clip, *a, **k):
     else:
         return f(clip, *a, **k)
 
+# Make Decorator requires_size 
+@decorator.decorator
+def requires_size(f, clip, *a, **k):
+    """Raise an error if the clip has no size."""
+    if clip.size is None:
+        raise ValueError("Attribute 'size' not set")
+    else:
+        return f(clip, *a, **k)
+
 @decorator.decorator 
 def requires_fps(f, clip, *a, **k): 
     """ Raise an error if the clip has no duration""" 
