@@ -268,7 +268,6 @@ class VideoClip(Clip):
                 temp_video_file_name,
                 fps_to_use,
                 video_np,
-                show_log=True,
                 overwrite=over_write_output,
                 **ffmpeg_options
             )
