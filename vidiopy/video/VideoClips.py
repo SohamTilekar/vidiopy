@@ -234,7 +234,7 @@ class VideoClip(Clip):
                 audio_file_name = temp_audio_file.name
                 temp_audio_file.close()
                 self.audio.write_audio_file(audio_file_name)
-                result = subprocess.run(f'ffmpeg -i {temp_video_file_name} -i {audio_file_name} -acodec copy {filename}'
+                result = subprocess.run(f'ffmpeg -i {temp_video_file_name} -i {audio_file_name} -acodec copy {'-y' if over_write_output else ''} {filename}'
                                 , capture_output=True, text=True)
                 print("Command output:", result.stdout)
         except Exception as e:
