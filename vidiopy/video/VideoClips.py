@@ -273,12 +273,10 @@ class VideoClip(Clip):
                 **ffmpeg_options
             )
 
-            # Create a temporary audio file if audio is enabled
-            temp_audio_file = tempfile.NamedTemporaryFile(
-                suffix=".wav", prefix=audio_name + "_temp_audio_", delete=False
-            )
-
             if self.audio and audio:
+                temp_audio_file = tempfile.NamedTemporaryFile(
+                    suffix=".wav", prefix=audio_name + "_temp_audio_", delete=False
+                )
                 audio_file_name = temp_audio_file.name
                 temp_audio_file.close()
 
@@ -298,15 +296,22 @@ class VideoClip(Clip):
 
         finally:
             # Clean up temporary files
-            if temp_video_file_name:
-                os.remove(temp_video_file_name)
-
+            print('\n'*10)
+            print(f'''{audio_file_name=}, {bool(audio_file_name)=}, 
+                  {temp_video_file_name=}, {bool(temp_video_file_name)=}, 
+                  {filename=}, {bool(filename)=}''')
+            
             if audio_file_name:
                 os.remove(audio_file_name)
 
             # Rename temporary video file to the final filename if no audio is present
-            if not self.audio and not audio and temp_video_file_name:
-                os.rename(temp_video_file_name, filename)
+            if (not self.audio or not audio) and temp_video_file_name:
+                print('Running renaming')
+                os.replace(temp_video_file_name, filename)
+                temp_video_file_name = None
+
+            if temp_video_file_name:
+                os.remove(temp_video_file_name)
 
     def write_image_sequence(self, nformat, fps=None, dir='.', logger='bar'):
         # Initialize the frame number
