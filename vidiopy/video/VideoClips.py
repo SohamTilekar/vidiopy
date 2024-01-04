@@ -288,24 +288,17 @@ class VideoClip(Clip):
                     f'{"-y" if over_write_output else ""} {filename}',
                     capture_output=True, text=True
                 )
-                print("Command output:", result.stdout)
 
         except Exception as e:
             raise e
 
         finally:
-            # Clean up temporary files
-            print('\n'*10)
-            print(f'''{audio_file_name=}, {bool(audio_file_name)=}, 
-                  {temp_video_file_name=}, {bool(temp_video_file_name)=}, 
-                  {filename=}, {bool(filename)=}''')
-            
+            # Clean up temporary files            
             if audio_file_name:
                 os.remove(audio_file_name)
 
             # Rename temporary video file to the final filename if no audio is present
             if (not self.audio or not audio) and temp_video_file_name:
-                print('Running renaming')
                 os.replace(temp_video_file_name, filename)
                 temp_video_file_name = None
 
@@ -562,6 +555,7 @@ class Data2ImageClip(ImageClip):
 
 
 class ImageSequenceClip(VideoClip):
+
     def __init__(self, images: str | Path | list[str | Path | Image.Image | np.ndarray] | np.ndarray, fps: NumOrNone = None):
         # Call the parent class constructor
         super().__init__()
@@ -683,6 +677,7 @@ class ImageSequenceClip(VideoClip):
 
     @requires_duration
     def iterate_frames_array_t(self, fps: Num):
+        self._image2array()
         frame_t_dif = (1 / fps)
         st_0 = 0.0
         while st_0 < self.duration:
@@ -691,6 +686,7 @@ class ImageSequenceClip(VideoClip):
 
     @requires_duration
     def iterate_frames_pil_t(self, fps: Num):
+        self._image2array()
         frame_t_dif = (1 / fps)
         st_0 = 0.0
         while st_0 < self.duration:
@@ -707,11 +703,10 @@ class ColorClip(Data2ImageClip):
 class TextClip(Data2ImageClip):
     def __init__(self, text: str, font_pth: None | str = None, font_size: int = 20, txt_color: str | tuple[int, ...]=(255, 255, 255), 
                  bg_color: str | tuple[int,...] = (0, 0, 0, 0), fps=None, duration=None):
-        font = ImageFont.truetype(font_pth, font_size) if font_pth else ImageFont.load_default()
+        font = ImageFont.truetype(font_pth, font_size) if font_pth else ImageFont.load_default(font_size)
 
         bbox = font.getbbox(text)
         image_width, image_height = bbox[2] - bbox[0] + 20, bbox[3] - bbox[1] + 20
-
         image = Image.new("RGBA", (image_width, image_height), bg_color)
         draw = ImageDraw.Draw(image)
         draw.text((10, 10), text, font=font, align='center', fill=txt_color)
