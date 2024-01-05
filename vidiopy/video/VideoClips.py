@@ -82,6 +82,10 @@ class VideoClip(Clip):
         elif self.end is not None:
             self.duration = self.end - self.start
 
+        if self.audio:
+            self.audio.start = self.start
+            self.audio.end = self.end
+            self.audio.duration = self.duration
         return self
 
     def set_end(self, t, change_start=False) -> Self:
@@ -95,7 +99,11 @@ class VideoClip(Clip):
                 self.start = max(0, t - self.duration)
         else:
             self.duration = max(0, self.end - self.start)
-
+        
+        if self.audio:
+            self.audio.start = self.start
+            self.audio.end = self.end
+            self.audio.duration = self.duration
         return self
 
     def set_duration(self, t, change_end=True):
@@ -107,6 +115,11 @@ class VideoClip(Clip):
             if self.duration is None:
                 raise ValueError("Cannot change clip start when new duration is None")
             self.start = self.end - self.duration
+
+        if self.audio:
+            self.audio.start = self.start
+            self.audio.end = self.end
+            self.audio.duration = self.duration
 
         return self
 
@@ -219,6 +232,15 @@ class VideoClip(Clip):
         
         raise NotImplementedError("fx method must be overridden in the subclass.")
 
+    def _sync_audio_video_s_e_d(self):
+        st = self.start
+        ed = self.end
+        dur = self.duration
+        if self.audio:
+            self.audio.start = st
+            self.audio.end = ed
+            self.audio.duration = dur
+
     def write_videofile(self, filename, fps=None, codec=None,   
                         bitrate=None, audio=True, audio_fps=44100,
                         preset="medium", pixel_format=None,
@@ -287,6 +309,7 @@ class VideoClip(Clip):
                 )
             print('Vidiopy - Video is Created')
             if self.audio and audio:
+                self._sync_audio_video_s_e_d()
                 temp_audio_file = tempfile.NamedTemporaryFile(
                     suffix=".wav", prefix=audio_name + "_temp_audio_", delete=False
                 )
@@ -370,7 +393,8 @@ class VideoFileClip(VideoClip):
         self.fps: float = float(video_data['frame_rate'])
         self.size = (video_data['width'], video_data['height'])
         self.start = 0.0
-        self.end = self.duration = video_data['duration']
+        self.set_end(video_data['duration'])
+        self.set_duration(video_data['duration'])
 
         # Set frame generation functions
         self.set_make_frame_any(self.make_frame_any_sub_cls)
@@ -470,9 +494,10 @@ class ImageClip(VideoClip):
 
         # Set properties
         self.fps = fps
-        self.duration = duration
         self.start = 0.0
         self.end = self.duration
+        self.set_end(duration)
+        self.set_duration(duration)
         self.size = self.image.size if self.image is not None else None
 
     def _import_image(self, image):
@@ -588,10 +613,9 @@ class ImageSequenceClip(VideoClip):
 
         # Set properties
         self.fps = fps
-        self.duration = len(self.images)*(fps if fps is not None and fps else 0) # Brackets are important other wise: - Duration = fps
         self.start = 0.0
-        self.end = self.duration
-
+        self.set_duration(len(self.images)*(fps if fps is not None and fps else 0))
+        self.set_end(self.duration)
         # Set size attribute based on the size of the first image
         self.size = self.images[0].size
 

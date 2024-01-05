@@ -14,6 +14,9 @@ class AudioClip(Clip):
         self.bitrate = None
         self.channels = None
         self.sample_rate = None
+        self.start = 0.0
+        self.end: NumOrNone = None
+        self.duration: NumOrNone = None
 
     def get_duration(self):
         return self.clip.duration_seconds if isinstance(self.clip, AudioSegment) else None
