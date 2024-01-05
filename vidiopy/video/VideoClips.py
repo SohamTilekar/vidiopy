@@ -1,4 +1,5 @@
-from abc import abstractmethod
+import tqdm
+import yaspin
 from fractions import Fraction
 import os
 from copy import copy as copy_
@@ -227,11 +228,17 @@ class VideoClip(Clip):
                         logger='bar', over_write_output=True):
         
         # Generate video frames using iterate_frames_array_t method
+        total_frames = int((self.end - self.start) / (1 / (fps if fps else self.fps if self.fps else
+                                            (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))))) if self.end is not None else 0
         video_np = np.asarray(tuple(
-            self.iterate_frames_array_t(fps if fps else self.fps if self.fps else
-                                        (_ for _ in ()).throw(Exception('Make Frame is Not Set.')))
-        ))
-
+            tqdm.tqdm(self.iterate_frames_array_t(fps if fps else self.fps if self.fps else
+                                            (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))),
+            desc="Processing frames",
+            total=total_frames,
+            leave=True,
+            colour='CYAN'
+            )))
+        print('Vidiopy - Video Frames Has Been Processed.')
         # Extract audio name without extension
         audio_name, _ = os.path.splitext(filename)
 
@@ -264,14 +271,21 @@ class VideoClip(Clip):
             temp_video_file.close()
 
             # Write video frames to the temporary file using ffmpegio
-            ffmpegio.video.write(
-                temp_video_file_name,
-                fps_to_use,
-                video_np,
-                overwrite=over_write_output,
-                **ffmpeg_options
-            )
+            with tqdm.tqdm(total=total_frames, desc='Writing Video File', leave=False) as pbar:
+                current_frame = 0
+                def function_callback(status: dict, done:bool):
+                    nonlocal current_frame
+                    pbar.update(current_frame :=  status['frame'] - current_frame)
 
+                ffmpegio.video.write(
+                    temp_video_file_name,
+                    fps_to_use,
+                    video_np,
+                    overwrite=over_write_output,
+                    progress=function_callback,
+                    **ffmpeg_options
+                )
+            print('Vidiopy - Video is Created')
             if self.audio and audio:
                 temp_audio_file = tempfile.NamedTemporaryFile(
                     suffix=".wav", prefix=audio_name + "_temp_audio_", delete=False
@@ -283,27 +297,31 @@ class VideoClip(Clip):
                 self.audio.write_audio_file(audio_file_name)
 
                 # Combine video and audio using ffmpeg
-                result = subprocess.run(
-                    f'ffmpeg -i {temp_video_file_name} -i {audio_file_name} -acodec copy '
-                    f'{"-y" if over_write_output else ""} {filename}',
-                    capture_output=True, text=True
-                )
+                with yaspin.yaspin(text="Combining Video & Audio", color="cyan") as sp:
+                    result = subprocess.run(
+                        f'ffmpeg -i {temp_video_file_name} -i {audio_file_name} -acodec copy '
+                        f'{"-y" if over_write_output else ""} {filename}',
+                        capture_output=True, text=True
+                    )
+                    sp.ok('Vidiopy - ✔ Audio Video Combined')
 
         except Exception as e:
             raise e
 
         finally:
-            # Clean up temporary files            
-            if audio_file_name:
-                os.remove(audio_file_name)
+            # Clean up temporary files  
+            with yaspin.yaspin(text="Vidiopy - Removing All Temp Files", color="cyan") as sp:
+                if audio_file_name:
+                    os.remove(audio_file_name)
 
-            # Rename temporary video file to the final filename if no audio is present
-            if (not self.audio or not audio) and temp_video_file_name:
-                os.replace(temp_video_file_name, filename)
-                temp_video_file_name = None
+                # Rename temporary video file to the final filename if no audio is present
+                if (not self.audio or not audio) and temp_video_file_name:
+                    os.replace(temp_video_file_name, filename)
+                    temp_video_file_name = None
 
-            if temp_video_file_name:
-                os.remove(temp_video_file_name)
+                if temp_video_file_name:
+                    os.remove(temp_video_file_name)
+                sp.ok('Vidiopy - ✔ Done Removing Video File.')
 
     def write_image_sequence(self, nformat, fps=None, dir='.', logger='bar'):
         # Initialize the frame number
@@ -329,9 +347,10 @@ class VideoClip(Clip):
             frames_generator = self.iterate_all_frames_pil()
 
         # Iterate through frames and save them to the specified directory
-        for frame in frames_generator:
+        for frame in tqdm.tqdm(frames_generator, desc='Vidiopy - Writing Image Sequence', leave=False):
             save_frame(frame, frame_number)
             frame_number += 1
+        print('Vidiopy - Image Sequence Has Been Written.')
 
     def to_ImageClip(self, t):
         return Data2ImageClip(self.get_frame(t, is_pil=True))
