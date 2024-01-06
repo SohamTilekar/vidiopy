@@ -1,5 +1,5 @@
-import tqdm
-import yaspin
+from rich import print
+import rich.progress as progress
 from fractions import Fraction
 import os
 from copy import copy as copy_
@@ -200,7 +200,7 @@ class VideoClip(Clip):
 
     def iterate_frames_pil_t(self, fps: Num):
         time_dif = 1 / fps
-        x = 0
+        x = self.start
         if self.end is not None:
             while x <= self.end:
                 yield self.get_frame(x, is_pil=True)
@@ -253,14 +253,13 @@ class VideoClip(Clip):
         total_frames = int((self.end - self.start) / (1 / (fps if fps else self.fps if self.fps else
                                             (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))))) if self.end is not None else 0
         video_np = np.asarray(tuple(
-            tqdm.tqdm(self.iterate_frames_array_t(fps if fps else self.fps if self.fps else
-                                            (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))),
-            desc="Processing frames",
-            total=total_frames,
-            leave=True,
-            colour='CYAN'
-            )))
-        print('Vidiopy - Video Frames Has Been Processed.')
+            progress.track(self.iterate_frames_array_t(fps if fps else self.fps if self.fps else (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))),
+                           description='Processing Frames ...',
+                           total=total_frames,
+                           transient=True,
+                           style='bar.back')
+            ))
+        print('[bold magenta]Vidiopy[/bold magenta] - Video Frames Has Been Processed :thumbs_up:.')
         # Extract audio name without extension
         audio_name, _ = os.path.splitext(filename)
 
@@ -293,11 +292,13 @@ class VideoClip(Clip):
             temp_video_file.close()
 
             # Write video frames to the temporary file using ffmpegio
-            with tqdm.tqdm(total=total_frames, desc='Writing Video File', leave=False) as pbar:
+            with progress.Progress(transient=True) as progress_bar:
                 current_frame = 0
+                pbar = progress_bar.add_task(description='Writing Video File', total=total_frames, )
                 def function_callback(status: dict, done:bool):
                     nonlocal current_frame
-                    pbar.update(current_frame :=  status['frame'] - current_frame)
+                    current_frame =  status['frame'] - current_frame
+                    progress_bar.update(pbar, completed=current_frame, refresh = True)
 
                 ffmpegio.video.write(
                     temp_video_file_name,
@@ -307,7 +308,8 @@ class VideoClip(Clip):
                     progress=function_callback,
                     **ffmpeg_options
                 )
-            print('Vidiopy - Video is Created')
+                progress_bar.update(pbar, completed=True, visible=False)
+            print('[bold magenta]Vidiopy[/bold magenta] - Video is Created :thumbs_up:')
             if self.audio and audio:
                 self._sync_audio_video_s_e_d()
                 temp_audio_file = tempfile.NamedTemporaryFile(
@@ -320,33 +322,28 @@ class VideoClip(Clip):
                 self.audio.write_audio_file(audio_file_name)
 
                 # Combine video and audio using ffmpeg
-                with yaspin.yaspin(text="Combining Video & Audio", color="cyan") as sp:
+                with progress.Progress(transient=True) as progress_bar:
+                    sp = progress_bar.add_task("Combining Video & Audio", total=None)
                     result = subprocess.run(
                         f'ffmpeg -i {temp_video_file_name} -i {audio_file_name} -acodec copy '
                         f'{"-y" if over_write_output else ""} {filename}',
                         capture_output=True, text=True
                     )
-                    sp.text = ''
-                    sp.ok('Vidiopy - ✔ Audio Video Combined')
+                    progress_bar.update(sp, completed=True)
+                print("[bold magenta]Vidiopy[/bold magenta] - ✔ Audio Video Combined :thumbs_up:")
 
         except Exception as e:
             raise e
 
         finally:
-            # Clean up temporary files  
-            with yaspin.yaspin(text="Vidiopy - Removing All Temp Files", color="cyan") as sp:
-                if audio_file_name:
-                    os.remove(audio_file_name)
-
-                # Rename temporary video file to the final filename if no audio is present
-                if (not self.audio or not audio) and temp_video_file_name:
-                    os.replace(temp_video_file_name, filename)
-                    temp_video_file_name = None
-
-                if temp_video_file_name:
-                    os.remove(temp_video_file_name)
-                sp.text = ''
-                sp.ok('Vidiopy - ✔ Done Removing Video File.')
+            if audio_file_name:
+                os.remove(audio_file_name)
+            # Rename temporary video file to the final filename if no audio is present
+            if (not self.audio or not audio) and temp_video_file_name:
+                os.replace(temp_video_file_name, filename)
+                temp_video_file_name = None
+            if temp_video_file_name:
+                os.remove(temp_video_file_name)
 
     def write_image_sequence(self, nformat, fps=None, dir='.', logger='bar'):
         # Initialize the frame number
@@ -364,18 +361,21 @@ class VideoClip(Clip):
         # Determine the frames generator based on the provided fps or the object's properties
         if fps:
             frames_generator = self.iterate_frames_pil_t(fps)
+            total_frames = (1 / fps)*self.duration if self.duration else None
         elif self.fps and self.duration:
             frames_generator = self.iterate_frames_pil_t(self.fps)
+            total_frames = (1 / self.fps)*self.duration if self.duration else None
         else:
             # Print a warning if neither fps nor object's properties are set
-            print("Warning: FPS is not provided, and fps and duration are not set.")
+            print("[bold red]Warning[/bold red]: FPS is not provided, and fps and duration are not set.")
             frames_generator = self.iterate_all_frames_pil()
+            total_frames = None
 
         # Iterate through frames and save them to the specified directory
-        for frame in tqdm.tqdm(frames_generator, desc='Vidiopy - Writing Image Sequence', leave=False):
+        for frame in progress.track(frames_generator, total=total_frames, description='Vidiopy - Writing Image Sequence :smiley:', transient=True):
             save_frame(frame, frame_number)
             frame_number += 1
-        print('Vidiopy - Image Sequence Has Been Written.')
+        print('[bold magenta]Vidiopy[/bold magenta] - Image Sequence Has Been Written:thumbs_up:.')
 
     def to_ImageClip(self, t):
         return Data2ImageClip(self.get_frame(t, is_pil=True))

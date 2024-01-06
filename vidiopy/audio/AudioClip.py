@@ -1,5 +1,6 @@
-import yaspin
 import ffmpegio
+from rich import print
+import rich.progress as progress
 from pydub import AudioSegment
 from ..Clip import Clip
 
@@ -19,14 +20,16 @@ class AudioClip(Clip):
 
     def get_duration(self):
         return self.clip.duration_seconds if isinstance(self.clip, AudioSegment) else None
-
-    @yaspin.yaspin(text='Writing Audio...', color='cyan')
     def write_audio_file(self, output_file_name, bitrate=None, codec=None, ffmpeg_additional_options=None):
-        self.clip.export(output_file_name, 
-                         bitrate=(bitrate if bitrate else None), 
-                         codec=(codec if codec else None), 
-                         parameters=ffmpeg_additional_options,
-                         ) if self.clip is not None else (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))
+        with progress.Progress(transient=True) as progress_bar:
+            task = progress_bar.add_task('Writing Audio ... :smiley:', total=None)
+            self.clip.export(output_file_name, 
+                            bitrate=(bitrate if bitrate else None), 
+                            codec=(codec if codec else None), 
+                            parameters=ffmpeg_additional_options,
+                            ) if self.clip is not None else (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))
+            progress_bar.update(task, completed=True)
+        print('[bold magenta]Vidiopy[/bold magenta] - Audio File has Been Written:thumbs_up:.')
 
 class AudioFileClip(AudioClip):
     """Makes Audio CLip From any Media"""
