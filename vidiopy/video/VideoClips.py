@@ -14,7 +14,7 @@ import numpy as np
 from PIL import Image, ImageFont, ImageDraw
 from pydub import AudioSegment
 from ..Clip import Clip
-from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip, audio_segment2composite_audio_clip
+from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip
 from ..decorators import *
 
 Num: TypeAlias = int | float

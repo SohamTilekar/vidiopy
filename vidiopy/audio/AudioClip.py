@@ -11,10 +11,10 @@ class AudioClip(Clip):
     def __init__(self) -> None:
         super().__init__()
         self.clip: AudioSegment | None = None
-        self.bitrate = None
+        self.bitrate = 44100
         self.channels = None
         self.sample_rate = None
-        self.start = 0.0
+        self.start: Num = 0.0
         self.end: NumOrNone = None
         self.duration: NumOrNone = None
 
@@ -36,6 +36,9 @@ class AudioFileClip(AudioClip):
     def __init__(self, filename: str) -> None:
         super().__init__()
         audio_basic_data = ffmpegio.probe.audio_streams_basic(filename)[0]
+        self.start = int(audio_basic_data['start_time'])
+        self.duration = int(audio_basic_data['duration'])
+        self.end = self.duration
         self.bitrate = audio_basic_data['bit_rate']
         self.channels = audio_basic_data['channels']
         self.sample_rate = audio_basic_data['sample_rate']
@@ -49,30 +52,43 @@ class AudioFileClip(AudioClip):
                                                             *ffmpeg_additional_options])
 
 class CompositeAudioClip(AudioClip):
-    def __init__(self, audios: list[AudioClip]) -> None:
+    def __init__(self, audios: list[AudioClip], use_bgclip=False, bitrate=44100) -> None:
         super().__init__()
-        self.clip = self._concat_clips(audios)
-    
-    def _concat_clips(self, clips):
-        final_clip = AudioSegment.empty()
+        self.clip, bitrate = self._concat_clips(audios, use_bgclip, bitrate=bitrate)
+        self.bitrate = bitrate
+    def _max_bitrate(self, clips: list[AudioClip]):
+        bitrate = 0
+        if not bitrate:
+            for clip in clips:
+                bitrate = max(bitrate, clip.bitrate)
+        self.bitrate = bitrate
+
+    def _concat_clips(self, clips: list[AudioClip], use_bgclip, bitrate: int):
+        if use_bgclip:
+            self.bg_clip = clips[0]
+            self.bitrate = self.bg_clip.bitrate
+        else:
+            self._max_bitrate(clips)
+            dur = 0
+            for clip in clips:
+                if clip.duration:
+                    dur = max(dur, clip.duration)
+            clip = AudioClip()
+            clip.clip = AudioSegment.silent(int(dur*1000), frame_rate=self.bitrate)
+            self.bg_clip = clip
+        bg_clip = self.bg_clip
+        if bg_clip.clip:
+            bg_clip.clip
+        else:
+                raise
+        
         for clip in clips:
-            if isinstance(clip, AudioClip):
-                if clip.clip is not None:
-                    final_clip += clip.clip
-                else:
-                    print('Warning: The Clip is Not Set')
-            else:
-                raise TypeError()
-        return final_clip
-
-
-def audio_segment2composite_audio_clip(audios: list[AudioSegment]):
-    final_clip = AudioSegment.empty()
-    for audio in audios:
-        final_clip+=audio
-    audio = AudioClip()
-    audio.clip = final_clip
-    return audio
+            bg_clip.clip = bg_clip.clip.overlay(clip.clip, 
+                                 int(clip.start * (bg_clip.clip.frame_rate / bg_clip.clip.duration_seconds)))
+        clip = AudioClip()
+        clip.clip = bg_clip.clip
+        clip.clip = clip.clip.set_frame_rate(bitrate)
+        return clip.clip, bitrate
 
 if __name__ == '__main__':
     SystemExit()
