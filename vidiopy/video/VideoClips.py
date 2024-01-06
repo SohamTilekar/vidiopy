@@ -326,6 +326,7 @@ class VideoClip(Clip):
                         f'{"-y" if over_write_output else ""} {filename}',
                         capture_output=True, text=True
                     )
+                    sp.text = ''
                     sp.ok('Vidiopy - ✔ Audio Video Combined')
 
         except Exception as e:
@@ -344,6 +345,7 @@ class VideoClip(Clip):
 
                 if temp_video_file_name:
                     os.remove(temp_video_file_name)
+                sp.text = ''
                 sp.ok('Vidiopy - ✔ Done Removing Video File.')
 
     def write_image_sequence(self, nformat, fps=None, dir='.', logger='bar'):

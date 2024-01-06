@@ -1,5 +1,4 @@
-from typing import Any, Self
-import numpy as np
+import yaspin
 import ffmpegio
 from pydub import AudioSegment
 from ..Clip import Clip
@@ -21,6 +20,7 @@ class AudioClip(Clip):
     def get_duration(self):
         return self.clip.duration_seconds if isinstance(self.clip, AudioSegment) else None
 
+    @yaspin.yaspin(text='Writing Audio...', color='cyan')
     def write_audio_file(self, output_file_name, bitrate=None, codec=None, ffmpeg_additional_options=None):
         self.clip.export(output_file_name, 
                          bitrate=(bitrate if bitrate else None), 
