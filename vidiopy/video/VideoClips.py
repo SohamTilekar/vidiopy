@@ -635,9 +635,14 @@ class ImageSequenceClip(VideoClip):
                 # If it's not a directory, raise a ValueError
                 raise ValueError(f"{images} is not a directory.")
         # Check if the input is a collection of paths (list, tuple, set)
-        elif isinstance(images, (list, tuple, set)):
+        elif isinstance(images, (list, tuple)):
             # Return a tuple of Image objects created from the paths in the collection
-            return tuple(Image.open(str(image)) for image in images)
+            if isinstance(images[0], str):
+                return tuple(Image.open(str(image)) for image in images)
+            elif isinstance(images[0], Image.Image):
+                return tuple(images)
+            elif isinstance(images[0], np.ndarray):
+                return tuple(Image.fromarray(img) for img in images)
         # Check if the input is a NumPy array
         elif isinstance(images, np.ndarray):
             # Return a tuple of Image objects created from the NumPy array
@@ -694,29 +699,16 @@ class ImageSequenceClip(VideoClip):
 
         # Calculate the frame index based on time and FPS
         frame_index = int(t * self.fps)
-
-        # Check if the calculated frame index is within the valid range
-        if frame_index >= len(self.images):
-            raise ValueError(f"Frame index {frame_index} exceeds the number of images in the sequence.")
-
         # Return the generated frame
         return self.images[frame_index]
+
+
 
     def make_frame_pil_sub_cls(self, t):
         # Convert images to PIL format if they are not already in that format
         self._array2image()
-
-        # Check if FPS and duration are set
-        if self.fps is None or self.duration is None:
-            raise ValueError("FPS and duration must be set before generating frames.")
-
         # Calculate the frame index based on time and FPS
         frame_index = int(t * self.fps)
-
-        # Check if the calculated frame index is within the valid range
-        if frame_index >= len(self.images):
-            raise ValueError(f"Frame index {frame_index} exceeds the number of images in the sequence.")
-
         # Return the generated frame as a PIL Image
         return self.images[frame_index]
 
@@ -724,8 +716,8 @@ class ImageSequenceClip(VideoClip):
     def iterate_frames_array_t(self, fps: Num):
         self._image2array()
         frame_t_dif = (1 / fps)
-        st_0 = 0.0
-        while st_0 < self.duration:
+        st_0 = self.start
+        while st_0 < self.end:
             yield self.make_frame(st_0)
             st_0 += frame_t_dif
 
@@ -733,8 +725,8 @@ class ImageSequenceClip(VideoClip):
     def iterate_frames_pil_t(self, fps: Num):
         self._image2array()
         frame_t_dif = (1 / fps)
-        st_0 = 0.0
-        while st_0 < self.duration:
+        st_0 = self.start
+        while st_0 < self.end:
             yield self.make_frame_pil(st_0)
             st_0 += frame_t_dif
 
@@ -757,6 +749,130 @@ class TextClip(Data2ImageClip):
         draw.text((10, 10), text, font=font, align='center', fill=txt_color)
 
         super().__init__(image, fps=fps, duration=duration)
+
+
+class CompositeVideoClip(ImageSequenceClip):
+    
+    def __init__(self, clips: list[VideoClip], use_bgclip: bool = True, audio: bool = True, bitrate: int | None = None):
+        self.use_bgclip = use_bgclip
+        if use_bgclip:
+            self.bg_clip = clips[0]
+            self.clips = clips[1:]
+            self.size = self.bg_clip.size
+        else:
+            mw = 0
+            mh = 0
+            for clip in clips:
+                if clip.size is not None:
+                    if clip.size[0] > mw:
+                        mw = clip.size[0]
+                    if clip.size[1] > mh:
+                        mh = clip.size[1]
+            self.size = mw, mh # Tuple Do Not Need Brackets
+
+            self.bg_clip = Data2ImageClip(Image.new('RGB', (mw, mh), (0, 0, 0)))
+            self.clips = clips
+        if audio:
+            self.bitrate = bitrate
+            self.audio = self._composite_audio()
+        else:
+            self.audio = None
+        audio = self.audio
+        super().__init__(*self._composite_video_clip())
+        self.set_audio(audio)
+
+    def _composite_video_clip(self):
+        fps = 0
+        for clip in self.clips:
+            if clip.fps:
+                if clip.fps > fps:
+                    fps = clip.fps
+        if not fps:
+            raise
+
+        if self.use_bgclip:
+            duration = self.use_bgclip
+            td = 1 / fps
+            ed = self.bg_clip.end if self.bg_clip.end else (_ for _ in ()).throw(ValueError())
+            t = self.bg_clip.start
+            clip_frames = []
+            while t <= ed:
+                bg_frame:Image.Image = self.bg_clip.get_frame(t, is_pil = True)
+                for clip in self.clips:
+                    if clip.start <= t <= (clip.end if clip.end is not None else float('inf')):
+                        frm: Image.Image = clip.get_frame(t, is_pil=True)
+                        bg_frame.paste(frm, clip.pos(t),)
+                    clip_frames.append(np.asarray(bg_frame))
+                t += td
+            return clip_frames, fps
+
+        else:
+            duration = 0.0
+            ed = 0.0
+            for c in self.clips:
+                if c.duration:
+                    if c.duration > duration:
+                        duration = c.duration
+                if c.end:
+                    if c.end > ed:
+                        ed = c.end
+            if not duration:
+                raise
+            if not ed:
+                raise
+
+            td = 1 / fps
+            t = self.bg_clip.start
+            clip_frames = []
+            while t <= ed:
+                bg_frame:Image.Image = self.bg_clip.get_frame(t, is_pil = True)
+                for clip in self.clips:
+                    if clip.start <= t <= (clip.end if clip.end is not None else float('inf')):
+                        frm: Image.Image = clip.get_frame(t, is_pil=True)
+                        bg_frame.paste(frm, clip.pos(t),)
+                    clip_frames.append(np.asarray(bg_frame))
+            return clip_frames, fps
+
+
+    def _composite_audio(self):
+        """Concatenates the audio of all clips in the stack"""
+        bg_audio = self.bg_clip.audio
+        if not bg_audio:
+            if not self.bitrate:
+                bitrate = 0
+                for clip in self.clips:
+                    if clip.audio:
+                        if clip.audio.bitrate > bitrate:
+                            bitrate = clip.audio.bitrate
+                self.bitrate = bitrate
+            else:
+                self.bitrate = self.bitrate
+
+            bg_audio = AudioClip()
+            if self.bg_clip.duration:
+                bg_audio.clip = AudioSegment.silent(int(self.bg_clip.duration*1000), self.bitrate)
+        else:
+            if self.bg_clip.audio:
+                self.bitrate = self.bg_clip.audio.bitrate
+            else:
+                raise ValueError("bg_clip audio is not set")
+
+        audios = [bg_audio]
+        for clip in self.clips:
+            clip._sync_audio_video_s_e_d()
+            if clip.audio:
+                audios.append(clip.audio)
+            else:
+                if clip.duration:
+                    audio = AudioClip()
+                    audio.start = clip.start
+                    audio.end = clip.end
+                    audio.duration = clip.duration
+                    audio.clip = AudioSegment.silent(int(clip.duration*1000), self.bitrate)
+                    audios.append(audio)
+                else:
+                    raise ValueError("The duration of the clip is Not Set.")
+        return CompositeAudioClip(audios, self.use_bgclip, self.bitrate)
 
 
 if __name__ == '__main__':
