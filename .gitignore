@@ -1,5 +1,7 @@
 .py
 test.py
 test/
+venv/
+.idea/
 .vscode/
 **/__pycache__/

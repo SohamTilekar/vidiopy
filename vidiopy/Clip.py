@@ -15,8 +15,6 @@ class Clip():
             newclip.audio = copy(self.audio)
         return newclip
     
-    def set_make_frame(self, make_frame):
-        self.make_frame = make_frame
 
     def close(self):
         """ 

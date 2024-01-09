@@ -7,11 +7,11 @@ from pathlib import Path
 from re import T
 import subprocess
 import tempfile
-from typing import (Callable, TypeAlias, Self, override)
-from PIL import Image
+from typing import (Callable, TypeAlias, Generator, override, Any, Self)
+from abc import ABC, abstractmethod
+from PIL import Image, ImageFont, ImageDraw
 import ffmpegio
 import numpy as np
-from PIL import Image, ImageFont, ImageDraw
 from pydub import AudioSegment
 from ..Clip import Clip
 from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip
@@ -21,14 +21,14 @@ Num: TypeAlias = int | float
 NumOrNone: TypeAlias = Num | None
 
 
-class VideoClip(Clip):
+class VideoClip(ABC, Clip):
     def __init__(self) -> None:
         super().__init__()
 
         # Time-related properties
-        self.start: Num = 0.0
-        self.end: NumOrNone = None
-        self.duration: NumOrNone = None
+        self._st: Num = 0.0
+        self._ed: NumOrNone = None
+        self._dur = None
 
         # Video and audio properties
         self.audio: AudioClip | None = None
@@ -40,9 +40,9 @@ class VideoClip(Clip):
         self.relative_pos = False
 
         # Frame generation properties
-        self.make_frame: Callable[..., np.ndarray] = lambda t: (_ for _ in ()).throw(Exception('Make Frame is Not Set.'))
-        self.make_frame_pil = lambda t: (_ for _ in ()).throw(Exception('Make Frame pil is Not Set.'))
-        self.make_frame_any = lambda t: (_ for _ in ()).throw(Exception('Make Frame any is Not Set.'))
+        self.make_frame_array: Callable[..., np.ndarray] = abstractmethod(lambda t: (_ for _ in ()).throw(Exception('Make Frame is Not Set.')))
+        self.make_frame_pil: Callable[..., Image.Image] = abstractmethod(lambda t: (_ for _ in ()).throw(Exception('Make Frame pil is Not Set.')))
+        self.make_frame_any: Callable[..., Image.Image] | Callable[..., np.ndarray] = abstractmethod(lambda t: (_ for _ in ()).throw(Exception('Make Frame any is Not Set.')))
 
     @property
     @requires_size
@@ -71,13 +71,18 @@ class VideoClip(Clip):
         else:
             raise ValueError("Size is not set")
 
-    def set_start(self, t, change_end=True):
+    @property
+    def start(self):
+        return self._st
+
+    @start.setter
+    def start(self, t):
         self.start = t
 
         if self.start is None:
             return self
 
-        if self.duration is not None and change_end:
+        if self.duration is not None:
             self.end = t + self.duration
         elif self.end is not None:
             self.duration = self.end - self.start
@@ -88,39 +93,48 @@ class VideoClip(Clip):
             self.audio.duration = self.duration
         return self
 
-    def set_end(self, t, change_start=False) -> Self:
-        self.end = t
+    def set_start(self, t):
+        self.start = t
+        return self
 
-        if self.end is None:
-            return self
+    @property
+    def end(self):
+        return self._ed
 
-        if self.start and change_start:
-            if self.duration is not None:
-                self.start = max(0, t - self.duration)
-        else:
-            self.duration = max(0, self.end - self.start)
-        
+    @end.setter
+    def end(self, t):
+        self._ed = t
+        self.duration = self.start + self._ed
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
             self.audio.duration = self.duration
         return self
 
-    def set_duration(self, t, change_end=True):
-        self.duration = t
+    def set_end(self, t):
+        self.end = t
+        return self
 
-        if change_end and self.start is not None:
-            self.end = None if t is None else (self.start + t)
-        else:
-            if self.duration is None:
-                raise ValueError("Cannot change clip start when new duration is None")
-            self.start = self.end - self.duration
+    @property
+    def duration(self):
+        return self._dur
 
+    @duration.setter
+    def duration(self, dur: NumOrNone=None):
+        if self.end:
+            if dur != self.start + self.end and dur is not None:
+                self.end = self.start + dur
+        if not dur:
+            if self.end:
+                self._dur = self.end - self.start
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
             self.audio.duration = self.duration
+        return self
 
+    def set_duration(self, dur):
+        self.duration = dur
         return self
 
     def set_position(self, pos, relative=False):
@@ -137,25 +151,14 @@ class VideoClip(Clip):
         self.audio = audio
         return self
 
+    def set_fps(self, fps):
+        self.fps = fps
+        return self
+
     def without_audio(self):
         self.audio = None
         return self
 
-    def set_make_frame(self, func):
-        self.make_frame = func
-        return self
-
-    def set_make_frame_pil(self, func):
-        self.make_frame_pil = func
-        return self
-
-    def set_make_frame_any(self, func):
-        self.make_frame_any = func
-        return self
-
-    def set_fps(self, fps):
-        self.fps = fps
-        return self
 
     def __copy__(self):
         # Get the class of the current instance
@@ -181,65 +184,64 @@ class VideoClip(Clip):
 
     def get_frame(self, t, is_pil=None):
         if is_pil is None or is_pil is False:
-            return self.make_frame(t)
+            return self.make_frame_array(t)
         elif is_pil is True:
             return self.make_frame_pil(t)
         else:
             return self.make_frame_any(t)
 
-    def iterate_all_frames_array(self):
-        while True:
-            yield np.zeros((self.h, self.w, 3), dtype=np.uint8)
-            
-            raise NotImplementedError("iterate_all_frames_array method must be overridden in the subclass.")
-
-    def iterate_all_frames_pil(self):
-        while True:
-            yield np.zeros((self.h, self.w, 3), dtype=np.uint8)
-            raise NotImplementedError("iterate_all_frames_pil method must be overridden in the subclass.")
-
-    def iterate_frames_pil_t(self, fps: Num):
+    def iterate_frames_pil_t(self, fps: Num) -> Generator[Image.Image, Any, None]:
         time_dif = 1 / fps
-        x = self.start
+        t = self.start
         if self.end is not None:
-            while x <= self.end:
-                yield self.get_frame(x, is_pil=True)
-                x += time_dif
+            while t <= self.end:
+                yield self.make_frame_pil(t)
+                t += time_dif
         else:
             raise ValueError('end Is None')
 
     def iterate_frames_array_t(self, fps: Num):
         time_dif = 1 / fps
-        x = 0
+        t = 0
         if self.end is not None:
-            while x <= self.end:
-                yield self.get_frame(x, is_pil=False)
-                x += time_dif
+            while t <= self.end:
+                yield self.make_frame_array(t)
+                t += time_dif
         else:
             raise ValueError('end Is None')
 
-    def sub_fx(self):
-        raise NotImplementedError("sub_fx method must be overridden in the subclass.")
+    def iterate_frames_any_t(self, fps: Num):
+        time_dif = 1 / fps
+        t = 0
+        if self.end is not None:
+            while t <= self.end:
+                yield self.make_frame_array(t)
+                t += time_dif
+        else:
+            raise ValueError('end Is None')
 
-    def fl(self, func, *args, **kwargs):
+    def sub_fx(self) -> Self:
+        raise NotImplementedError("sub_fx method must be overridden in the subclass.")
+        return self
+
+    def fl(self, func, *args, **kwargs) -> Self:
         """\
         Call The Function Like Follows
-        >>> func(tuple(Frame, Frame_time, StartTime, EndTime), *args, **Kwargs)\
+        >>> func(*args, tuple(Frame, Frame_time, StartTime, EndTime), **Kwargs)\
         """
         raise NotImplementedError("fl method must be overridden in the subclass.")
+        return Self
 
     def fx(self, func, *args, **kwargs):
-        
-        raise NotImplementedError("fx method must be overridden in the subclass.")
+        self.fl(func, *args, **kwargs)
+        return self
 
     def _sync_audio_video_s_e_d(self):
-        st = self.start
-        ed = self.end
-        dur = self.duration
         if self.audio:
-            self.audio.start = st
-            self.audio.end = ed
-            self.audio.duration = dur
+            self.audio.start = self.start
+            self.audio.end = self.end
+            self.audio.duration = self.duration
+        return self
 
     def write_videofile(self, filename, fps=None, codec=None,   
                         bitrate=None, audio=True, audio_fps=44100,
@@ -331,10 +333,9 @@ class VideoClip(Clip):
                     )
                     progress_bar.update(sp, completed=True)
                 print("[bold magenta]Vidiopy[/bold magenta] - ✔ Audio Video Combined :thumbs_up:")
-
+            return self
         except Exception as e:
             raise e
-
         finally:
             if audio_file_name:
                 os.remove(audio_file_name)
@@ -367,18 +368,18 @@ class VideoClip(Clip):
             total_frames = (1 / self.fps)*self.duration if self.duration else None
         else:
             # Print a warning if neither fps nor object's properties are set
-            print("[bold red]Warning[/bold red]: FPS is not provided, and fps and duration are not set.")
-            frames_generator = self.iterate_all_frames_pil()
-            total_frames = None
+            raise ValueError("Warning: FPS is not provided, and fps and duration are not set.")
+
 
         # Iterate through frames and save them to the specified directory
         for frame in progress.track(frames_generator, total=total_frames, description='Vidiopy - Writing Image Sequence :smiley:', transient=True):
             save_frame(frame, frame_number)
             frame_number += 1
         print('[bold magenta]Vidiopy[/bold magenta] - Image Sequence Has Been Written:thumbs_up:.')
+        return self
 
     def to_ImageClip(self, t):
-        return Data2ImageClip(self.get_frame(t, is_pil=True))
+        return Data2ImageClip(self.make_frame_pil(t))
 
 
 class VideoFileClip(VideoClip):
@@ -395,44 +396,13 @@ class VideoFileClip(VideoClip):
         self.fps: float = float(video_data['frame_rate'])
         self.size = (video_data['width'], video_data['height'])
         self.start = 0.0
-        self.set_end(video_data['duration'])
-        self.set_duration(video_data['duration'])
-
-        # Set frame generation functions
-        self.set_make_frame_any(self.make_frame_any_sub_cls)
-        self.set_make_frame(self.make_frame_sub_cls)
-        self.set_make_frame_pil(self.make_frame_pil_sub_cls)
+        self.end = video_data['duration']
+        self.duration = video_data['duration']
 
         # If audio is enabled, attach audio clip
         if audio:
             audio = AudioFileClip(filename)
             self.set_audio(audio)
-
-    def _array2image(self):
-        # Convert numpy array frames to PIL Image
-        if isinstance(self.clip[0], np.ndarray):
-            new_clip = [Image.fromarray(frame) for frame in self.clip]
-            self.clip = np.array(new_clip)
-        elif isinstance(self.clip[0], Image.Image):
-            # Already in the correct format
-            pass
-        elif self.clip is None:
-            raise ValueError("Clip is not Set.")
-        else:
-            raise ValueError("Clip is not an image or numpy array")
-
-    def _image2array(self):
-        # Convert PIL Image frames to numpy array
-        if isinstance(self.clip[0], Image.Image):
-            new_clip = [np.asarray(frame) for frame in self.clip]
-            self.clip = np.array(new_clip)
-        elif isinstance(self.clip[0], np.ndarray):
-            # Already in the correct format
-            pass
-        elif self.clip is None:
-            raise ValueError("Clip is not Set.")
-        else:
-            raise ValueError("Clip is not an image or numpy array")
 
     @requires_duration
     @requires_start_end
@@ -445,11 +415,10 @@ class VideoFileClip(VideoClip):
         fps = self.fps
         td = 1 / fps
         t = 0.0
-        self._array2image()
         clip = []
         while t <= dur:
             frame = self.make_frame_pil(t)
-            clip.append(f(_do_not_pass=(frame, t, st, ed), *args, **kwargs))
+            clip.append(f(*args, _do_not_pass=(frame, t, st, ed), **kwargs))
             t += td
         self.clip = np.array(clip)
         return self
@@ -458,121 +427,89 @@ class VideoFileClip(VideoClip):
         # Apply an effect function directly to the clip
         func(*args, **kwargs)
         return self
+    
+    @override
+    def make_frame_any(self, t):
+        self.make_frame_pil(t)
 
-    def make_frame_any_sub_cls(self, t):
-        # Frame generation function for arbitrary frame types
-        frame_num = t * self.fps
-        return self.clip[int(frame_num)]
-
-    def make_frame_sub_cls(self, t):
+    @override
+    def make_frame_array(self, t):
         # Frame generation function returning numpy array
         frame_num = t * self.fps
         return np.array(self.clip[int(frame_num)])
 
-    def make_frame_pil_sub_cls(self, t):
+    @override
+    def make_frame_pil(self, t):
         # Frame generation function returning PIL Image
         frame_num = t * self.fps
-        return Image.fromarray(self.clip[int(frame_num)])
+        return self.clip[int(frame_num)]
 
     def _import_video_clip(self, file_name, ffmpeg_options):
         # Import video clip using ffmpeg
         options = {
             **(ffmpeg_options if ffmpeg_options else {})
         }
-        return ffmpegio.video.read(file_name, **options)[1]
+        return tuple(Image.fromarray(frame) for frame in ffmpegio.video.read(file_name, **options)[1])
 
 
 class ImageClip(VideoClip):
-    def __init__(self, image: str | Path | None = None, fps: NumOrNone = None, duration: NumOrNone = None):
+    def __init__(self, image: str | Path | Image.Image | np.ndarray | None = None, fps: NumOrNone = None, duration: NumOrNone = None):
         super().__init__()
 
         # Import image if provided
-        self.image = self._import_image(image) if image else None
-
-        # Set frame generation functions
-        self.set_make_frame_any(self.make_frame_any_image_clip)
-        self.set_make_frame(self.make_frame_image_clip)
-        self.set_make_frame_pil(self.make_frame_pil_image_clip)
+        self.image = self._import_image(image) if image is not None else None
 
         # Set properties
         self.fps = fps
         self.start = 0.0
+        self.duration = duration
         self.end = self.duration
-        self.set_end(duration)
-        self.set_duration(duration)
-        self.size = self.image.size if self.image is not None else None
+        self.size = self.image.size if self.image is not None else (None, None) # type: ignore
 
     def _import_image(self, image):
-        # Import image using PIL
+        if isinstance(image, Image.Image):
+            return image
+        elif isinstance(image, np.ndarray):
+            return Image.fromarray(image)
+        elif isinstance(image, (str, Path, bytes)):
+            return Image.open(image)
         return Image.open(image)
 
     def fl(self, f, *args, **kwargs):
         # Apply a function to the image and return the modified ImageClip
-        self._array2image()
-        self.image = f(_do_not_pass=(self.image, self.duration, self.start, self.end), *args, **kwargs)
+        self.image = f(*args, _do_not_pass=(self.image, None, self.start, self.end), **kwargs)
         return self
 
     def fx(self, func: Callable, *args, **kwargs):
-        # Apply an effect function directly to the ImageClip
-        self._array2image()
         func(*args, **kwargs)
         return self
 
-    def _array2image(self):
-        # Convert numpy array image to PIL Image
-        if isinstance(self.image, np.ndarray):
-            self.image = Image.fromarray(self.image)
-        elif isinstance(self.image, Image.Image):
-            # Already in the correct format
-            pass
-        elif self.image is None:
-            raise ValueError("Image is not set.")
-        else:
-            raise ValueError("Image is not an image or numpy array")
-
-    def _image2array(self):
-        # Convert PIL Image to numpy array
-        if isinstance(self.image, Image.Image):
-            self.image = np.array(self.image)
-        elif isinstance(self.image, np.ndarray):
-            # Already in the correct format
-            pass
-        elif self.image is None:
-            raise ValueError("Image is not set.")
-        else:
-            raise ValueError("Image is not an image or numpy array")
-
-    def make_frame_image_clip(self, t):
-        # Frame generation function returning the current image
-        self._image2array()
+    @override
+    def make_frame_any(self, t):
         return self.image
 
-    def make_frame_any_image_clip(self, t):
-        # Frame generation function returning the current image
+    @override
+    def make_frame_array(self, t):
+        return np.asarray(self.image)
+
+    def make_frame_pil(self, t):
         return self.image
 
-    def make_frame_pil_image_clip(self, t):
-        # Frame generation function returning the current image
-        self._array2image()
-        return self.image
-
-    def to_video_clip(self, fps=None, duration=None, start=None, end=None):
-        # Convert ImageClip to VideoClip
+    def to_video_clip(self, fps=None, duration=None, start=0.0, end=None):
+        """Convert `ImageClip` to `VideoClip`"""
         if fps is None:
             fps = self.fps
+            if fps is None:
+                raise ValueError("fps should be set of specify")
         if duration is None:
             duration = self.duration
-        if start is None:
-            start = self.start
+            if duration is None:
+                raise ValueError("You must specify 'duration'")
         if end is None:
-            end = self.end
-
-        # Check if necessary parameters are set
-        if fps is None or duration is None or start is None or end is None:
-            raise ValueError("FPS, duration, start, and end must be set before converting to a video clip.")
+            end = self.end if self.end else start + duration
 
         # Generate frames using iterate_frames_array_t
-        frames = list(self.iterate_frames_array_t(fps))
+        frames = tuple(self.iterate_frames_array_t(fps))
         
         # Create ImageSequenceClip from frames
         return ImageSequenceClip(frames, fps=fps).set_start(start).set_end(end)
@@ -616,7 +553,7 @@ class ImageSequenceClip(VideoClip):
         # Set properties
         self.fps = fps
         self.start = 0.0
-        self.set_duration(len(self.images)*(fps if fps is not None and fps else 0))
+        self.duration = (len(self.images)*(fps if fps is not None and fps else 0))
         self.set_end(self.duration)
         # Set size attribute based on the size of the first image
         self.size = self.images[0].size
@@ -651,7 +588,8 @@ class ImageSequenceClip(VideoClip):
             # If the input is not of any expected type, raise a ValueError
             raise ValueError("Invalid input. Provide a directory path, a list/tuple/set of paths, or a NumPy array.")
 
-    def set_fps(self, fps: Num):
+
+    def fps(self, fps: Num):
         self.fps = fps
         self.duration = len(self.images)*fps
         return self
@@ -676,21 +614,6 @@ class ImageSequenceClip(VideoClip):
     def fx(self, func: Callable, *args, **kwargs):
         func(*args, **kwargs)
 
-    def _array2image(self):
-        if isinstance(self.images[0], np.ndarray):
-            # If the first image is a NumPy array, convert all array images to PIL Image
-            self.images = tuple(Image.fromarray(image) for image in self.images)
-        elif isinstance(self.images[0], Image.Image):
-            # If the first image is already a PIL Image, do nothing (placeholder for future extensions)
-            pass
-
-    def _image2array(self):
-        if isinstance(self.images[0], Image.Image):
-            # If the first image is a PIL Image, convert all image objects to NumPy arrays
-            self.images = tuple(np.array(image) for image in self.images)
-        elif isinstance(self.images[0], np.ndarray):
-            # If the first image is already a NumPy array, do nothing (placeholder for future extensions)
-            pass
 
     @requires_fps
     def make_frame_sub_cls(self, t):
@@ -701,8 +624,6 @@ class ImageSequenceClip(VideoClip):
         frame_index = int(t * self.fps)
         # Return the generated frame
         return self.images[frame_index]
-
-
 
     def make_frame_pil_sub_cls(self, t):
         # Convert images to PIL format if they are not already in that format
