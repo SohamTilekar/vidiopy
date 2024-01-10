@@ -38,14 +38,14 @@ def requires_start(f, clip, *a, **k):
 def requires_end(f, clip, *a, **k): 
     """ Raise an error if the clip has no end.""" 
     if clip.end is None: 
-        raise ValueError("Attribute 'end' not set") 
+        raise ValueError(f"Attribute 'end' not set end={clip.end}") 
     else: 
         return f(clip, *a, **k)
 
 @decorator.decorator 
 def requires_start_end(f, clip, *a, **k): 
     """ Raise an error if the clip has no start or end.""" 
-    if clip.start is None or clip.end is None: 
+    if clip.start is None and clip.end is None: 
         raise ValueError("Attribute 'start' or 'end' not set") 
     else: 
         return f(clip, *a, **k)
