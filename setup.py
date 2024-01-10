@@ -1,4 +1,4 @@
-from setuptools import find_packages, setup
+from setuptools import setup
 from pathlib import Path
 
 with open(Path(r".\README.md")) as f:
@@ -6,7 +6,7 @@ with open(Path(r".\README.md")) as f:
 
 setup(
     name='vidiopy',
-    version='0.0.60',
+    version="0.2.10",
     description='An Video Editing Library Similar to Moviepy.',
     long_description=long_description,
     author='Soham Tilekar',
@@ -17,6 +17,6 @@ setup(
     package_dir={'': 'vidiopy'},
     classifiers=['', '', ''],
     license='MIT',
-    
     long_description_content_type='text/markdown',
+    packages=['rich', 'pydub', 'numpy', 'ffmpegio', 'pillow', 'decorator'],
 )
