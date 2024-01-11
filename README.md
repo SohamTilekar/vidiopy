@@ -7,9 +7,11 @@ VidioPy is a Python library in its early stages of development, intended as an a
 You can install VidioPy using the following command:
 
 ```bash
-pip install git+https://github.com/your-username/VidioPy.git
+pip install git+https://github.com/SohamTilekar/VidioPy.git
 ```
+
 or
+
 ```bash
 pip install vidiopy
 ```
