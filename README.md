@@ -2,6 +2,12 @@
 
 VidioPy is a Python library in its early stages of development, intended as an alternative to [Moviepy](https://github.com/Zulko/moviepy) for basic video editing and manipulation. The goal is to provide a user-friendly interface for handling video files, applying basic transformations, and creating simple visual content.
 
+## Installation
+
+You can install VidioPy using the following command:
+
+```pip install git+https://github.com/your-username/VidioPy.git``` or ```pip install vidiopy```
+
 ## Contribution
 
 We invite contributors from the community to enhance and expand VidioPy in various aspects. You can contribute by:
