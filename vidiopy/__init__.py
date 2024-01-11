@@ -1,9 +1,8 @@
-from .audio.AudioClip import (AudioClip, AudioFileClip, AudioSegment, 
-                              CompositeAudioClip)
+from .audio.AudioClip import (AudioClip, AudioFileClip, CompositeAudioClip)
 
 from .Clip import Clip
 
 from .video.VideoClips import (VideoClip, VideoFileClip, ImageClip, Data2ImageClip, 
-                               ImageSequenceClip, ColorClip, TextClip)
+                               ImageSequenceClip, ColorClip, TextClip, CompositeVideoClip)
 
-__version__  = "0.2.10"
+from .__version__ import __version__

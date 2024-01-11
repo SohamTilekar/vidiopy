@@ -606,6 +606,7 @@ class ImageSequenceClip(VideoClip):
         frame_num = t * self.fps
         return self.clip[int(frame_num)]
 
+
 class ColorClip(Data2ImageClip):
     def __init__(self, color: str | tuple[int, ...], mode='RGBA', size=(1, 1), fps=None, duration=None):
         data = Image.new(mode, size, color) # type: ignore

@@ -1,0 +1,6 @@
+graft vidiopy
+include pyproject.toml
+include setup.py
+global-exclude *.py[cod]
+exclude *.pyc
+recursive-exclude __pycache__ *
