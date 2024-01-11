@@ -4,7 +4,7 @@ from pathlib import Path
 with open(Path(r".\README.md")) as f:
     long_description = f.read()
 
-__version__ = "0.2.11"
+__version__ = "0.2.12"
 
 setup(
     name='vidiopy',
