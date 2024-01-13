@@ -5,7 +5,6 @@ import os
 import math
 from copy import copy as copy_
 from pathlib import Path
-from re import T
 import subprocess
 import tempfile
 from typing import (Callable, TypeAlias, Generator,
@@ -448,13 +447,6 @@ class VideoFileClip(VideoClip):
         return self
 
     @override
-    @requires_start_end
-    def fl_time_transform(self, func, *args, **kwargs) -> Self:
-        self.clip, self.start, self.end, self.duration,  = func(
-            self, self.clip, *args, **kwargs)
-        return self
-
-    @override
     def fl_clip(self, func, *args, **kwargs):
         td = 1/self.fps
         start_t = self.start
@@ -530,10 +522,16 @@ class ImageClip(VideoClip):
             return Image.open(image)
         return Image.open(image)
 
-    def fl_clip(self, f, *args, **kwargs):
-        # Apply a function to the image and return the modified ImageClip
-        self.image = f(*args, _do_not_pass=(self.image,
-                       None, self.start, self.end), **kwargs)
+    @override
+    @requires_start_end
+    def fl_frame_transform(self, func, *args, **kwargs) -> Self:
+        self.image = func(self.image, *args, **kwargs)
+        return self
+
+    @override
+    def fl_clip(self, func, *args, **kwargs) -> Self:
+        raise ValueError(
+            "Convert this Image Clip to Video Clip following is the function `to_video_clip`")
         return self
 
     def fx(self, func: Callable, *args, **kwargs):
@@ -596,12 +594,25 @@ class Data2ImageClip(ImageClip):
 
 class ImageSequenceClip(VideoClip):
 
-    def __init__(self, images: Sequence[str | Path | Image.Image | np.ndarray] | np.ndarray, fps: NumOrNone = None):
+    def __init__(self, images: Sequence[str | Path | Image.Image | np.ndarray] | np.ndarray, fps: NumOrNone = None, duration: NumOrNone = None):
         super().__init__()
-        self.clip = self._import_images(images)
-        self.fps = fps
-        if fps:
-            self.end = len(self.clip)/fps
+        if fps and duration:
+            self.clip = self._import_images(images)
+            self.fps = fps
+            self.duration = duration
+        elif fps:
+            self.clip = self._import_images(images)
+            self.fps = fps
+            if fps:
+                self.end = len(self.clip)/fps
+                self.duration = self.end
+        elif duration:
+            self.clip = self._import_images(images)
+            self.fps = len(self.clip) / float(duration)
+            self.end = duration
+            self.duration = duration
+        else:
+            self.clip = self._import_images(images)
 
     def _import_images(self, images):
         frames = []
@@ -622,25 +633,32 @@ class ImageSequenceClip(VideoClip):
                 frames.append(frame)
         return tuple(frames)
 
-    @requires_start_end
-    @requires_fps
-    def fl_clip(self, f, *args, **kwargs):
-        # Apply a function to each frame and return a new VideoFileClip
-        clip = self.clip
-        st = self.start
-        ed = self.end
-        dur = self.duration
-        if not self.fps:
-            raise
-        fps = self.fps
-        td = 1 / fps
-        t = 0.0
-        clip = []
-        while t <= ed:
-            frame = self.make_frame_pil(t)
-            clip.append(f(*args, _do_not_pass=(frame, t, st, ed), **kwargs))
-            t += td
-        self.clip = np.array(clip)
+    @override
+    def fl_frame_transform(self, func, *args, **kwargs) -> Self:
+        clip: list[Image.Image] = []
+        for frame in self.clip:
+            frame: Image.Image = func(frame, *args, **kwargs)
+            frame.show("temp")
+            breakpoint()
+            clip.append(frame)
+        del self.clip
+        self.clip = tuple(clip)
+        return self
+
+    @override
+    def fl_clip(self, func, *args, **kwargs):
+        td = 1/self.fps if self.fps \
+            else self.duration/len(self.clip) if self.duration \
+            else (_ for _ in ()).throw(ValueError("Duration or Fps Should Be Set."))
+        start_t = self.start
+        end_t = self.end
+        frame_time = 0.0
+        clip: list[Image.Image] = []
+        for frame in self.clip:
+            clip.append(func(*args, **kwargs, _do_not_pass=(self,
+                        frame, frame_time, start_t, end_t)))
+            frame_time += td
+        self.clip = clip
         return self
 
     def fx(self, func: Callable, *args, **kwargs):
@@ -654,15 +672,19 @@ class ImageSequenceClip(VideoClip):
 
     @override
     def make_frame_array(self, t):
-        # Frame generation function returning numpy array
-        frame_num = t * self.fps
-        return np.array(self.clip[int(frame_num)])
+        time_per_frame = self.duration / len(self.clip) if self.duration else 1/self.fps if self.fps else (
+            _ for _ in ()).throw(ValueError("Duration or FPS should be set"))
+        frame_index = math.floor(t / time_per_frame)
+        frame_index = min(len(self.clip) - 1, max(0, frame_index))
+        return np.array(self.clip[int(frame_index)])
 
     @override
     def make_frame_pil(self, t):
-        # Frame generation function returning PIL Image
-        frame_num = t * self.fps
-        return self.clip[int(frame_num)]
+        time_per_frame = self.duration / len(self.clip) if self.duration else 1/self.fps if self.fps else (
+            _ for _ in ()).throw(ValueError("Duration or FPS should be set"))
+        frame_index = math.floor(t / time_per_frame)
+        frame_index = min(len(self.clip) - 1, max(0, frame_index))
+        return self.clip[int(frame_index)]
 
 
 class ColorClip(Data2ImageClip):
