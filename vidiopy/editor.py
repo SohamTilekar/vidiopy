@@ -1,9 +1,10 @@
-from .audio.AudioClip import (AudioClip, AudioFileClip, AudioSegment, 
-                              CompositeAudioClip)
+from .audio.AudioClip import (AudioClip, AudioFileClip, CompositeAudioClip)
 
-from .video.VideoClips import (VideoClip, VideoFileClip, ImageClip, Data2ImageClip, 
+from .Clip import Clip
+
+from .video.VideoClips import (VideoClip, VideoFileClip, ImageClip, Data2ImageClip,
                                ImageSequenceClip, ColorClip, TextClip, CompositeVideoClip)
 
+from .video.fx import *
 
-if __name__ == '__main__':
-    ...
+from .__version__ import __version__

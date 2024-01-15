@@ -481,7 +481,14 @@ class VideoClip(Clip):
     def fl_clip(self, func: Callable, *args, **kwargs) -> Self:
         """\
         Call The Function Like Follows
-        >>> func(*args, **Kwargs, _do_not_pass=tuple(clip: self, Frame: PIL.Image.Image, Frame_time: NumOrNone, StartTime: NumOrNone, EndTime: NumOrNone))\
+        >>> func(*args, **Kwargs, 
+            _do_not_pass=dict{
+                        'clip': clip: self, 
+                        'frame': Frame: PIL.Image.Image,
+                        'frame_time': Frame_time: Num,
+                        'st': StartTime: NumOrNone,
+                        'ed': EndTime: NumOrNone}
+                        ))\
         """
         raise NotImplementedError(
             "fl method must be overridden in the subclass.")
@@ -879,10 +886,7 @@ class VideoFileClip(VideoClip):
         clip: list[Image.Image] = []
         for frame in self.clip:
             frame: Image.Image = func(frame, *args, **kwargs)
-            frame.show("temp")
-            breakpoint()
             clip.append(frame)
-        del self.clip
         self.clip = tuple(clip)
         return self
 
@@ -914,8 +918,8 @@ class VideoFileClip(VideoClip):
         frame_time = 0.0
         clip: list[Image.Image] = []
         for frame in self.clip:
-            clip.append(func(*args, **kwargs, _do_not_pass=(self,
-                        frame, frame_time, start_t, end_t)))
+            clip.append(func(*args, **kwargs, _do_not_pass={'clip': self,
+                        'frame': frame, 'frame_time': frame_time, 'st': start_t, 'ed': end_t}))
             frame_time += td
         del self.clip
         self.clip = clip
