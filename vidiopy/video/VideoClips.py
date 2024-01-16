@@ -122,7 +122,7 @@ class VideoClip(Clip):
         if isinstance(self.w, int) and isinstance(self.w, int):
             return Fraction(self.w, self.h)
         else:
-            raise ValueError("Size is not set")
+            raise ValueError("Size is not Valid")
 
     @property
     def start(self):
@@ -208,6 +208,9 @@ class VideoClip(Clip):
             self.audio.duration = self.duration
         return self
 
+    def set_end(self, value):
+        self.end = value
+
     @property
     def duration(self):
         """
@@ -245,12 +248,15 @@ class VideoClip(Clip):
             self.audio.duration = self.duration
         return self
 
+    def set_duration(self, value):
+        self.duration = value
+
     def set_position(self, pos, relative=False):
         """
         Set the position for the current video clip.
 
         Parameters:
-        - pos: The position value. If a callable function, it is used directly; otherwise, a lambda function is created.
+        - pos (callable | int | float): The position value. If a callable function, it is used directly; otherwise, a lambda function is created.
         - relative (bool, optional): If True, interprets the position as a relative value; if False (default), interprets it as an absolute value.
 
         Returns:
@@ -259,6 +265,9 @@ class VideoClip(Clip):
         Note:
         This method sets the position for the video clip, allowing flexibility in defining the position either as a constant value or as a function of time. 
         The 'relative' parameter determines whether the position should be treated as a relative value.
+
+        raises:
+        - TypeError: If 'pos' is not callable, int, or float
 
         Example:
         ```python
@@ -271,8 +280,10 @@ class VideoClip(Clip):
 
         if hasattr(pos, '__call__'):
             self.pos = pos
-        else:
+        elif isinstance(pos, (int, float)):
             self.pos = lambda t: pos
+        else:
+            raise TypeError('Pos is Invalid Type not Callable or int or float')
 
         return self
 
@@ -288,6 +299,9 @@ class VideoClip(Clip):
         - self: The current video clip instance with the updated audio.
         """
         self.audio = audio
+        self.audio.start = self.start
+        self.audio.end = self.end
+        self.audio.duration = self.duration
         return self
 
     def set_fps(self, fps: Num):
@@ -1952,7 +1966,6 @@ class CompositeVideoClip(ImageSequenceClip):
             raise
 
         if self.use_bgclip:
-            duration = self.use_bgclip
             td = 1 / fps
             ed = self.bg_clip.end if self.bg_clip.end else (
                 _ for _ in ()).throw(ValueError())
@@ -2055,6 +2068,12 @@ class CompositeVideoClip(ImageSequenceClip):
         # Frame generation function returning PIL Image
         frame_num = t * self.fps
         return self.clip[int(frame_num)]
+
+# def concatenate_videoclips(clips: list[VideoClip], audio=True, scale=False):
+#     frames = []
+#     if scale:
+#         for clip in clips:
+#             clip.f
 
 
 if __name__ == '__main__':
