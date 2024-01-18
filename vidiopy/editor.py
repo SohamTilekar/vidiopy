@@ -7,4 +7,6 @@ from .video.VideoClips import (VideoClip, VideoFileClip, ImageClip, Data2ImageCl
 
 from .video.fx import *
 
+from .config import set_ffmpeg_ffprobe_binary, set_path
+
 from .__version__ import __version__
