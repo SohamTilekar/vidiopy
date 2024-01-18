@@ -8,4 +8,6 @@ build/
 vidiopy.egg-info/
 dist/
 dump/*
-!dump/help
+!dump/folder_info.md
+vidiopy/binary/*
+!vidiopy/binary/folder_info.md
