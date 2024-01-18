@@ -160,3 +160,10 @@ def set_ffmpeg_ffprobe_binary(binary: tuple[None | str, None | str] = (None, Non
 
 
 set_ffmpeg_ffprobe_binary((FFMPEG_BINARY or None, FFPROBE_BINARY))
+del set_ffmpeg_ffprobe_binary
+
+
+def set_path(
+        ffmpeg_path: str | None = None,
+        ffprobe_path: str | None = None):
+    ffmpegio.set_path(ffmpeg_path, ffprobe_path)
