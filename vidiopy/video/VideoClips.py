@@ -71,6 +71,20 @@ class VideoClip(Clip):
         self.pos = lambda t: (0, 0)
         self.relative_pos = False
 
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>'
+
+    def __str__(self) -> str:
+        return f'{self.__class__.__name__} start={self.start} end={self.end} fps={self.fps} size={self.size}'
+
+    def __len__(self):
+        if self.end is None:
+            return self.duration
+        return int(self.end - self.start)
+
+    def __iter__(self):
+        return self.iterate_frames_array_t(self.fps)
+
     @property
     @requires_size
     def width(self):
@@ -856,6 +870,8 @@ class VideoFileClip(VideoClip):
     def __init__(self, filename, audio=True, ffmpeg_options=None):
         super().__init__()
 
+        self.filename = filename
+
         # Probe video streams and extract relevant information
         video_data = ffmpegio.probe.video_streams_basic(filename)[0]
 
@@ -872,6 +888,12 @@ class VideoFileClip(VideoClip):
         if audio:
             audio = AudioFileClip(filename)
             self.set_audio(audio)
+
+    def __repr__(self) -> str:
+        return f'<{self.__class__.__name__} path={self.filename} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>'
+
+    def __str__(self) -> str:
+        return f'{self.__class__.__name__} path={self.filename} start={self.start} end={self.end} fps={self.fps} size={self.size}'
 
     @override
     @requires_start_end
@@ -1120,7 +1142,10 @@ class ImageClip(VideoClip):
         - None
         """
         super().__init__()
-
+        if isinstance(self.image, (str, Path)):
+            self.imagepath = self.image
+        else:
+            self.imagepath = None
         # Import image if provided
         self.image = self._import_image(image) if image is not None else None
 
@@ -1149,6 +1174,12 @@ class ImageClip(VideoClip):
         elif isinstance(image, (str, Path, bytes)):
             return Image.open(image)
         return Image.open(image)
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__} image path={self.imagepath} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>'
+
+    def __str__(self):
+        return f'{self.__class__.__name__} image path={self.imagepath} start={self.start} end={self.end} fps={self.fps} size={self.size}'
 
     @override
     @requires_start_end
@@ -1858,7 +1889,12 @@ class ColorClip(Data2ImageClip):
 
     def __init__(self, color: str | tuple[int, ...], mode='RGBA', size=(1, 1), fps=None, duration=None):
         data = Image.new(mode, size, color)  # type: ignore
+        self.color = color
+        self.mode = mode
         super().__init__(data, fps=fps, duration=duration)
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__} color={self.color} mode={self.mode} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>'
 
     def set_size(self, size: tuple[int, int]):
         """
@@ -1922,8 +1958,19 @@ class TextClip(Data2ImageClip):
         draw.text((10, 10), text, font=font, align='center',
                   fill=txt_color)  # type: ignore
 
+        self.text = text
+        self.font = font
+        self.font_size = font_size
+        self.txt_color = txt_color
+        self.bg_color = bg_color
+
         super().__init__(image, fps=fps, duration=duration)
 
+    def __repr__(self):
+        return f'<{self.__class__.__name__} font={self.font} font_size={self.font_size} txt_color={self.txt_color} bg_color={self.bg_color} start={self.start} end={self.end} fps={self.fps} size={self.size} text={self.text}, {id(self)}>'
+
+    def __str__(self):
+        return f'{self.__class__.__name__} font={self.font} font_size={self.font_size} txt_color={self.txt_color} bg_color={self.bg_color} start={self.start} end={self.end} fps={self.fps} size={self.size} text={self.text}'
 
 class CompositeVideoClip(ImageSequenceClip):
 
@@ -1955,6 +2002,12 @@ class CompositeVideoClip(ImageSequenceClip):
         audio_clip = self.audio
         super().__init__(*self._composite_video_clip())
         self.set_audio(audio_clip)
+
+    def __repr__(self):
+        return f'<{self.__class__.__name__} start={self.start} end={self.end} fps={self.fps} size={self.size} use_bgclip={self.use_bgclip}, {id(self)}>'
+
+    def __str__(self):
+        return f'{self.__class__.__name__} start={self.start} end={self.end} fps={self.fps} size={self.size} use_bgclip={self.use_bgclip}'
 
     def _composite_video_clip(self):
         fps = 0
