@@ -96,6 +96,7 @@ def set_ffmpeg_ffprobe_binary(binary: tuple[None | str, None | str] = (None, Non
             return binary
         except:
             ...
+        binary = ('ffmpeg', 'ffprobe')
         try:
             subprocess.run(['sudo', 'apt', 'install', 'ffmpeg'], check=True)
             return binary
@@ -159,7 +160,8 @@ def set_ffmpeg_ffprobe_binary(binary: tuple[None | str, None | str] = (None, Non
         print("Warning: ffmpeg binary is not set.")
 
 
-set_ffmpeg_ffprobe_binary((FFMPEG_BINARY or None, FFPROBE_BINARY))
+FFMPEG_BINARY, FFPROBE_BINARY = set_ffmpeg_ffprobe_binary(
+    (FFMPEG_BINARY, FFPROBE_BINARY))
 del set_ffmpeg_ffprobe_binary
 
 
