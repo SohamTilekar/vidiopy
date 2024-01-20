@@ -544,7 +544,7 @@ class VideoClip(Clip):
     def fl_time_transform(self, func, *args, **kwargs) -> Self:
         """\
         Call the Function like below
-        >>> func(clip: Self, clip_frames: tuple[PIL.Image.Image], *args, **kwargs)\
+        >>> func(clip: self, clip_frames: tuple[PIL.Image.Image], *args, **kwargs)\
         """
         raise NotImplementedError(
             "fl_time_transform method must be overridden in the subclass.")
