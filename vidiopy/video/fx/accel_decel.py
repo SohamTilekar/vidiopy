@@ -1,5 +1,5 @@
 from pydub import effects
-from ...audio.AudioClip_native import AudioFileClip
+from ...audio.AudioClip import AudioFileClip
 from ...video.VideoClips import VideoClip
 
 

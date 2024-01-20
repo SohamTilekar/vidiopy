@@ -14,7 +14,7 @@ import ffmpegio
 import numpy as np
 from pydub import AudioSegment
 from ..Clip import Clip
-from ..audio.AudioClip_native import AudioFileClip, AudioClip, CompositeAudioClip
+from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip
 from ..decorators import *
 from ..config import FFMPEG_BINARY, FFPROBE_BINARY
 
