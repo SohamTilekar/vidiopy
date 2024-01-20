@@ -14,8 +14,9 @@ import ffmpegio
 import numpy as np
 from pydub import AudioSegment
 from ..Clip import Clip
-from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip
+from ..audio.AudioClip_native import AudioFileClip, AudioClip, CompositeAudioClip
 from ..decorators import *
+from ..config import FFMPEG_BINARY, FFPROBE_BINARY
 
 Num: TypeAlias = int | float
 NumOrNone: TypeAlias = Num | None
@@ -181,7 +182,6 @@ class VideoClip(Clip):
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
-            self.audio.duration = self.duration
         return self
 
     @property
@@ -219,7 +219,6 @@ class VideoClip(Clip):
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
-            self.audio.duration = self.duration
         return self
 
     def set_end(self, value):
@@ -259,7 +258,6 @@ class VideoClip(Clip):
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
-            self.audio.duration = self.duration
         return self
 
     def set_duration(self, value):
@@ -315,7 +313,6 @@ class VideoClip(Clip):
         self.audio = audio
         self.audio.start = self.start
         self.audio.end = self.end
-        self.audio.duration = self.duration
         return self
 
     def set_fps(self, fps: Num):
@@ -589,7 +586,6 @@ class VideoClip(Clip):
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
-            self.audio.duration = self.duration
         return self
 
     def write_videofile(self, filename, fps=None, codec=None,
@@ -712,14 +708,14 @@ class VideoClip(Clip):
                 temp_audio_file.close()
 
                 # Write audio to the temporary file
-                self.audio.write_audio_file(audio_file_name)
+                self.audio.write_audiofile(audio_file_name)
 
                 # Combine video and audio using ffmpeg
                 with progress.Progress(transient=True) as progress_bar:
                     sp = progress_bar.add_task(
                         "Combining Video & Audio", total=None)
                     result = subprocess.run(
-                        f'ffmpeg -i {temp_video_file_name} -i {
+                        f'{FFMPEG_BINARY} -i {temp_video_file_name} -i {
                             audio_file_name} -acodec copy '
                         f'{"-y" if over_write_output else ""} {filename}',
                         capture_output=True, text=True
@@ -1971,6 +1967,7 @@ class TextClip(Data2ImageClip):
 
     def __str__(self):
         return f'{self.__class__.__name__} font={self.font} font_size={self.font_size} txt_color={self.txt_color} bg_color={self.bg_color} start={self.start} end={self.end} fps={self.fps} size={self.size} text={self.text}'
+
 
 class CompositeVideoClip(ImageSequenceClip):
 
