@@ -1,22 +1,19 @@
 from pydub import effects
+from ...audio.AudioClip_native import AudioFileClip
+from ...video.VideoClips import VideoClip
 
 
-def accel_decel(clip, abruptness=1.0):
-    """\
-    TODO: Add a Support for Slowing Down Video
-    """
-    # TODO: Add a Support for Slowing Down Video
-    old_dur = clip.duration
+def accel_decel(clip: VideoClip, abruptness=1.0):
     if abruptness <= 0:
-        raise
+        raise ValueError("abruptness must be greater than 0")
+    if clip.duration is None:
+        raise ValueError("clip must have a duration")
+    if clip.end is not None:
+        clip.end = clip.end / abruptness
     clip.duration = clip.duration / abruptness
-    clip.end = clip.end / abruptness
     if clip.audio:
         clip._sync_audio_video_s_e_d()
-        if clip.audio.clip:
-            print(abruptness)
-            audio = effects.speedup(clip.audio.clip,
-                                    playback_speed=abruptness)
-            clip.audio.clip = audio
+        if clip.audio._original_dur:
+            clip.audio._original_dur = clip.audio._original_dur / abruptness
         clip._sync_audio_video_s_e_d()
     return clip
