@@ -61,7 +61,7 @@ class VideoClip(Clip):
         # Time-related properties
         self._st: Num = 0.0
         self._ed: NumOrNone = None
-        self._dur = None
+        self._dur: int | float | None = None
 
         # Video and audio properties
         self.audio: AudioClip | None = None
@@ -184,6 +184,10 @@ class VideoClip(Clip):
             self.audio.end = self.end
         return self
 
+    def set_start(self, value: Num):
+        self.start = value
+        return self
+
     @property
     def end(self):
         """
@@ -235,30 +239,9 @@ class VideoClip(Clip):
         return self._dur
 
     @duration.setter
-    def duration(self, dur: NumOrNone = None):
-        """
-        Set the duration for the current video clip.
-
-        Parameters:
-        - dur (float or None, optional): The new duration value. If None, the duration is not changed.
-
-        Returns:
-        - self: The current video clip instance with the updated duration.
-
-        Note:
-        If the video clip has associated audio, this method also updates the audio start, end, and duration attributes to match the video clip's duration.
-
-        Example:
-        ```python
-        v = VideoObject()
-        v.duration = 10.0  # Set the duration to 10 seconds
-        ```
-        """
+    def duration(self, dur: Num):
+        """Set the duration for the current video clip."""
         self._dur = dur
-        if self.audio:
-            self.audio.start = self.start
-            self.audio.end = self.end
-        return self
 
     def set_duration(self, value):
         self.duration = value
@@ -311,8 +294,8 @@ class VideoClip(Clip):
         - self: The current video clip instance with the updated audio.
         """
         self.audio = audio
-        self.audio.start = self.start
-        self.audio.end = self.end
+        if self.audio:
+            self.audio.end = self.end
         return self
 
     def set_fps(self, fps: Num):
@@ -985,6 +968,8 @@ class VideoFileClip(VideoClip):
         frame = video_clip.make_frame_any(2.5)  # Generates frame at 2.5 seconds
         ```
         """
+        if self.duration is None:
+            raise ValueError('Duration is Not Set.')
         time_per_frame = self.duration / len(self.clip)
         frame_index = math.floor(t / time_per_frame)
         frame_index = min(len(self.clip) - 1, max(0, frame_index))
@@ -1014,6 +999,8 @@ class VideoFileClip(VideoClip):
         frame_array = video_clip.make_frame_array(3.0)  # Generates frame array at 3.0 seconds
         ```
         """
+        if self.duration is None:
+            raise ValueError('Duration is Not Set.')
         time_per_frame = self.duration / len(self.clip)
         frame_index = math.floor(t / time_per_frame)
         frame_index = min(len(self.clip) - 1, max(0, frame_index))
@@ -1043,6 +1030,8 @@ class VideoFileClip(VideoClip):
         pil_frame = video_clip.make_frame_pil(4.0)  # Generates PIL image frame at 4.0 seconds
         ```
         """
+        if self.duration is None:
+            raise ValueError('Duration is Not Set.')
         time_per_frame = self.duration / len(self.clip)
         frame_index = math.floor(t / time_per_frame)
         frame_index = min(len(self.clip) - 1, max(0, frame_index))
@@ -1148,7 +1137,8 @@ class ImageClip(VideoClip):
         # Set properties
         self.fps = fps
         self.start = 0.0
-        self.duration = duration
+        if duration is not None:
+            self.duration = duration
         self.end = self.duration
         self.size = self.image.size if self.image is not None else (
             None, None)  # type: ignore
