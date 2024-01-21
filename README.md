@@ -31,10 +31,12 @@ We invite contributors from the community to enhance and expand VidioPy in vario
 
 To contribute:
 
+1. Read the CONTRIBUTIONS.md file.
 1. Fork the repository.
-2. Create a new branch for your feature, bug fix, or documentation improvement.
-3. Make your changes and test them thoroughly.
-4. Submit a pull request with a clear description of your changes.
+1. Create a new branch for your feature, bug fix, or documentation improvement.
+1. Make your changes and test them thoroughly.
+1. Submit a pull request with a clear description of your changes.
+
 
 ## Disclaimer
 
