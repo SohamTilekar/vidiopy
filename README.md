@@ -1,3 +1,7 @@
+<p align="center">
+<img src="https://gh-card.dev/repos/SohamTilekar/vidiopy.svg">
+</p>
+
 # VidioPy
 
 VidioPy is a Python library in its early stages of development, intended as an alternative to [Moviepy](https://github.com/Zulko/moviepy) for basic video editing and manipulation. The goal is to provide a user-friendly interface for handling video files, applying basic transformations, and creating simple visual content.
