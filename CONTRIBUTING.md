@@ -19,7 +19,9 @@
 - If you introduce new functionality or fix a bug, document it in the docstring or with code comments.
 - use Prettier to format the code.
 - Before Cometing Open the Code in Pycharm or VsCode to See any Edge Case.
+- Update the test if added New function or added Feature or Mention it in the PR.
 
 ### Submitting Pull Requests
 
-You do not have to have finished your feature or bug fix before submitting a PR; just mention that it still is a work in progress.
+- You do not have to have finished your feature or bug fix before submitting a PR; just mention that it still is a work in progress.
+- Before Submiting Try to Chake with using thr pytest
