@@ -37,7 +37,7 @@ class AudioClip(Clip):
         self._original_dur: int | float | None = duration
         self._audio_data: np.ndarray | None = None
         self.channels: int | None = None
-        self._st: int | float | None = None
+        self._st: int | float = 0.0
         self._ed: int | float | None = None
 
     def __repr__(self):
@@ -72,7 +72,7 @@ class AudioClip(Clip):
     get_duration = duration
 
     @property
-    def start(self) -> int | float | None:
+    def start(self) -> int | float:
         return self._st
 
     @start.setter
@@ -88,10 +88,10 @@ class AudioClip(Clip):
         return self._ed
 
     @end.setter
-    def end(self, end: int | float):
+    def end(self, end: int | float | None):
         self._ed = end
 
-    def set_end(self, end: int | float):
+    def set_end(self, end: int | float | None):
         self._ed = end
         return self
 
@@ -237,6 +237,19 @@ class AudioClip(Clip):
         ffmpegio.audio.write(path, fps, temp_audio_data,
                              overwrite=overwrite, **kwargs)
 
+        # print(f"temp_audio_data: {temp_audio_data}\n"
+        #       f"shape: {temp_audio_data.shape}\n"
+        #       f"dtype: {temp_audio_data.dtype}\n"
+        #       f"ndim: {temp_audio_data.ndim}\n"
+        #       f"size: {temp_audio_data.size}\n"
+        #       f"itemsize: {temp_audio_data.itemsize}\n"
+        #       f"nbytes: {temp_audio_data.nbytes}\n"
+        #       f"strides: {temp_audio_data.strides}\n"
+        #       f"flags: {temp_audio_data.flags}\n"
+        #       f"base: {temp_audio_data.base}\n"
+        #       f"ctypes: {temp_audio_data.ctypes}\n"
+        #       f"data: {temp_audio_data.data}")
+
         # # Calculating the in_fps of the audio data using the audio length and the duration
         # in_fps = len(self._audio_data) // self.duration
 
@@ -249,7 +262,6 @@ class AudioClip(Clip):
         #                        rate=fps,
         #                        **kwargs) as writer:
         #         for frame in self._audio_data:
-        #             print(frame)
         #             writer.write(frame)
         # else:
         #     if os.path.isfile(path):
@@ -275,7 +287,7 @@ class AudioFileClip(AudioClip):
 
 
 class AudioArrayClip(AudioClip):
-    def __init__(self, audio_data: np.ndarray, fps: int | float, duration: int | float):
+    def __init__(self, audio_data: np.ndarray, fps: int, duration: int | float):
         self._audio_data = audio_data
         self.fps = fps
         self._original_dur = duration
@@ -299,16 +311,20 @@ class CompositeAudioClip(AudioClip):
         self.fps = max(
             [clip.fps for clip in audioclips if clip.fps is not None])
         temp_durations = []
+        temp_channels = []
         for clip in audioclips:
+            if clip.channels is not None:
+                temp_channels.append(clip.channels)
             if clip.end is not None and clip.start is not None:
                 temp_durations.append(clip.end - clip.start)
             elif clip.duration is not None:
                 temp_durations.append(clip.duration)
             else:
                 temp_durations.append(0)
+        self.channels = max(temp_channels)
         self._original_dur = durations = max(temp_durations)
         time_per_frame = 1 / self.fps
-        clips = []
+        clips: list[AudioClip] = []
         for audio in audioclips:
             if audio.end is None:
                 clips.append(audio.trim_audio(audio.start))
@@ -317,7 +333,14 @@ class CompositeAudioClip(AudioClip):
         audio_clip_list = []
         current_frame_time = 0.0
         while current_frame_time < durations:
+            temp_frame: list[list[float]] = [[] for _ in range(self.channels)]
             for clip in clips:
-                audio_clip_list.append(clip.get_frame_at_t(current_frame_time))
+                if clip.start < current_frame_time < clip.end if clip.end is not None else float('inf'):
+                    clip_frame = clip.get_frame_at_t(current_frame_time)
+                    for idx, channel in enumerate(clip_frame):
+                        temp_frame[idx].append(channel)
+            frame: list[float] = [sum(
+                channel) / len(channel) if len(channel) > 0 else 0.0 for channel in temp_frame]
+            audio_clip_list.append(frame)
             current_frame_time += time_per_frame
         self._audio_data = np.array(audio_clip_list)
