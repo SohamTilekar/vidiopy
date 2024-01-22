@@ -12,9 +12,7 @@ The following classes are defined:
     - ConcatAudioClip
 
 """
-import os
 import pathlib
-import re
 from typing import Generator
 from copy import copy as copy_
 import ffmpegio
@@ -33,6 +31,7 @@ __all__ = [
 class AudioClip(Clip):
 
     def __init__(self, duration=None, fps=None):
+        super().__init__()
         self.fps: int | None = fps
         self._original_dur: int | float | None = duration
         self._audio_data: np.ndarray | None = None
@@ -296,23 +295,56 @@ class AudioArrayClip(AudioClip):
 
 class ConcatAudioClip(AudioClip):
     def __init__(self, audioclips: list[AudioClip]):
-        self.audioclips = audioclips
-        self.fps = audioclips[0].fps
-        self._original_dur = sum(
-            [clip.duration for clip in audioclips if clip.duration is not None])
-        self._audio_data = np.concatenate(
-            [clip.audio_data for clip in audioclips])
+        # Make the copy of the audioclips and storing it in the self.audioclips
+        self.audioclips = [clip.copy() for clip in audioclips]
+        self.fps = max(
+            [clip.fps for clip in audioclips if clip.fps is not None])
+        self._original_dur = 0.0
         super().__init__(self._original_dur, self.fps)
+        t_per_clip = []
+        for clip in audioclips:
+            if clip.duration is None:
+                raise ValueError('Original duration is not set')
+            else:
+                self._original_dur += clip.duration
+                t_per_clip.append(clip.duration)
+        self.channels = max(
+            [clip.channels for clip in audioclips if clip.channels is not None])
+
+        # chake whether all the clips have the same channels if they dont then add zeros to the channels
+        for clip in audioclips:
+            if clip._audio_data is None:
+                raise ValueError('Audio data is not set')
+            if clip._audio_data.shape[1] < self.channels:
+                less_channels = clip._audio_data.shape[1] - self.channels
+                # Add zeros to the channels
+                clip._audio_data = np.concatenate(
+                    (clip._audio_data, np.zeros((less_channels, clip._audio_data.shape[1]))))
+            elif clip._audio_data.shape[1] > self.channels:
+                raise ValueError(
+                    'All the clips should have the same number of channels')
+            else:
+                ...
+
+        frames = []
+        time_per_frame = 1 / self.fps
+        for idx, clip in enumerate(audioclips):
+            current_clip_frame_time = 0.0
+            while current_clip_frame_time < t_per_clip[idx]:
+                frames.append(clip.get_frame_at_t(current_clip_frame_time))
+                current_clip_frame_time += time_per_frame
+        self._audio_data = np.array(frames)
 
 
 class CompositeAudioClip(AudioClip):
-    def __init__(self, audioclips: list[AudioClip]):
-        self.audioclips = audioclips
+    def __init__(self, audio_clips: list[AudioClip], bg_clip=False):
+        super().__init__()
+        self.audio_clips = audio_clips
         self.fps = max(
-            [clip.fps for clip in audioclips if clip.fps is not None])
+            [clip.fps for clip in audio_clips if clip.fps is not None])
         temp_durations = []
         temp_channels = []
-        for clip in audioclips:
+        for clip in audio_clips:
             if clip.channels is not None:
                 temp_channels.append(clip.channels)
             if clip.end is not None and clip.start is not None:
@@ -325,7 +357,7 @@ class CompositeAudioClip(AudioClip):
         self._original_dur = durations = max(temp_durations)
         time_per_frame = 1 / self.fps
         clips: list[AudioClip] = []
-        for audio in audioclips:
+        for audio in audio_clips:
             if audio.end is None:
                 clips.append(audio.trim_audio(audio.start))
             else:
