@@ -12,11 +12,10 @@ from typing import (Callable, TypeAlias, Generator,
 from PIL import Image, ImageFont, ImageDraw
 import ffmpegio
 import numpy as np
-from pydub import AudioSegment
 from ..Clip import Clip
-from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip
+from ..audio.AudioClip import AudioFileClip, AudioClip, CompositeAudioClip, ConcatAudioClip
 from ..decorators import *
-from ..config import FFMPEG_BINARY, FFPROBE_BINARY
+from ..config import FFMPEG_BINARY
 
 Num: TypeAlias = int | float
 NumOrNone: TypeAlias = Num | None
@@ -519,16 +518,14 @@ class VideoClip(Clip):
         """
         raise NotImplementedError(
             'frame_transform method must be overridden in the subclass.')
-        return self
 
     def fl_time_transform(self, func, *args, **kwargs) -> Self:
         """\
         Call the Function like below
-        >>> func(clip: self, clip_frames: tuple[PIL.Image.Image], *args, **kwargs)\
+        >>> func(clip: Self, clip_frames: tuple[PIL.Image.Image], *args, **kwargs)\
         """
         raise NotImplementedError(
             "fl_time_transform method must be overridden in the subclass.")
-        return self
 
     def fx(self, func, *args, **kwargs) -> Self:
         """
@@ -2053,45 +2050,7 @@ class CompositeVideoClip(ImageSequenceClip):
 
     def _composite_audio(self):
         """Concatenates the audio of all clips in the stack"""
-        bg_audio = self.bg_clip.audio
-        if not bg_audio:
-            if not self.bitrate:
-                bitrate = 0
-                for clip in self.clips:
-                    if clip.audio:
-                        if clip.audio.bitrate > bitrate:
-                            bitrate = clip.audio.bitrate
-                self.bitrate = bitrate
-            else:
-                self.bitrate = self.bitrate
-
-            bg_audio = AudioClip()
-            if self.bg_clip.duration:
-                bg_audio.clip = AudioSegment.silent(
-                    int(self.bg_clip.duration*1000), self.bitrate)
-        else:
-            if self.bg_clip.audio:
-                self.bitrate = self.bg_clip.audio.bitrate
-            else:
-                raise ValueError("bg_clip audio is not set")
-
-        audios = [bg_audio]
-        for clip in self.clips:
-            clip._sync_audio_video_s_e_d()
-            if clip.audio:
-                audios.append(clip.audio)
-            else:
-                if clip.duration:
-                    audio = AudioClip()
-                    audio.start = clip.start
-                    audio.end = clip.end
-                    audio.duration = clip.duration
-                    audio.clip = AudioSegment.silent(
-                        int(clip.duration*1000), self.bitrate)
-                    audios.append(audio)
-                else:
-                    raise ValueError("The duration of the clip is Not Set.")
-        return CompositeAudioClip(audios, self.use_bgclip, self.bitrate)
+        CompositeAudioClip(self)
 
     @override
     def make_frame_any(self, t):
@@ -2109,12 +2068,42 @@ class CompositeVideoClip(ImageSequenceClip):
         frame_num = t * self.fps
         return self.clip[int(frame_num)]
 
-# def concatenate_videoclips(clips: list[VideoClip], audio=True, scale=False):
-#     frames = []
-#     if scale:
-#         for clip in clips:
-#             clip.f
+# def concatenate_videoclips(clips: Sequence[VideoClip], audio: bool | AudioClip = True, over_scale: bool | None = None):
+#     """\
+#     Concatenate several video clips into one.
+#     Means "playing" them one after another.
 
+#     Parameters:
+#     - clips(VideoClip): Sequence of video clips to concatenate.
+#     - audio(bool | AudioClip, optional[True]):
+#             If `True`, the audio of all clips will be concatenated. 
+#             If `False`, all audio will be muted. 
+#             If an `AudioClip` instance, it will be used as the audio for the resulting video clip. 
+#             Defaults to `True`.
+#     - over_scale(bool | None, optional[None]): 
+#             If `True`, the clips will be scaled All less size clip to largest clip. 
+#             If `False`, the clips will be down scaled All high size clip to lower scale.
+#             If `None`, the clips will Not Be Scale and the Blank Space is been Left.
+
+#     Returns:
+#     - VideoClip: The concatenated video clip.
+#     """
+#     if audio is True:
+#         clip = []
+#         for c in clips:
+#             if c.audio:
+#                 clip.append(c)
+#             else:
+#                 if c.duration:
+#                     audio = AudioClip()
+#                     audio.start = c.start
+#                     audio.end = c.end
+#                     audio.duration = c.duration
+                    
+#                     clip.append(audio)
+#                 else:
+#                     raise ValueError("The duration of the clip is Not Set.")
+#         audio = ConcatAudioClip(clip)
 
 if __name__ == '__main__':
     SystemExit()
