@@ -315,17 +315,14 @@ class ConcatAudioClip(AudioClip):
         for clip in audioclips:
             if clip._audio_data is None:
                 raise ValueError('Audio data is not set')
-            if clip._audio_data.shape[1] < self.channels:
+            if clip._audio_data.shape[1] <= self.channels:
                 less_channels = clip._audio_data.shape[1] - self.channels
                 # Add zeros to the channels
                 clip._audio_data = np.concatenate(
                     (clip._audio_data, np.zeros((less_channels, clip._audio_data.shape[1]))))
-            elif clip._audio_data.shape[1] > self.channels:
+            else:
                 raise ValueError(
                     'All the clips should have the same number of channels')
-            else:
-                ...
-
         frames = []
         time_per_frame = 1 / self.fps
         for idx, clip in enumerate(audioclips):
@@ -336,8 +333,17 @@ class ConcatAudioClip(AudioClip):
         self._audio_data = np.array(frames)
 
 
+class SilenceClip(AudioClip):
+    def __init__(self, duration: int | float, fps: int = 44100, channels: int = 1):
+        self.fps = fps
+        self._original_dur: int | float = duration
+        super().__init__(self._original_dur, self.fps)
+        self.channels = channels
+        self._audio_data = np.zeros((int(duration * self.fps), self.channels))
+
+
 class CompositeAudioClip(AudioClip):
-    def __init__(self, audio_clips: list[AudioClip], bg_clip=False):
+    def __init__(self, audio_clips: list[AudioClip], bg_audio=False):
         super().__init__()
         self.audio_clips = audio_clips
         self.fps = max(
@@ -376,3 +382,5 @@ class CompositeAudioClip(AudioClip):
             audio_clip_list.append(frame)
             current_frame_time += time_per_frame
         self._audio_data = np.array(audio_clip_list)
+        if bg_audio:
+            self.trim_audio(self.audio_clips[0].start, self.audio_clips[0].end)
