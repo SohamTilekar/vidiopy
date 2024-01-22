@@ -1,3 +1,7 @@
+<p align="center">
+<img src="https://gh-card.dev/repos/SohamTilekar/vidiopy.svg">
+</p>
+
 # VidioPy
 
 VidioPy is a Python library in its early stages of development, intended as an alternative to [Moviepy](https://github.com/Zulko/moviepy) for basic video editing and manipulation. The goal is to provide a user-friendly interface for handling video files, applying basic transformations, and creating simple visual content.
@@ -27,10 +31,12 @@ We invite contributors from the community to enhance and expand VidioPy in vario
 
 To contribute:
 
+1. Read the CONTRIBUTING.md file.
 1. Fork the repository.
-2. Create a new branch for your feature, bug fix, or documentation improvement.
-3. Make your changes and test them thoroughly.
-4. Submit a pull request with a clear description of your changes.
+1. Create a new branch for your feature, bug fix, or documentation improvement.
+1. Make your changes and test them thoroughly.
+1. Submit a pull request with a clear description of your changes.
+
 
 ## Disclaimer
 
