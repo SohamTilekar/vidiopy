@@ -31,7 +31,7 @@ We welcome contributions from the community to help us improve and expand VidioP
 
 To contribute:
 
-1. Read the CONTRIBUTING.md file.
+1. Read the [CONTRIBUTING.md](docs/CONTRIBUTING.md) file.
 1. Fork the repository.
 1. Create a new branch for your feature, bug fix, or documentation improvement.
 1. Make your changes and test them thoroughly.
