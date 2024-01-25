@@ -4,7 +4,6 @@ import ffmpegio
 import platform
 import os
 import tempfile
-import zipfile
 import requests
 
 __all__ = ['FFMPEG_BINARY', 'FFPROBE_BINARY', 'set_path']
@@ -23,6 +22,7 @@ def set_ffmpeg_ffprobe_binary(binary: tuple[None | str, None | str] = (None, Non
         response = requests.get(url)
         response.raise_for_status()
         temp_file_path = None
+        import zipfile
         try:
             with tempfile.NamedTemporaryFile('wb', suffix='ffmpeg-release-full.zip', delete=False) as file:
                 file.write(response.content)
@@ -182,6 +182,7 @@ def set_ffmpeg_ffprobe_binary(binary: tuple[None | str, None | str] = (None, Non
                 ...
         ffmpeg_temp_filename = ''
         ffprobe_temp_filename = ''
+        import zipfile
         try:
             macos_ffmpeg_binary_api_url = r'https://evermeet.cx/ffmpeg/getrelease/zip'
             macos_ffprobe_binary_api_url = r'https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip'
@@ -226,7 +227,6 @@ FFMPEG_BINARY, FFPROBE_BINARY = set_ffmpeg_ffprobe_binary(
 del set_ffmpeg_ffprobe_binary
 del BASE_DIR
 del platform
-del zipfile
 
 
 def set_path(
