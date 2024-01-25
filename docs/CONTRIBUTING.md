@@ -22,6 +22,7 @@
 - Use Prettier to maintain consistent code formatting.
 - Review your code in PyCharm or VSCode to catch potential edge cases.
 - When adding new functions or features, update the corresponding unit tests or mention the need for new tests in your pull request.
+- read the [Code Style Guide](code%20style%20guide.md)
 
 ## Submitting Pull Requests
 
