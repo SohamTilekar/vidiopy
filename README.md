@@ -20,6 +20,15 @@ or
 pip install vidiopy
 ```
 
+Note:
+  - Using the git comand version has many Advantages.
+    - Bug Fixes.
+    - Secure.
+    - Latest.
+  - Using the dirct comand `pip install vidiopy` has many disadvantages.
+    - Not Secure [repoted Issue #7](https://github.com/SohamTilekar/vidiopy/issues/7)
+    - More Bugs.
+
 ## Contribution
 
 We welcome contributions from the community to help us improve and expand VidioPy. Here's how you can contribute:
