@@ -342,3 +342,68 @@ def concatenate_audioclips(
         for f in c.iterate_frames_at_fps(fps):
             clip.append(np.concatenate((f, [f.mean()] * dif_channels)))
     return AudioArrayClip(np.asarray(clip), fps, duration)
+
+
+def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100):
+    fps = fps if fps else max([c.fps if c.fps else 0 for c in clips])
+    if not fps:
+        raise ValueError("No fps value found place set fps value or fps value in clips")
+    duration = max(
+        [
+            c.end - c.start
+            if c.end
+            else c.duration
+            if c.duration
+            else (_ for _ in ()).throw(ValueError(""))
+            for c in clips
+        ]
+    )
+    if not duration:
+        raise ValueError(
+            "No duration value found place set duration value or duration value in clips"
+        )
+    channels: int = max(
+        [
+            c.channels
+            if c.channels
+            else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+            for c in clips
+        ]
+    )
+    if not channels:
+        raise ValueError(
+            "No channels value found place set channels value or channels value in clips"
+        )
+    clip: list[np.ndarray] = []
+    td = 1 / fps
+    t = 0.0
+    print(f"{duration=}")
+    while t <= duration:
+        frames = []
+        for c in clips:
+            if (
+                c.start
+                <= t
+                <= (
+                    c.end
+                    or c.duration
+                    or (_ for _ in ()).throw(
+                        ValueError(
+                            "No duration value found place set duration value or duration value in clips"
+                        )
+                    )
+                )
+            ):
+                c_channels: int = (
+                    c.channels
+                    if c.channels
+                    else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+                )
+                dif_channels = channels - c_channels
+                fm = c.get_frame_at_t(t)
+                frames.append(np.concatenate((fm, [fm.mean()] * dif_channels)))
+            else:
+                frames.append(np.zeros(channels))
+        clip.append(np.mean(frames, axis=1))
+        t += td
+    return AudioArrayClip(np.array(clip), fps, duration)
