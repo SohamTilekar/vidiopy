@@ -300,3 +300,45 @@ class SilenceClip(AudioClip):
         super().__init__(self._original_dur, self.fps)
         self.channels = channels
         self._audio_data = np.zeros((int(duration * self.fps), self.channels))
+
+
+def concatenate_audioclips(
+    clips: list[AudioClip], fps: int | None = 44100
+) -> AudioClip | AudioArrayClip:
+    """Concatenate multiple audio clips into a single audio clip"""
+    if len(clips) == 0:
+        raise ValueError("No clips to concatenate")
+    if len(clips) == 1:
+        return clips[0].copy()
+    clip: list[np.ndarray] = []
+    fps = fps if fps else max([c.fps if c.fps else 0 for c in clips])
+    if not fps:
+        raise ValueError("No fps value found place set fps value or fps value in clips")
+    duration = sum(
+        [
+            c.end - c.start
+            if c.end
+            else c.duration
+            if c.duration
+            else (_ for _ in ()).throw(ValueError(""))
+            for c in clips
+        ]
+    )
+    channels: int = max(
+        [
+            c.channels
+            if c.channels
+            else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+            for c in clips
+        ]
+    )
+    for c in clips:
+        c_channels: int = (
+            c.channels
+            if c.channels
+            else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+        )
+        dif_channels = channels - c_channels
+        for f in c.iterate_frames_at_fps(fps):
+            clip.append(np.concatenate((f, [f.mean()] * dif_channels)))
+    return AudioArrayClip(np.asarray(clip), fps, duration)
