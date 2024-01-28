@@ -1,7 +1,7 @@
-from typing import Callable
+from typing import Callable, Sequence
 from PIL import Image, ImageOps
 
-from ..audio.AudioClip import AudioClip, SilenceClip, ConcatAudioClip
+from ..audio.AudioClip import SilenceClip, concatenate_audioclips, concatenate_audioclips
 from .ImageSequenceClip import ImageSequenceClip
 from .VideoClip import VideoClip
 
@@ -57,7 +57,7 @@ def concatenate_videoclips(clips: tuple[VideoClip] | list[VideoClip],
                     audios.append(clip.audio)
                 else:
                     audios.append(SilenceClip(duration=duration_per_clip[i]))
-            return ImageSequenceClip(f_frames, fps=fps, duration=duration, audio=ConcatAudioClip(audios, fps=audio_fps))
+            return ImageSequenceClip(f_frames, fps=fps, duration=duration, audio=concatenate_audioclips(audios, fps=audio_fps))
         else:
             return ImageSequenceClip(f_frames, fps=fps, duration=duration)
 
@@ -88,7 +88,7 @@ def concatenate_videoclips(clips: tuple[VideoClip] | list[VideoClip],
                     audios.append(clip.audio)
                 else:
                     audios.append(SilenceClip(duration=duration_per_clip[i]))
-            return ImageSequenceClip(f_frames, fps=fps, duration=duration, audio=ConcatAudioClip(audios, fps=audio_fps))
+            return ImageSequenceClip(f_frames, fps=fps, duration=duration, audio=concatenate_audioclips(audios, fps=audio_fps))
         else:
             return ImageSequenceClip(f_frames, fps=fps, duration=duration)
     elif scaling_strategy is False:
@@ -118,7 +118,7 @@ def concatenate_videoclips(clips: tuple[VideoClip] | list[VideoClip],
                     audios.append(clip.audio)
                 else:
                     audios.append(SilenceClip(duration=duration_per_clip[i]))
-            return ImageSequenceClip(f_frames, fps=fps, duration=duration, audio=ConcatAudioClip(audios, fps=audio_fps))
+            return ImageSequenceClip(f_frames, fps=fps, duration=duration, audio=concatenate_audioclips(audios, fps=audio_fps))
         else:
             return ImageSequenceClip(f_frames, fps=fps, duration=duration)
     else:
