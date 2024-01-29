@@ -412,7 +412,7 @@ class VideoClip(Clip):
                 with progress.Progress(transient=True) as progress_bar:
                     sp = progress_bar.add_task(
                         "Combining Video & Audio", total=None)
-                    result = subprocess.run(
+                    subprocess.run(
                         f'{FFMPEG_BINARY} -i {temp_video_file_name} -i {
                             audio_file_name} -acodec copy '
                         f'{"-y" if over_write_output else ""} {filename}',
@@ -420,7 +420,8 @@ class VideoClip(Clip):
                     )
                     progress_bar.update(sp, completed=True)
                 rich_print(
-                    "[bold magenta]Vidiopy[/bold magenta] - ✔ Audio Video Combined :thumbs_up:")
+                    f"[bold magenta]Vidiopy[/bold magenta] - ✔ Audio Video Combined Final video : - {filename} :thumbs_up:", flush=True)
+
             return self
         except Exception as e:
             raise e
@@ -431,6 +432,9 @@ class VideoClip(Clip):
             if (not self.audio or not audio) and temp_video_file_name:
                 os.replace(temp_video_file_name, filename)
                 temp_video_file_name = None
+                rich_print(
+                    f"[bold magenta]Vidiopy[/bold magenta] - ✔ Final video : - {filename} :thumbs_up:", flush=True
+                )
             if temp_video_file_name:
                 os.remove(temp_video_file_name)
 
