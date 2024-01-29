@@ -8,47 +8,6 @@ from ..decorators import *
 
 
 class VideoFileClip(VideoClip):
-    """
-    A class representing a video clip loaded from a video file.
-
-    Attributes:
-    - clip (tuple[Image.Image]): Tuple of frames representing the video clip.
-    - fps (float): Frames per second of the video clip.
-    - size (Tuple[int, int]): Size of the video frames (width, height).
-    - start (float): Start time of the video clip in seconds (always 0.0).
-    - end (float): End time of the video clip in seconds.
-    - duration (float): Duration of the video clip in seconds.
-
-    Methods:
-    - __init__(self, filename, audio=True, ffmpeg_options=None):
-        Initialize a VideoFileClip instance from a video file.
-    - fl_frame_transform(self, func, *args, **kwargs) -> VideoFileClip:
-        Apply a frame transformation function to each frame of the video clip.
-    - fl_clip(self, func, *args, **kwargs) -> VideoFileClip:
-        Apply a function to the entire video clip, generating a new clip.
-    - fx(self, func: Callable, *args, **kwargs) -> VideoFileClip:
-        Apply a generic function directly to the clip.
-    - make_frame_any(self, t) -> Image.Image:
-        Generate a frame for a given time.
-    - make_frame_array(self, t) -> np.ndarray:
-        Generate a frame array for a given time.
-    - make_frame_pil(self, t) -> Image.Image:
-        Generate a frame using PIL for a given time.
-
-    Note:
-    The VideoFileClip class extends the VideoClip class and is designed for loading video clips
-    from video files. It uses ffmpeg to probe video streams, extract relevant information, and import
-    the video clip frames. The class provides methods for frame transformations, applying functions,
-    and generating frames in different formats.
-
-    Example Usage:
-    ```python
-    video_clip = VideoFileClip('video.mp4', audio=True)
-    transformed_clip = video_clip.fl_frame_transform(resize, width=640, height=480)
-    final_video = transformed_clip.to_video_clip()
-    ```
-    """
-
     def __init__(self, filename, audio=True, ffmpeg_options=None):
         super().__init__()
 
@@ -61,10 +20,10 @@ class VideoFileClip(VideoClip):
         self.clip = self._import_video_clip(filename, ffmpeg_options)
 
         # Set video properties
-        self.fps: float = float(video_data['frame_rate'])
-        self.size = (video_data['width'], video_data['height'])
+        self.fps: float = float(video_data["frame_rate"])
+        self.size = (video_data["width"], video_data["height"])
         self.start = 0.0
-        self.end = video_data['duration']
+        self.end = video_data["duration"]
         self._dur = float(self.end)
         # If audio is enabled, attach audio clip
         if audio:
@@ -72,10 +31,10 @@ class VideoFileClip(VideoClip):
             self.set_audio(audio)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} path={self.filename} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>'
+        return f"<{self.__class__.__name__} path={self.filename} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>"
 
     def __str__(self) -> str:
-        return f'{self.__class__.__name__} path={self.filename} start={self.start} end={self.end} fps={self.fps} size={self.size}'
+        return f"{self.__class__.__name__} path={self.filename} start={self.start} end={self.end} fps={self.fps} size={self.size}"
 
     #################
     # EFFECT METHODS#
@@ -84,27 +43,6 @@ class VideoFileClip(VideoClip):
     @override
     @requires_start_end
     def fl_frame_transform(self, func, *args, **kwargs) -> Self:
-        """
-        Apply a frame transformation function to each frame of the video clip.
-
-        Parameters:
-        - func (Callable): The frame transformation function.
-        - *args: Additional positional arguments for the function.
-        - **kwargs: Additional keyword arguments for the function.
-
-        Returns:
-        - VideoFileClip: A new VideoFileClip instance with the transformed frames.
-
-        Note: 
-        - This method modifies the current VideoFileClip instance in-place by applying func to clip.
-        - requires Clip Start and End
-
-        Example Usage:
-        ```python
-        video_clip = VideoFileClip('video.mp4', audio=True)
-        transformed_clip = video_clip.fl_frame_transform(resize, width=640, height=480)
-        ```
-        """
         clip: list[Image.Image] = []
         for frame in self.clip:
             frame: Image.Image = func(frame, *args, **kwargs)
@@ -114,27 +52,7 @@ class VideoFileClip(VideoClip):
 
     @override
     def fl_clip_transform(self, func, *args, **kwargs):
-        """
-        Apply a function to the entire video clip, generating a new clip.
-
-        Parameters:
-        - func (Callable): The function to apply.
-        - *args: Additional positional arguments for the function.
-        - **kwargs: Additional keyword arguments for the function.
-
-        Returns:
-        - VideoFileClip: A new VideoFileClip instance generated by applying the function.
-
-        Note: 
-        - This method modifies the current VideoFileClip instance in-place by applying the function to the clip.
-
-        Example Usage:
-        ```python
-        video_clip = VideoFileClip('video.mp4', audio=True)
-        video_clip.fl_clip(some_function)
-        ```
-        """
-        td = 1/self.fps
+        td = 1 / self.fps
         frame_time = 0.0
         clip: list[Image.Image] = []
         for frame in self.clip:
@@ -150,16 +68,23 @@ class VideoFileClip(VideoClip):
         return self
 
     @override
-    def sub_clip(self, t_start: int | float | None = None, t_end: int | float | None = None) -> Self:
+    def sub_clip(
+        self, t_start: int | float | None = None, t_end: int | float | None = None
+    ) -> Self:
         if t_end is None and t_start is None:
             return self
         if t_end is None:
-            t_end = self.end if self.end else self.duration if self.duration else (
-                _ for _ in ()).throw(ValueError('end or duration must be set.'))
+            t_end = (
+                self.end
+                if self.end
+                else self.duration
+                if self.duration
+                else (_ for _ in ()).throw(ValueError("end or duration must be set."))
+            )
         if t_start is None:
             t_start = self.start if self.start else 0.0
         frames = []
-        time_per_frame = 1/self.fps
+        time_per_frame = 1 / self.fps
         current_frame_time = self.start
 
         while current_frame_time <= t_end:
@@ -173,17 +98,24 @@ class VideoFileClip(VideoClip):
         return self
 
     @override
-    def sub_clip_copy(self, t_start: int | float | None = None, t_end: int | float | None = None) -> Self:
+    def sub_clip_copy(
+        self, t_start: int | float | None = None, t_end: int | float | None = None
+    ) -> Self:
         clip = self.copy()
         if t_end is None and t_start is None:
             return clip.copy()
         if t_end is None:
-            t_end = clip.end if clip.end else clip.duration if clip.duration else (
-                _ for _ in ()).throw(ValueError('end or duration must be set.'))
+            t_end = (
+                clip.end
+                if clip.end
+                else clip.duration
+                if clip.duration
+                else (_ for _ in ()).throw(ValueError("end or duration must be set."))
+            )
         if t_start is None:
             t_start = clip.start if clip.start else 0.0
         frames = []
-        time_per_frame = 1/clip.fps
+        time_per_frame = 1 / clip.fps
         current_frame_time = clip.start
 
         while current_frame_time <= t_end:
@@ -199,29 +131,8 @@ class VideoFileClip(VideoClip):
     @override
     @requires_duration
     def make_frame_array(self, t) -> np.ndarray:
-        """
-        Generate a frame array for a given time.
-
-        Parameters:
-        - t (float): Time in seconds.
-
-        Returns:
-        - np.ndarray: The image data as a NumPy array for the given time.
-
-        Note:
-        - Requires Duration: make_frame_pil Requires Duration else raise ValueError
-
-        Raise:
-        - ValueError: Raise ValueError if the Duration is Not Set.
-
-        Example Usage:
-        ```python
-        video_clip = VideoFileClip('video.mp4', audio=True)
-        frame_array = video_clip.make_frame_array(3.0)  # Generates frame array at 3.0 seconds
-        ```
-        """
         if self.duration is None:
-            raise ValueError('Duration is Not Set.')
+            raise ValueError("Duration is Not Set.")
         time_per_frame = self.duration / len(self.clip)
         frame_index = t / time_per_frame
         frame_index = int(min(len(self.clip) - 1, max(0, frame_index)))
@@ -230,53 +141,16 @@ class VideoFileClip(VideoClip):
     @override
     @requires_duration
     def make_frame_pil(self, t) -> Image.Image:
-        """
-        Generate a frame using PIL for a given time.
-
-        Parameters:
-        - t (float): Time in seconds.
-
-        Returns:
-        - Image.Image: The image data for the given time.
-
-        Note:
-        - Requires Duration: make_frame_pil Requires Duration else raise ValueError
-
-        Raise:
-        - ValueError: Raise ValueError if the Duration is Not Set.
-
-        Example Usage:
-        ```python
-        video_clip = VideoFileClip('video.mp4', audio=True)
-        pil_frame = video_clip.make_frame_pil(4.0)  # Generates PIL image frame at 4.0 seconds
-        ```
-        """
         if self.duration is None:
-            raise ValueError('Duration is Not Set.')
+            raise ValueError("Duration is Not Set.")
         time_per_frame = self.duration / len(self.clip)
         frame_index = t / time_per_frame
         frame_index = int(min(len(self.clip) - 1, max(0, frame_index)))
         return self.clip[frame_index]
 
     def _import_video_clip(self, file_name, ffmpeg_options):
-        """
-        Import video clip using ffmpeg.
-
-        Parameters:
-        - file_name (str): The name of the video file.
-        - ffmpeg_options (dict | None): Options to be passed to ffmpeg.
-
-        Returns:
-        - tuple[Image.Image]: Tuple of frames representing the video clip.
-
-        Note: Internal method used for importing video clip frames.
-
-        Example Usage:
-        ```python
-        clip_frames = self._import_video_clip('video.mp4', ffmpeg_options)
-        ```
-        """
-        options = {
-            **(ffmpeg_options if ffmpeg_options else {})
-        }
-        return tuple(Image.fromarray(frame) for frame in ffmpegio.video.read(file_name, **options)[1])
+        options = {**(ffmpeg_options if ffmpeg_options else {})}
+        return tuple(
+            Image.fromarray(frame)
+            for frame in ffmpegio.video.read(file_name, **options)[1]
+        )
