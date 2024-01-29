@@ -12,7 +12,25 @@ def composite_videoclips(clips: Sequence[VideoClip],
                          use_bg_clip: bool = False):
     frames: list[Image.Image] = []
     if use_bg_clip:
-        ...
+        bg_clip = clips[0]
+        clips = clips[1:]
+        fps = fps if fps is not None else max(
+            clip.fps if clip.fps else 0.0 for clip in clips)
+        if not fps:
+            raise ValueError(
+                'Provide fps for clips or at least one clip or fps parameter for composite_videoclips')
+        td = 1/fps
+        size = bg_clip.size
+        duration: int | float = bg_clip.duration if bg_clip.duration else (_ for _ in  ()).throw(ValueError(f'Clip duration is not set, clip.__str__ = {bg_clip.__str__()}'))
+        current_time = 0.0
+        while current_time <= duration:
+            frame = bg_clip.make_frame_pil(current_time)
+            for clip in clips:
+                if clip._st <= current_time <= clip._ed if clip._ed else clip.duration if clip.duration else float('inf'):
+                    frame.paste(clip.make_frame_pil(current_time), clip.pos(current_time), clip.make_frame_pil(current_time) if clip.make_frame_pil(current_time).has_transparency_data else None)
+            frames.append(frame)
+            current_time += td
+        return ImageSequenceClip(tuple(frames), fps=fps, duration=duration)
     else:
         fps = fps if fps is not None else max(
             clip.fps if clip.fps else 0.0 for clip in clips)
