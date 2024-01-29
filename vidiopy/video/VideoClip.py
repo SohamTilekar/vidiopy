@@ -139,13 +139,13 @@ class VideoClip(Clip):
         raise ValueError("Duration is not allowed to be set")
         return self
 
-    def set_position(self, pos, relative=False) -> Self:
+    def set_position(self, pos: tuple[int, int] | Callable[[float | int], tuple[int, int]], relative=False) -> Self:
         self.relative_pos = relative
 
-        if hasattr(pos, '__call__'):
+        if callable(pos):
             self.pos = pos
-        elif isinstance(pos, (int, float)):
-            self.pos = lambda t: pos, pos
+        elif isinstance(pos, tuple):
+            self.pos = lambda t: pos
         else:
             raise TypeError('Pos is Invalid Type not Callable or int or float')
 

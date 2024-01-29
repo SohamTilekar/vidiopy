@@ -271,17 +271,39 @@ class AudioClip(Clip):
         # return self
 
 
-class AudioFileClip(AudioClip):
-    def __init__(self, path: str | pathlib.Path):
-        info = ffmpegio.probe.audio_streams_basic(path)[0]
-        self.fps = info["sample_rate"]
-        self._original_dur = info["duration"]
+class SilenceClip(AudioClip):
+    def __init__(self, duration: int | float, fps: int = 44100, channels: int = 1):
+        self.fps = fps
+        self._original_dur: int | float = duration
         super().__init__(self._original_dur, self.fps)
-        self.path = path
-        self.start = info["start_time"]
-        self.end = info["duration"] - info["start_time"]
-        self.channels = info["channels"]
-        self._audio_data = ffmpegio.audio.read(path)[1]
+        self.channels = channels
+        self._audio_data = np.zeros((int(duration * self.fps), self.channels))
+
+
+class AudioFileClip(SilenceClip):
+    def __init__(self, path: str | pathlib.Path, duration: int | float | None = None):
+        info = ffmpegio.probe.audio_streams_basic(path)
+        if not info:
+            self.fps = 44100
+            self.channels = 1
+            duration = (
+                duration
+                if duration
+                else (_ for _ in ()).throw(
+                    ValueError("Audio is empty and duration is not provided")
+                )
+            )
+            super().__init__(duration, self.fps, self.channels)
+        else:
+            info = info[0]
+            self.fps = info["sample_rate"]
+            self._original_dur = info["duration"]
+            self.channels = info["channels"]
+            super().__init__(info["duration"], info["sample_rate"], info["channels"])
+            self.path = path
+            self.start = info["start_time"]
+            self.end = info["duration"] - info["start_time"]
+            self._audio_data = ffmpegio.audio.read(path)[1]
 
 
 class AudioArrayClip(AudioClip):
@@ -291,15 +313,6 @@ class AudioArrayClip(AudioClip):
         super().__init__(self._original_dur, self.fps)
         self.channels = audio_data.shape[1]
         self._audio_data = audio_data
-
-
-class SilenceClip(AudioClip):
-    def __init__(self, duration: int | float, fps: int = 44100, channels: int = 1):
-        self.fps = fps
-        self._original_dur: int | float = duration
-        super().__init__(self._original_dur, self.fps)
-        self.channels = channels
-        self._audio_data = np.zeros((int(duration * self.fps), self.channels))
 
 
 def concatenate_audioclips(

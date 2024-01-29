@@ -27,7 +27,8 @@ class VideoFileClip(VideoClip):
         self._dur = float(self.end)
         # If audio is enabled, attach audio clip
         if audio:
-            audio = AudioFileClip(filename)
+            audio = AudioFileClip(filename, self._dur)
+            audio.set_start(self.start).set_end(self.end)
             self.set_audio(audio)
 
     def __repr__(self) -> str:
