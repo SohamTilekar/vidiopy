@@ -122,7 +122,7 @@ class AudioClip(Clip):
 
         # Calculate the frame index based on the original fps
         frame_index = 0
-        while frame_index < len(self._audio_data):
+        while frame_index <= len(self._audio_data):
             yield self._audio_data[frame_index]
             frame_index += int(original_fps / fps)
 
@@ -245,7 +245,6 @@ class AudioClip(Clip):
         temp_audio_data = np.array(
             [self.get_frame_at_t(t) for t in np.arange(0, self.duration, 1 / fps)]
         )
-
         ffmpegio.audio.write(path, fps, temp_audio_data, overwrite=overwrite, **kwargs)
 
         # # Calculating the in_fps of the audio data using the audio length and the duration
@@ -365,7 +364,7 @@ def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100):
         [
             c.end - c.start
             if c.end
-            else c.duration
+            else c.duration - c.start
             if c.duration
             else (_ for _ in ()).throw(ValueError(""))
             for c in clips
@@ -387,36 +386,24 @@ def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100):
         raise ValueError(
             "No channels value found place set channels value or channels value in clips"
         )
-    clip: list[np.ndarray] = []
     td = 1 / fps
     t = 0.0
-    print(f"{duration=}")
+    frames = []
     while t <= duration:
-        frames = []
+        frame_ch = []
         for c in clips:
             if (
-                c.start
-                <= t
-                <= (
-                    c.end
-                    or c.duration
-                    or (_ for _ in ()).throw(
-                        ValueError(
-                            "No duration value found place set duration value or duration value in clips"
-                        )
-                    )
-                )
+                c.start <= t <= c.end
+                if c.end
+                else c.duration
+                if c.duration
+                else (_ for _ in ()).throw(ValueError("audio clip duration is not set"))
             ):
-                c_channels: int = (
-                    c.channels
-                    if c.channels
-                    else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+                c_frame = c.get_frame_at_t(t)
+                extend_num = channels - len(c_frame)
+                frame_ch.append(
+                    np.concatenate((c_frame, [c_frame.mean()] * extend_num))
                 )
-                dif_channels = channels - c_channels
-                fm = c.get_frame_at_t(t)
-                frames.append(np.concatenate((fm, [fm.mean()] * dif_channels)))
-            else:
-                frames.append(np.zeros(channels))
-        clip.append(np.mean(frames, axis=1))
+        frames.append(np.sum(frame_ch, axis=0))
         t += td
-    return AudioArrayClip(np.array(clip), fps, duration)
+    return AudioArrayClip(np.array(frames), fps, duration)
