@@ -32,10 +32,12 @@ class VideoFileClip(VideoClip):
             self.set_audio(audio)
 
     def __repr__(self) -> str:
-        return f"<{self.__class__.__name__} path={self.filename} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>"
+        return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, filename={self.filename}, id={hex(id(self))},
+        audio={(self.audio)})"""
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__} path={self.filename} start={self.start} end={self.end} fps={self.fps} size={self.size}"
+        return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, filename={self.filename}, id={hex(id(self))},
+        audio={(self.audio)})"""
 
     #################
     # EFFECT METHODS#

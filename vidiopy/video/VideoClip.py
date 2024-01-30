@@ -41,10 +41,10 @@ class VideoClip(Clip):
     #################
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>'
+        return f"""{self.__class__.__name__}, start={self.start}, end={self.end}, fps={self.fps}, size={self.size}, duration={self.duration}, audio={self.audio} id={hex(id(self))}"""
 
     def __str__(self) -> str:
-        return f'{self.__class__.__name__} start={self.start} end={self.end} fps={self.fps} size={self.size}'
+        return f"""{self.__class__.__name__}, start={self.start}, end={self.end}, fps={self.fps}, size={self.size}, duration={self.duration}, audio={self.audio}"""
 
     def __len__(self) -> int | float | None:
         if self.end is None:

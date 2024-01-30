@@ -39,7 +39,10 @@ class AudioClip(Clip):
         self._ed: int | float | None = None
 
     def __repr__(self):
-        return f"<{self.__class__.__name__} channels={self.channels} duration={self.duration} fps={self.fps} start={self._st} end={self._ed} at {hex(id(self))}>"
+        return f"""{self.__class__.__name__}(start={self.start}, end={self.end}, duration={self.duration}, fps={self.fps}, channels={self.channels}, id={hex{id(self)}})"""
+
+    def __str__(self):
+        return f"""{self.__class__.__name__}(start={self.start}, end={self.end}, duration={self.duration}, fps={self.fps}, channels={self.channels})"""
 
     @property
     def audio_data(self) -> np.ndarray:

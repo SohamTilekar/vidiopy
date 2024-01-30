@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import (Callable, override, Self)
+from typing import Callable, override, Self
 from PIL import Image, ImageFont, ImageDraw
 from .ImageSequenceClip import ImageSequenceClip
 import numpy as np
@@ -48,7 +48,12 @@ class ImageClip(VideoClip.VideoClip):
     ```
     """
 
-    def __init__(self, image: str | Path | Image.Image | np.ndarray | None = None, fps: int | float | None = None, duration: int | float | None = None):
+    def __init__(
+        self,
+        image: str | Path | Image.Image | np.ndarray | None = None,
+        fps: int | float | None = None,
+        duration: int | float | None = None,
+    ):
         """
         Initialize an ImageClip instance.
 
@@ -78,8 +83,9 @@ class ImageClip(VideoClip.VideoClip):
         else:
             self.imagepath = None
         # Import image if provided
-        self.image: Image.Image | None = self._import_image(
-            image) if image is not None else None
+        self.image: Image.Image | None = (
+            self._import_image(image) if image is not None else None
+        )
 
         # Set properties
         self.fps = fps
@@ -110,10 +116,10 @@ class ImageClip(VideoClip.VideoClip):
         return Image.open(image)
 
     def __repr__(self):
-        return f'<{self.__class__.__name__} image path={self.imagepath} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>'
+        return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, imagepath={self.imagepath}, id={hex(id(self))})"""
 
     def __str__(self):
-        return f'{self.__class__.__name__} image path={self.imagepath} start={self.start} end={self.end} fps={self.fps} size={self.size}'
+        return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration})"""
 
     @override
     @requires_start_end
@@ -163,7 +169,8 @@ class ImageClip(VideoClip.VideoClip):
         ```
         """
         raise ValueError(
-            "Convert this Image Clip to Video Clip following is the function `to_video_clip`")
+            "Convert this Image Clip to Video Clip following is the function `to_video_clip`"
+        )
         return self
 
     def fx(self, func: Callable, *args, **kwargs):
@@ -193,28 +200,45 @@ class ImageClip(VideoClip.VideoClip):
         func(*args, **kwargs)
         return self
 
-    def sub_fx(self, func, *args, start_t: int | float | None = None, end_t: int | float | None = None, **kwargs) -> Self:
+    def sub_fx(
+        self,
+        func,
+        *args,
+        start_t: int | float | None = None,
+        end_t: int | float | None = None,
+        **kwargs,
+    ) -> Self:
         raise ValueError(
-            "Convert this Image Clip to Video Clip following is the function `to_video_clip`")
+            "Convert this Image Clip to Video Clip following is the function `to_video_clip`"
+        )
         return self
 
     @override
-    def sub_clip_copy(self, start: int | float | None = None, end: int | float | None = None) -> Self:
+    def sub_clip_copy(
+        self, start: int | float | None = None, end: int | float | None = None
+    ) -> Self:
         clip = self.copy()
         clip.sub_clip(start, end)
         return clip
 
     @override
-    def sub_clip(self, start: int | float | None = None, end: int | float | None = None) -> Self:
+    def sub_clip(
+        self, start: int | float | None = None, end: int | float | None = None
+    ) -> Self:
         if start is None and end is None:
             return self
         if start is None:
             start = self.start
         if end is None:
-            end = self.end if self.end is not None else\
-                self.duration - start if self.duration is not None else\
-                (_ for _ in ()).throw(ValueError(
-                    'You must specify end or duration'))
+            end = (
+                self.end
+                if self.end is not None
+                else self.duration - start
+                if self.duration is not None
+                else (_ for _ in ()).throw(
+                    ValueError("You must specify end or duration")
+                )
+            )
         self._st = start
         self._dur = end - start
         self.end = end
@@ -280,8 +304,7 @@ class ImageClip(VideoClip.VideoClip):
             end = self.end if self.end else start + duration
 
         # Generate frames using make_frame_pil
-        frames = tuple(self.make_frame_pil(t)
-                       for t in np.arange(start, end, 1 / fps))
+        frames = tuple(self.make_frame_pil(t) for t in np.arange(start, end, 1 / fps))
 
         # Create ImageSequenceClip from frames
         return ImageSequenceClip(frames, fps=fps).set_start(start).set_end(end)
@@ -325,7 +348,12 @@ class Data2ImageClip(ImageClip):
     users to create video clips from raw data, supporting either numpy arrays or PIL Images as input.
     """
 
-    def __init__(self, data: np.ndarray | Image.Image, fps: int | float | None = None, duration: int | float | None = None):
+    def __init__(
+        self,
+        data: np.ndarray | Image.Image,
+        fps: int | float | None = None,
+        duration: int | float | None = None,
+    ):
         # Initialize the class by calling the parent constructor
         super().__init__(fps=fps, duration=duration)
 
@@ -355,8 +383,7 @@ class Data2ImageClip(ImageClip):
             return image
         else:
             # Raise an error if the input type is not supported
-            raise TypeError(
-                f"{type(image)} is not an Image.Image or numpy array Type.")
+            raise TypeError(f"{type(image)} is not an Image.Image or numpy array Type.")
 
 
 class ColorClip(Data2ImageClip):
@@ -544,14 +571,24 @@ class ColorClip(Data2ImageClip):
     ```
     """
 
-    def __init__(self, color: str | tuple[int, ...], mode='RGBA', size=(1, 1), fps=None, duration=None):
+    def __init__(
+        self,
+        color: str | tuple[int, ...],
+        mode="RGBA",
+        size=(1, 1),
+        fps=None,
+        duration=None,
+    ):
         data = Image.new(mode, size, color)  # type: ignore
         self.color = color
         self.mode = mode
         super().__init__(data, fps=fps, duration=duration)
 
     def __repr__(self):
-        return f'<{self.__class__.__name__} color={self.color} mode={self.mode} start={self.start} end={self.end} fps={self.fps} size={self.size}, {id(self)}>'
+        return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, color={self.color}, mode={self.mode}, id={hex(id(self))})"""
+
+    def __str__(self):
+        return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, color={self.color}, mode={self.mode})"""
 
     def set_size(self, size: tuple[int, int]):
         """
@@ -601,19 +638,29 @@ class TextClip(Data2ImageClip):
     ```
     """
 
-    def __init__(self, text: str, font_pth: None | str = None, font_size: int = 20, txt_color: str | tuple[int, ...] = (255, 255, 255, 0),
-                 bg_color: str | tuple[int, ...] = (0, 0, 0, 0), fps=None, duration=None):
-        font = ImageFont.truetype(
-            font_pth, font_size) if font_pth else ImageFont.load_default(font_size)
+    def __init__(
+        self,
+        text: str,
+        font_pth: None | str = None,
+        font_size: int = 20,
+        txt_color: str | tuple[int, ...] = (255, 255, 255, 0),
+        bg_color: str | tuple[int, ...] = (0, 0, 0, 0),
+        fps=None,
+        duration=None,
+    ):
+        font = (
+            ImageFont.truetype(font_pth, font_size)
+            if font_pth
+            else ImageFont.load_default(font_size)
+        )
 
         bbox = font.getbbox(text)
-        image_width, image_height = bbox[2] - \
-            bbox[0] + 20, bbox[3] - bbox[1] + 20
-        image = Image.new("RGBA", (image_width, image_height),
-                          bg_color)  # type: ignore
+        image_width, image_height = bbox[2] - bbox[0] + 20, bbox[3] - bbox[1] + 20
+        image = Image.new("RGBA", (image_width, image_height), bg_color)  # type: ignore
         draw = ImageDraw.Draw(image)
-        draw.text((10, 10), text, font=font, align='center',
-                  fill=txt_color)  # type: ignore
+        draw.text(
+            (10, 10), text, font=font, align="center", fill=txt_color
+        )  # type: ignore
 
         self.text = text
         self.font = font
@@ -624,7 +671,7 @@ class TextClip(Data2ImageClip):
         super().__init__(image, fps=fps, duration=duration)
 
     def __repr__(self):
-        return f'<{self.__class__.__name__} font={self.font} font_size={self.font_size} txt_color={self.txt_color} bg_color={self.bg_color} start={self.start} end={self.end} fps={self.fps} size={self.size} text={self.text}, {id(self)}>'
+        return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, text={self.text}, font_size={self.font_size}, text_color={self.txt_color}, bg_color={self.bg_color}, id={hex(id(self))})"""
 
     def __str__(self):
-        return f'{self.__class__.__name__} font={self.font} font_size={self.font_size} txt_color={self.txt_color} bg_color={self.bg_color} start={self.start} end={self.end} fps={self.fps} size={self.size} text={self.text}'
+        return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, text={self.text}, font_size={self.font_size}"""
