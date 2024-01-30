@@ -39,7 +39,7 @@ class AudioClip(Clip):
         self._ed: int | float | None = None
 
     def __repr__(self):
-        return f"""{self.__class__.__name__}(start={self.start}, end={self.end}, duration={self.duration}, fps={self.fps}, channels={self.channels}, id={hex{id(self)}})"""
+        return f"""{self.__class__.__name__}(start={self.start}, end={self.end}, duration={self.duration}, fps={self.fps}, channels={self.channels}, id={hex(id(self))})"""
 
     def __str__(self):
         return f"""{self.__class__.__name__}(start={self.start}, end={self.end}, duration={self.duration}, fps={self.fps}, channels={self.channels})"""
