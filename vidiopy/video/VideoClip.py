@@ -14,7 +14,7 @@ import numpy as np
 from ..Clip import Clip
 from ..audio.AudioClip import AudioClip
 from ..decorators import *
-from ..config import FFMPEG_BINARY
+from .. import config
 
 
 class VideoClip(Clip):
@@ -147,7 +147,7 @@ class VideoClip(Clip):
         elif isinstance(pos, tuple):
             self.pos = lambda t: pos
         else:
-            raise TypeError('Pos is Invalid Type not Callable or int or float')
+            raise TypeError('Pos is Invalid Type not Callable or tuple of int or float.')
 
         return self
 
@@ -317,6 +317,7 @@ class VideoClip(Clip):
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
+            self.audio._original_dur = self.duration
         return self
 
     #####################
@@ -327,9 +328,9 @@ class VideoClip(Clip):
                         bitrate=None, audio=True, audio_fps=44100,
                         preset="medium", pixel_format=None,
                         audio_codec=None, audio_bitrate=None,
-                        write_logfile=False, verbose=True,
                         threads=None, ffmpeg_params: dict[str, str] | None = None,
                         logger='bar', over_write_output=True) -> Self:
+        
         # Generate video frames using iterate_frames_array_t method
         total_frames = int((self.end - self.start) / (1 / (fps if fps else self.fps if self.fps else
                                                            (_ for _ in ()).throw(Exception('fps is not provided and set.'))))) if self.end is not None else 0
@@ -413,7 +414,7 @@ class VideoClip(Clip):
                     sp = progress_bar.add_task(
                         "Combining Video & Audio", total=None)
                     subprocess.run(
-                        f'{FFMPEG_BINARY} -i {temp_video_file_name} -i {
+                        f'{config.FFMPEG_BINARY} -i {temp_video_file_name} -i {
                             audio_file_name} -acodec copy '
                         f'{"-y" if over_write_output else ""} {filename}',
                         capture_output=True, text=True
@@ -423,8 +424,6 @@ class VideoClip(Clip):
                     f"[bold magenta]Vidiopy[/bold magenta] - ✔ Audio Video Combined Final video : - {filename} :thumbs_up:", flush=True)
 
             return self
-        except Exception as e:
-            raise e
         finally:
             if audio_file_name:
                 os.remove(audio_file_name)
