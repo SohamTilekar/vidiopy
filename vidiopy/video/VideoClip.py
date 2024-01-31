@@ -158,9 +158,9 @@ class VideoClip(Clip):
                     raise ValueError("Pos is Invalid Type not tuple of int.")
                 self.pos = lambda t: ((lambda p: (p[0], p[1]))(pos(t)))  # type: ignore
         elif isinstance(pos, tuple):
-            pos = (int(pos[0]), int(pos[1]))
+            pos_ = int(pos[0]), int(pos[1])
             self.pos: Callable[[float | int], tuple[int, int]] = (
-                (lambda t: pos)
+                (lambda t: pos_)
                 if not self.relative_pos
                 else (lambda t: (int(pos[0] * self.width), int(pos[1] * self.height)))
             )
@@ -171,6 +171,7 @@ class VideoClip(Clip):
     def set_audio(self, audio: AudioClip | None) -> Self:
         self.audio = audio
         if self.audio:
+            self.audio.start = self.start
             self.audio.end = self.end
         return self
 
@@ -191,12 +192,8 @@ class VideoClip(Clip):
 
         # Iterate through the attributes of the current instance
         for attr, value in self.__dict__.items():
-            # If the attribute is 'audio', make a shallow copy
-            if attr == "audio":
-                value = copy_(value)
-
             # Set the attribute in the new instance
-            setattr(new_clip, attr, value)
+            setattr(new_clip, attr, copy_(value))
 
         # Return the shallow copy
         return new_clip
@@ -214,7 +211,7 @@ class VideoClip(Clip):
     def make_frame_pil(self, t) -> Image.Image:
         raise NotImplemented("Make Frame pil is Not Set.")
 
-    def get_frame(self, t, is_pil=None) -> np.ndarray | Image.Image:
+    def get_frame(self, t: int | float, is_pil=None) -> np.ndarray | Image.Image:
         if is_pil is None or is_pil is False:
             return self.make_frame_array(t)
         elif is_pil is True:
@@ -302,7 +299,6 @@ class VideoClip(Clip):
         return self
 
     def fl_time_transform(self, func_t: Callable[[int], int]) -> Self:
-        original_get_frame = self.get_frame
         original_make_frame_pil_t = self.make_frame_pil
         original_make_frame_array_t = self.make_frame_array
 
@@ -316,14 +312,8 @@ class VideoClip(Clip):
             transformed_t = func_t(t)
             return original_make_frame_pil_t(transformed_t)
 
-        @wraps(original_get_frame)
-        def modified_get_frame(t, is_pil=None):
-            transformed_t = func_t(t)
-            return original_get_frame(transformed_t, is_pil)
-
         self.make_frame_array = modified_make_frame_array_t
         self.make_frame_pil = modified_make_frame_pil_t
-        self.get_frame = modified_get_frame
         return self
 
     def fx(self, func, *args, **kwargs) -> Self:
