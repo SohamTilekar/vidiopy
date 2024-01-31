@@ -47,12 +47,12 @@ class VideoClip(Clip):
         return f"""{self.__class__.__name__}, start={self.start}, end={self.end}, fps={self.fps}, size={self.size}, duration={self.duration}, audio={self.audio}"""
 
     def __len__(self) -> int | float | None:
-        if self.end is None:
-            return self.duration
-        return int(self.end - self.start)
+        return self._dur
 
     @requires_fps
     def __iter__(self) -> Generator[np.ndarray[Any, Any], Any, None]:
+        if not self.fps:
+            raise ValueError("FPS is not set")
         return self.iterate_frames_array_t(self.fps)
 
     #############################
@@ -96,14 +96,8 @@ class VideoClip(Clip):
         if self.start is None:
             return self
 
-        if self.duration is not None:
-            self.end = t + self.duration
-        elif self.end is not None:
-            self.duration = self.end - self.start
-
         if self.audio:
             self.audio.start = self.start
-            self.audio.end = self.end
         return self
 
     def set_start(self, value: int | float) -> Self:
@@ -139,16 +133,19 @@ class VideoClip(Clip):
         raise ValueError("Duration is not allowed to be set")
         return self
 
-    def set_position(self, pos: tuple[int, int] | Callable[[float | int], tuple[int, int]], relative=False) -> Self:
+    def set_position(self, pos: tuple[int | float, int | float] | Callable[[float | int], tuple[int | float, int | float]], relative=False) -> Self:
         self.relative_pos = relative
-
         if callable(pos):
-            self.pos = pos
+            if relative:
+                self.pos = lambda t: (int(pos(t)[0] * self.width), int(pos(t)[1] * self.height))
+            else:
+                if isinstance(pos(1), float) and isinstance(pos(1.1), float) and isinstance(pos(0), float): raise ValueError('Pos is Invalid Type not tuple of int.')
+                self.pos = lambda t: ((lambda p: (p[0], p[1]))(pos(t))) # type: ignore
         elif isinstance(pos, tuple):
-            self.pos = lambda t: pos
+            pos = (int(pos[0]), int(pos[1]))
+            self.pos: Callable[[float | int], tuple[int, int]] = (lambda t: pos) if not self.relative_pos else (lambda t: (int(pos[0] * self.width), int(pos[1] * self.height)))
         else:
-            raise TypeError('Pos is Invalid Type not Callable or tuple of int or float.')
-
+            raise TypeError('Pos is Invalid Type not Callable or tuple of int.')
         return self
 
     def set_audio(self, audio: AudioClip | None) -> Self:
