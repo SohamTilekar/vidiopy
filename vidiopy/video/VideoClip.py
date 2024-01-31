@@ -206,10 +206,10 @@ class VideoClip(Clip):
     ####################################
 
     def make_frame_array(self, t) -> np.ndarray:
-        raise NotImplemented("Make Frame is Not Set.")
+        raise NotImplementedError("Make Frame is Not Set.")
 
     def make_frame_pil(self, t) -> Image.Image:
-        raise NotImplemented("Make Frame pil is Not Set.")
+        raise NotImplementedError("Make Frame pil is Not Set.")
 
     def get_frame(self, t: int | float, is_pil=None) -> np.ndarray | Image.Image:
         if is_pil is None or is_pil is False:
@@ -225,11 +225,11 @@ class VideoClip(Clip):
         time_dif = 1 / fps
         t = self.start
         if self.end is not None:
-            while t <= self.end:
+            while t < self.end:
                 yield self.make_frame_pil(t)
                 t += time_dif
         elif self.duration is not None:
-            while t <= self.duration:
+            while t < self.duration:
                 yield self.make_frame_pil(t)
                 t += time_dif
         else:
@@ -241,11 +241,11 @@ class VideoClip(Clip):
         time_dif = 1 / fps
         t = 0
         if self.end is not None:
-            while t <= self.end:
+            while t < self.end:
                 yield self.make_frame_array(t)
                 t += time_dif
         elif self.duration is not None:
-            while t <= self.duration:
+            while t < self.duration:
                 yield self.make_frame_array(t)
                 t += time_dif
         else:
@@ -482,8 +482,8 @@ class VideoClip(Clip):
                 # Combine video and audio using ffmpeg
                 with progress.Progress(transient=True) as progress_bar:
                     sp = progress_bar.add_task("Combining Video & Audio", total=None)
-                    subprocess.run(
-                        f'{config.FFMPEG_BINARY} -i {temp_video_file_name} -i {audio_file_name} -acodec copy {"-y" if over_write_output else ""} {filename}',
+                    x = subprocess.run(
+                        f'{config.FFMPEG_BINARY} -i "{temp_video_file_name}" -i "{audio_file_name}" -acodec copy {"-y " if over_write_output else ""} "{filename}"',
                         capture_output=True,
                         text=True,
                     )
@@ -499,6 +499,7 @@ class VideoClip(Clip):
                 os.remove(audio_file_name)
             # Rename temporary video file to the final filename if no audio is present
             if (not self.audio or not audio) and temp_video_file_name:
+                print(temp_video_file_name)
                 os.replace(temp_video_file_name, filename)
                 temp_video_file_name = None
                 rich_print(
