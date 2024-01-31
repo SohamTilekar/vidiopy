@@ -1,7 +1,14 @@
 from .__version__ import __version__
 from .config import set_path, FFMPEG_BINARY, FFPROBE_BINARY
 from .video.fx import *
-from .audio.AudioClip import AudioClip, AudioFileClip, concatenate_audioclips
+from .audio.AudioClip import (
+    AudioClip,
+    AudioFileClip,
+    concatenate_audioclips,
+    composite_audioclips,
+    SilenceClip,
+    AudioArrayClip,
+)
 
 from .Clip import Clip
 
