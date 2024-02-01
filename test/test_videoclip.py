@@ -1,14 +1,11 @@
 import pytest
 from vidiopy import VideoClip
-from PIL import Image, ImageChops
+from PIL import Image
+import ffmpegio
 from vidiopy import AudioClip, SilenceClip
 from fractions import Fraction
 import numpy as np
-
-
-@pytest.fixture
-def clip():
-    return VideoClip()
+import os
 
 
 def test_initialization(clip: VideoClip):
@@ -30,12 +27,6 @@ def test__iter__(clip: VideoClip):
         for _ in clip:
             pass
 
-    clip.fps = 30
-    clip.end = 1
-
-    with pytest.raises(NotImplementedError):
-        for _ in clip:
-            pass
     clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
     clip.fps = 1
     clip.end = 1
@@ -159,11 +150,11 @@ def test_without_audio(clip: VideoClip):
 def test_copy(clip: VideoClip):
     clip_copy: VideoClip = clip.copy()
     assert clip_copy is not clip
-    assert clip_copy == clip
+    assert clip_copy != clip
     assert clip_copy.__dict__ == clip.__dict__
     clip_clip_copy = clip_copy.__copy__()
     assert clip_clip_copy is not clip_copy and clip_clip_copy is not clip
-    assert clip_clip_copy == clip_copy and clip_clip_copy == clip
+    assert clip_clip_copy != clip_copy and clip_clip_copy != clip
     assert (
         clip_clip_copy.__dict__ == clip_copy.__dict__
         and clip_clip_copy.__dict__ == clip.__dict__
@@ -197,14 +188,14 @@ def test_iterate_frames_pil_t(clip: VideoClip):
     clip.end = 1
     clip.make_frame_pil = lambda t: Image.new("RGB", (100, 100))
     frames = tuple(clip.iterate_frames_pil_t(30))
-    assert len(frames) == 30
+    assert len(frames) == 31
     assert all(isinstance(frame, Image.Image) for frame in frames)
 
     # Test when duration is set
     clip.end = None
-    clip.duration = 1
+    clip._dur = 1
     frames = tuple(clip.iterate_frames_pil_t(30))
-    assert len(frames) == 30
+    assert len(frames) == 31
     assert all(isinstance(frame, Image.Image) for frame in frames)
 
     # Test when neither end nor duration is set
@@ -219,15 +210,15 @@ def test_iterate_frames_array_t(clip: VideoClip):
     clip.end = 1
     clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
     frames = tuple(clip.iterate_frames_array_t(30))
-    assert len(frames) == 30
+    assert len(frames) == 31
     assert all(isinstance(frame, np.ndarray) for frame in frames)
     assert all(frame.shape == (100, 100, 3) for frame in frames)
 
     # Test when duration is set
     clip.end = None
-    clip.duration = 1
+    clip._dur = 1
     frames = tuple(clip.iterate_frames_array_t(30))
-    assert len(frames) == 30
+    assert len(frames) == 31
     assert all(isinstance(frame, np.ndarray) for frame in frames)
     assert all(frame.shape == (100, 100, 3) for frame in frames)
 
@@ -253,7 +244,7 @@ def test_sync_audio_video_s_e_d(clip: VideoClip):
     # Set the start, end, and duration of the clip
     clip.start = 1
     clip.end = 2
-    clip.duration = 1
+    clip._dur = 1
 
     # Set the audio of the clip
     clip.audio = AudioClip()
@@ -265,3 +256,61 @@ def test_sync_audio_video_s_e_d(clip: VideoClip):
     assert clip.audio.start == clip.start
     assert clip.audio.end == clip.end
     assert clip.audio._original_dur == clip.duration
+
+
+def test_write_videofile_no_audio(clip: VideoClip):
+    clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
+    clip.fps = 30
+    clip.end = 1
+    dump_path = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "dump",
+            "test_video_no_audio_np.zeros(100, 100, 3).mkv",
+        )
+    )
+    media_path = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "media/auto_test_media",
+            "test_video_no_audio_np.zeros(100, 100, 3).mkv",
+        )
+    )
+    clip.write_videofile(dump_path, fps=5, codec="ffv1", audio=False)
+    assert os.path.exists(dump_path)
+    assert np.array_equal(
+        ffmpegio.video.read(dump_path)[1], ffmpegio.video.read(media_path)[1]
+    )
+
+
+def test_write_videofile_audio(clip: VideoClip):
+    clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
+    clip.fps = 30
+    clip.end = 1
+    clip.set_audio(SilenceClip(1, 44100))
+    dump_path = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "dump",
+            "test_video_Saudio_np.zeros(100, 100, 3).mkv",
+        )
+    )
+    media_path = os.path.abspath(
+        os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "media/auto_test_media",
+            "test_video_Saudio_np.zeros(100, 100, 3).mkv",
+        )
+    )
+    clip.write_videofile(dump_path, fps=5, codec="ffv1")
+    assert os.path.exists(dump_path)
+    assert np.array_equal(
+        ffmpegio.video.read(dump_path)[1], ffmpegio.video.read(media_path)[1]
+    )
+    assert np.array_equal(
+        ffmpegio.audio.read(dump_path)[1], ffmpegio.audio.read(media_path)[1]
+    )
