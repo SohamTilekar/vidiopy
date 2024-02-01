@@ -17,14 +17,17 @@ class VideoFileClip(VideoClip):
         video_data = ffmpegio.probe.video_streams_basic(filename)[0]
 
         # Import video clip using ffmpeg
-        self.clip = self._import_video_clip(filename, ffmpeg_options)
-
+        self.clip, self.fps = self._import_video_clip(filename, ffmpeg_options)
+        self.fps = float(self.fps)
         # Set video properties
-        self.fps: float = float(video_data["frame_rate"])
         self.size = (video_data["width"], video_data["height"])
         self.start = 0.0
-        self.end = video_data["duration"]
-        self._dur = float(self.end)
+        if video_data["duration"]:
+            self.end = video_data["duration"]
+            self._dur = video_data["duration"]
+        else:
+            self.end = len(self.clip) / self.fps
+            self._dur = self.end
         # If audio is enabled, attach audio clip
         if audio:
             audio = AudioFileClip(filename, self._dur)
@@ -90,7 +93,7 @@ class VideoFileClip(VideoClip):
         time_per_frame = 1 / self.fps
         current_frame_time = self.start
 
-        while current_frame_time <= t_end:
+        while current_frame_time < t_end:
             frames.append(self.make_frame_pil(current_frame_time))
             current_frame_time += time_per_frame
 
@@ -121,7 +124,7 @@ class VideoFileClip(VideoClip):
         time_per_frame = 1 / clip.fps
         current_frame_time = clip.start
 
-        while current_frame_time <= t_end:
+        while current_frame_time < t_end:
             frames.append(clip.make_frame_pil(current_frame_time))
             current_frame_time += time_per_frame
 
@@ -153,7 +156,5 @@ class VideoFileClip(VideoClip):
 
     def _import_video_clip(self, file_name, ffmpeg_options):
         options = {**(ffmpeg_options if ffmpeg_options else {})}
-        return tuple(
-            Image.fromarray(frame)
-            for frame in ffmpegio.video.read(file_name, **options)[1]
-        )
+        fps, frames = ffmpegio.video.read(file_name, **options)
+        return tuple(Image.fromarray(frame) for frame in frames), fps
