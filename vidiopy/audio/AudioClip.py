@@ -101,11 +101,11 @@ class AudioClip(Clip):
             raise ValueError("Frames per second (fps) is not set")
         if self._audio_data is None:
             raise ValueError("Audio data is not set")
-        if self.duration is None:
+        if self.duration is None and self.end is None:
             raise ValueError("Original duration is not set")
 
         # Calculate the Frame index using the duration, total_frames & time t
-        frame_index = int((t / self.duration) * len(self._audio_data)) - 1
+        frame_index = int((t / (self.end or self.duration)) * len(self._audio_data)) - 1
         return self._audio_data[frame_index]
 
     def iterate_frames_at_fps(
@@ -125,7 +125,7 @@ class AudioClip(Clip):
 
         # Calculate the frame index based on the original fps
         frame_index = 0
-        while frame_index <= len(self._audio_data):
+        while frame_index < len(self._audio_data):
             yield self._audio_data[frame_index]
             frame_index += int(original_fps / fps)
 
@@ -239,14 +239,17 @@ class AudioClip(Clip):
             fps = self.fps
         if self._audio_data is None:
             raise ValueError("Audio data is not set")
-        if self.duration is None:
+        if self.duration is None and self.end is None:
             raise ValueError("Original duration is not set")
         if self.channels is None:
             raise ValueError("Channels is not set")
 
         # Convert the audio Data to the temp_Audio_Data using the duration & fps & _audio_data
         temp_audio_data = np.array(
-            [self.get_frame_at_t(t) for t in np.arange(0, self.duration, 1 / fps)]
+            [
+                self.get_frame_at_t(t)
+                for t in np.arange(0, self.end or self.duration, 1 / fps)
+            ]
         )
         ffmpegio.audio.write(path, fps, temp_audio_data, overwrite=overwrite, **kwargs)
 
@@ -392,11 +395,11 @@ def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100):
     td = 1 / fps
     t = 0.0
     frames = []
-    while t <= duration:
+    while t < duration:
         frame_ch = []
         for c in clips:
             if (
-                c.start <= t <= c.end
+                c.start < t < c.end
                 if c.end
                 else c.duration
                 if c.duration
