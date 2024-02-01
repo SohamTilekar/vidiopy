@@ -32,13 +32,13 @@ def composite_videoclips(clips: Sequence[VideoClip],
             for clip in clips:
                 if clip.audio:
                     clip._sync_audio_video_s_e_d()
-                    clip.audio._st = clip.audio.start if clip.audio.start >= start else start
-                    clip.audio._ed = clip.audio.end if clip.audio.end and clip.audio.end <= end else end
+                    clip.audio._st = clip.audio.start if clip.audio.start > start else start
+                    clip.audio._ed = clip.audio.end if clip.audio.end and clip.audio.end < end else end
                     audios.append(clip.audio)
                 else:
-                    ac_st = clip._st if clip._st >= start else start 
-                    ac_ed = clip._ed if clip._ed and clip._ed <= end else end
-                    ac_dur = clip.duration if clip.duration and clip.duration <= duration else duration
+                    ac_st = clip._st if clip._st > start else start 
+                    ac_ed = clip._ed if clip._ed and clip._ed < end else end
+                    ac_dur = clip.duration if clip.duration and clip.duration < duration else duration
                     aud = SilenceClip(duration=ac_ed - ac_st if ac_ed else ac_dur - ac_st if ac_dur else (_ for _ in ()).throw(ValueError(f'Clip duration and end is not set, clip.__str__ = {clip.__str__()}')), channels=1)
                     aud._st = ac_st
                     aud._ed = ac_ed
@@ -46,10 +46,10 @@ def composite_videoclips(clips: Sequence[VideoClip],
             f_audio = composite_audioclips(audios, fps=audio_fps)
         else:
             f_audio = None
-        while current_time <= duration:
+        while current_time < duration:
             frame = bg_clip.make_frame_pil(current_time)
             for clip in clips:
-                if clip._st <= current_time <= clip._ed if clip._ed else clip.duration if clip.duration else float('inf'):
+                if clip._st < current_time < clip._ed if clip._ed else clip.duration if clip.duration else float('inf'):
                     frame.paste(clip.make_frame_pil(current_time), clip.pos(current_time), clip.make_frame_pil(current_time) if clip.make_frame_pil(current_time).has_transparency_data else None)
             frames.append(frame)
             current_time += td
@@ -92,10 +92,10 @@ def composite_videoclips(clips: Sequence[VideoClip],
         else:
             f_audio = None
         current_time = 0.0
-        while current_time <= duration:
+        while current_time < duration:
             current_frame = Image.new('RGBA', max_size, bg_color)
             for clip in clips:
-                if clip.start <= current_time <= clip.end if clip.end else clip.duration if clip.duration else float('inf'):
+                if clip.start < current_time < clip.end if clip.end else clip.duration if clip.duration else float('inf'):
                     tmp_clip_frame = clip.make_frame_pil(current_time)
                     current_frame.paste(
                         tmp_clip_frame,
@@ -140,7 +140,7 @@ def concatenate_videoclips(clips: Sequence[VideoClip],
         frames = []
         for i, clip in enumerate(clips):
             current_clip_current_time = 0.0
-            while current_clip_current_time <= duration_per_clip[i]:
+            while current_clip_current_time < duration_per_clip[i]:
                 current_clip_current_frame = clip.make_frame_pil(
                     current_clip_current_time)
                 current_clip_current_frame = increase_scale(
@@ -171,7 +171,7 @@ def concatenate_videoclips(clips: Sequence[VideoClip],
         frames = []
         for i, clip in enumerate(clips):
             current_clip_current_time = 0.0
-            while current_clip_current_time <= duration_per_clip[i]:
+            while current_clip_current_time < duration_per_clip[i]:
                 current_clip_current_frame = clip.make_frame_pil(
                     current_clip_current_time)
                 current_clip_current_frame = increase_scale(
@@ -201,7 +201,7 @@ def concatenate_videoclips(clips: Sequence[VideoClip],
         frames = []
         for i, clip in enumerate(clips):
             current_clip_current_time = 0.0
-            while current_clip_current_time <= duration_per_clip[i]:
+            while current_clip_current_time < duration_per_clip[i]:
                 current_clip_current_frame = clip.make_frame_pil(
                     current_clip_current_time)
                 current_clip_current_frame = increase_scale(
