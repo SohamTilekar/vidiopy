@@ -1,22 +1,23 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 from pathlib import Path
+from vidiopy.__version__ import __version__
 
 with open(Path(r".\README.md")) as f:
     long_description = f.read()
 
-__version__ = "0.2.12"
-
 setup(
-    name='vidiopy',
+    name="vidiopy",
     version=__version__,
-    description='An Video Editing Library Similar to Moviepy.',
+    description="An Video Editing Library Similar to Moviepy.",
     long_description=long_description,
-    author='Soham Tilekar',
-    author_email='sohamtilekar233@gamil.com',
+    author="Soham Tilekar",
+    author_email="sohamtilekar233@gamil.com",
     # maintainer='Soham Tilekar',
     # maintainer_email='sohamtilekar233@gmail.com',
-    url=r'https://github.com/SohamTilekar/vidiopy',
-    packages=find_packages(exclude=("venv", "test", ".vscode", ".idea")),
+    url=r"https://github.com/SohamTilekar/vidiopy",
+    packages=[
+        "vidiopy"
+    ],  # find_packages(exclude=("venv", "test", ".vscode", ".idea")),
     project_urls={
         "Homepage": "https://github.com/SohamTilekar/vidiopy/",
         "Source": "https://github.com/SohamTilekar/vidiopy/",
@@ -37,9 +38,14 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Version Control :: Git",
     ],
-    license='MIT License',
-    long_description_content_type='text/markdown',
-    install_requires=['rich', 'numpy', 'ffmpegio', 'pillow'],
+    license="MIT License",
+    long_description_content_type="text/markdown",
+    install_requires=[
+        "rich>=13.7.0",
+        "numpy>=1.26.3",
+        "ffmpegio>=0.9.0",
+        "pillow>=10.2.0",
+    ],
     include_package_data=True,
     python_requires=">=3.11, <=3.12.1",
 )
