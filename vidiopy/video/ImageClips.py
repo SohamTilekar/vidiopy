@@ -121,6 +121,20 @@ class ImageClip(VideoClip.VideoClip):
     def __str__(self):
         return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration})"""
 
+    @property
+    def duration(self):
+        return self._dur
+
+    @duration.setter
+    def duration(self, value: int | float | None):
+        self._dur = value
+        return self
+
+    @override
+    def set_duration(self, value) -> Self:
+        self._dur = value
+        return self
+
     @override
     @requires_start_end
     def fl_frame_transform(self, func, *args, **kwargs) -> Self:
@@ -235,12 +249,10 @@ class ImageClip(VideoClip.VideoClip):
                 if self.end is not None
                 else self.duration - start
                 if self.duration is not None
-                else (_ for _ in ()).throw(
-                    ValueError("You must specify end or duration")
-                )
+                else None
             )
         self._st = start
-        self._dur = end - start
+        self._dur = end
         self.end = end
         return self
 
@@ -307,7 +319,11 @@ class ImageClip(VideoClip.VideoClip):
         frames = tuple(self.make_frame_pil(t) for t in np.arange(start, end, 1 / fps))
 
         # Create ImageSequenceClip from frames
-        return ImageSequenceClip(frames, fps=fps).set_start(start).set_end(end)
+        return (
+            ImageSequenceClip(frames, fps=fps, duration=duration, audio=self.audio)
+            .set_start(start)
+            .set_end(end)
+        )
 
 
 class Data2ImageClip(ImageClip):
@@ -363,7 +379,7 @@ class Data2ImageClip(ImageClip):
         # Set the size attribute based on the image size
         self.size = self.image.size
 
-    def _import_image(self, image):
+    def _import_image(self, image) -> Image.Image:
         """
         Private method to convert the provided data (numpy array or PIL Image) into a PIL Image.
 
@@ -381,6 +397,7 @@ class Data2ImageClip(ImageClip):
             return Image.fromarray(image)
         elif isinstance(image, Image.Image):
             return image
+
         else:
             # Raise an error if the input type is not supported
             raise TypeError(f"{type(image)} is not an Image.Image or numpy array Type.")
@@ -604,8 +621,8 @@ class ColorClip(Data2ImageClip):
         color_clip.set_size((800, 600))
         ```
         """
-        self.size = size
         self.image = self.image.resize(size)
+        self.size = size
 
 
 class TextClip(Data2ImageClip):
