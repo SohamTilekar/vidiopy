@@ -28,13 +28,9 @@ class ImageSequenceClip(VideoClip):
             self.fps = fps
             self._dur = duration
         elif fps is None and duration is not None:
-            if duration is None:
-                raise ValueError("You must specify either fps or duration.")
             self.fps = len(self.clip) / duration
             self._dur = duration
         elif duration is None and fps is not None:
-            if fps is None:
-                raise ValueError("You must specify either fps or duration.")
             self.fps = fps
             self._dur = len(self.clip) / fps
         else:
