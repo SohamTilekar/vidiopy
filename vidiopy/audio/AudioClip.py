@@ -12,8 +12,9 @@ The following classes are defined:
     - ConcatAudioClip
 
 """
+
 import pathlib
-from typing import Generator
+from typing import Generator, Self
 from copy import copy as copy_
 import ffmpegio
 import numpy as np
@@ -51,10 +52,10 @@ class AudioClip(Clip):
         return self._audio_data
 
     @audio_data.setter
-    def audio_data(self, audio_data: np.ndarray):
+    def audio_data(self, audio_data: np.ndarray) -> None:
         self._audio_data = audio_data
 
-    def set_data(self, audio_data: np.ndarray):
+    def set_data(self, audio_data: np.ndarray) -> Self:
         self._audio_data = audio_data
         return self
 
@@ -66,7 +67,7 @@ class AudioClip(Clip):
     def duration(self, duration: int | float):
         raise AttributeError("Not Allowed to set duration")
 
-    def set_duration(self, duration: int | float):
+    def set_duration(self, duration: int | float) -> Self:
         self._original_dur = duration
         return self
 
@@ -77,10 +78,10 @@ class AudioClip(Clip):
         return self._st
 
     @start.setter
-    def start(self, start: int | float):
+    def start(self, start: int | float) -> None:
         self._st = start
 
-    def set_start(self, start: int | float):
+    def set_start(self, start: int | float) -> Self:
         self._st = start
         return self
 
@@ -89,10 +90,10 @@ class AudioClip(Clip):
         return self._ed
 
     @end.setter
-    def end(self, end: int | float | None):
+    def end(self, end: int | float | None) -> None:
         self._ed = end
 
-    def set_end(self, end: int | float | None):
+    def set_end(self, end: int | float | None) -> Self:
         self._ed = end
         return self
 
@@ -129,13 +130,13 @@ class AudioClip(Clip):
             yield self._audio_data[frame_index]
             frame_index += int(original_fps / fps)
 
-    def iterate_all_frames(self):
+    def iterate_all_frames(self) -> Generator[np.ndarray, None, None]:
         if self._audio_data is None:
             raise ValueError("Audio data is not set")
         for frame in self._audio_data:
             yield frame
 
-    def fl_frame_transform(self, func, *args, **kwargs):
+    def fl_frame_transform(self, func, *args, **kwargs) -> Self:
         """Apply a function to each frame of the audio data
         frame=ndarray([chanel1: float, chanel2: float, ...])
         """
@@ -146,7 +147,7 @@ class AudioClip(Clip):
         )
         return self
 
-    def fl_clip_transform(self, func, *args, **kwargs):
+    def fl_clip_transform(self, func, *args, **kwargs) -> Self:
         """Apply a function to the entire audio data
         frame=ndarray([chanel1: float, chanel2: float, ...])
         """
@@ -157,7 +158,7 @@ class AudioClip(Clip):
 
     def trim_audio_in_place(
         self, start: float | int | None = None, end: float | int | None = None
-    ):
+    ) -> Self:
         if self._audio_data is None:
             raise ValueError("Audio data is not set")
         if self.duration is None:
@@ -188,7 +189,7 @@ class AudioClip(Clip):
 
     def trim_audio(
         self, start: float | int | None = None, end: float | int | None = None
-    ):
+    ) -> Self:
         if self._audio_data is None:
             raise ValueError("Audio data is not set")
         if self.duration is None:
@@ -334,19 +335,21 @@ def concatenate_audioclips(
         raise ValueError("No fps value found place set fps value or fps value in clips")
     duration = sum(
         [
-            c.end - c.start
-            if c.end
-            else c.duration
-            if c.duration
-            else (_ for _ in ()).throw(ValueError(""))
+            (
+                c.end - c.start
+                if c.end
+                else c.duration if c.duration else (_ for _ in ()).throw(ValueError(""))
+            )
             for c in clips
         ]
     )
     channels: int = max(
         [
-            c.channels
-            if c.channels
-            else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+            (
+                c.channels
+                if c.channels
+                else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+            )
             for c in clips
         ]
     )
@@ -362,17 +365,21 @@ def concatenate_audioclips(
     return AudioArrayClip(np.asarray(clip), fps, duration)
 
 
-def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100):
+def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100) -> AudioArrayClip:
     fps = fps if fps else max([c.fps if c.fps else 0 for c in clips])
     if not fps:
         raise ValueError("No fps value found place set fps value or fps value in clips")
     duration = max(
         [
-            c.end - c.start
-            if c.end
-            else c.duration - c.start
-            if c.duration
-            else (_ for _ in ()).throw(ValueError(""))
+            (
+                c.end - c.start
+                if c.end
+                else (
+                    c.duration - c.start
+                    if c.duration
+                    else (_ for _ in ()).throw(ValueError(""))
+                )
+            )
             for c in clips
         ]
     )
@@ -382,9 +389,11 @@ def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100):
         )
     channels: int = max(
         [
-            c.channels
-            if c.channels
-            else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+            (
+                c.channels
+                if c.channels
+                else (_ for _ in ()).throw(ValueError("clip channels is not set"))
+            )
             for c in clips
         ]
     )
@@ -401,9 +410,13 @@ def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100):
             if (
                 c.start < t < c.end
                 if c.end
-                else c.duration
-                if c.duration
-                else (_ for _ in ()).throw(ValueError("audio clip duration is not set"))
+                else (
+                    c.duration
+                    if c.duration
+                    else (_ for _ in ()).throw(
+                        ValueError("audio clip duration is not set")
+                    )
+                )
             ):
                 c_frame = c.get_frame_at_t(t)
                 extend_num = channels - len(c_frame)
