@@ -6,22 +6,55 @@ import shutil
 import urllib.request
 import zipfile
 import ffmpegio
+from rich.progress import Progress
 
 __all__ = ["FFMPEG_BINARY", "FFPROBE_BINARY", "set_path", "install_ffmpeg"]
+
+
+def download_url(url, output_path):
+    response = urllib.request.urlopen(url)
+    total_size = int(response.headers["content-length"])
+
+    with Progress() as progress:
+        task_id = progress.add_task("[cyan]Downloading...", total=total_size)
+        with open(output_path, "wb") as f:
+            for chunk in read_in_chunks(response):
+                f.write(chunk)
+                progress.update(task_id, advance=len(chunk))
+
+
+def read_in_chunks(file, chunk_size=1024 * 1024):  # default chunk size is 1 MB
+    while True:
+        data = file.read(chunk_size)
+        if not data:
+            break
+        yield data
+
 
 # Change Binary From Here
 try:
     FFMPEG_BINARY = ffmpegio.get_path()
     FFPROBE_BINARY = ffmpegio.get_path(probe=True)
 except ffmpegio.path.FFmpegNotFound:
-    FFMPEG_BINARY = None
-    FFPROBE_BINARY = None
+    if os.path.exists(
+        os.path.join(os.path.expanduser("~"), "ffmpeg", "ffmpeg")
+    ) and os.path.join(os.path.expanduser("~"), "ffmpeg", "ffprobe"):
+        FFMPEG_BINARY, FFPROBE_BINARY, _ = ffmpegio.set_path(
+            os.path.join(os.path.expanduser("~"), "ffmpeg")
+        )
+    elif os.path.exists(
+        os.path.join(os.path.expanduser("~"), "ffmpeg", "ffmpeg.exe")
+    ) and os.path.join(os.path.expanduser("~"), "ffmpeg", "ffprobe.exe"):
+        FFMPEG_BINARY, FFPROBE_BINARY, _ = ffmpegio.set_path(
+            os.path.join(os.path.expanduser("~"), "ffmpeg")
+        )
+    else:
+        FFMPEG_BINARY, FFPROBE_BINARY = None, None
 
 
 def install_ffmpeg():
     # check the operating system
-
-    if platform.platform() == "Windows":
+    if platform.system() == "Windows":
         url = r"https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip"
         # Using urllib install the ffmpeg zip file to the temp file
 
@@ -29,9 +62,8 @@ def install_ffmpeg():
         dir_path = ""
         try:
             file = tempfile.NamedTemporaryFile(delete=False, suffix=".zip")
-            file.write(urllib.request.urlopen(url).read())
-            file.flush()
             file.close()
+            download_url(url, file.name)
             # Extract the zip file
             zip_ref = zipfile.ZipFile(file.name, "r")
             try:
@@ -51,6 +83,10 @@ def install_ffmpeg():
             raise
         finally:
             if dir_path:
+                if os.path.exists(os.path.join(dir_path, "ffmpeg.exe")):
+                    os.remove(os.path.join(dir_path, "ffmpeg.exe"))
+                if os.path.exists(os.path.join(dir_path, "ffprobe.exe")):
+                    os.remove(os.path.join(dir_path, "ffprobe.exe"))
                 shutil.move(
                     os.path.join(
                         dir_path, r"ffmpeg-6.1.1-essentials_build\bin\ffmpeg.exe"
@@ -70,7 +106,7 @@ def install_ffmpeg():
         return os.path.join(dir_path, "ffmpeg.exe"), os.path.join(
             dir_path, "ffprobe.exe"
         )
-    elif platform.platform() == "Linux":
+    elif platform.system() == "Linux":
         try:
             subprocess.run("sudo apt install ffmpeg", check=True)
         except Exception as e:
@@ -95,7 +131,7 @@ def install_ffmpeg():
             raise
         else:
             return "ffmpeg", "ffprobe"
-    elif platform.platform() == "Darwin":
+    elif platform.system() == "Darwin":
         try:
             subprocess.run("brew install ffmpeg", check=True)
             return "ffmpeg", "ffprobe"
@@ -147,6 +183,8 @@ def install_ffmpeg():
                         tmp_file.close()
                     if tmp_file2:
                         tmp_file2.close()
+    else:
+        raise Exception("Unsupported Operating System")
 
 
 def set_path(ffmpeg_path: str | None = None, ffprobe_path: str | None = None):
