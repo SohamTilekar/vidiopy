@@ -1,7 +1,7 @@
 import os
 import math
 from pathlib import Path
-from typing import Callable, override, Self, Any
+from typing import Callable, Self, Any
 from PIL import Image
 import PIL
 import numpy as np
@@ -12,11 +12,13 @@ from .VideoClip import VideoClip
 class ImageSequenceClip(VideoClip):
     def __init__(
         self,
-        sequence: str
-        | Path
-        | tuple[Image.Image, ...]
-        | tuple[np.ndarray, ...]
-        | tuple[str | Path, ...],
+        sequence: (
+            str
+            | Path
+            | tuple[Image.Image, ...]
+            | tuple[np.ndarray, ...]
+            | tuple[str | Path, ...]
+        ),
         fps: int | float | None = None,
         duration: int | float | None = None,
         audio=None,
@@ -41,11 +43,9 @@ class ImageSequenceClip(VideoClip):
 
     def _import_image_sequence(
         self,
-        sequence: str
-        | Path
-        | tuple[str | Path]
-        | tuple[Image.Image]
-        | tuple[np.ndarray],
+        sequence: (
+            str | Path | tuple[str | Path] | tuple[Image.Image] | tuple[np.ndarray]
+        ),
     ) -> tuple[Image.Image, ...]:
         if isinstance(sequence, tuple):
             if isinstance(sequence[0], Image.Image):
@@ -74,7 +74,6 @@ class ImageSequenceClip(VideoClip):
             "The argument must be either a tuple of PIL images or paths to images or a path to a directory."
         )
 
-    @override
     @requires_duration_or_end
     def make_frame_array(self, t) -> np.ndarray:
         time_per_frame = (self.duration if self.duration else self.end) / len(self.clip)
@@ -82,7 +81,6 @@ class ImageSequenceClip(VideoClip):
         frame_index = min(len(self.clip) - 1, max(0, frame_index))
         return np.array(self.clip[frame_index])
 
-    @override
     @requires_duration_or_end
     def make_frame_pil(self, t) -> Image.Image:
         if self.duration is None and self.end is None:
@@ -92,7 +90,6 @@ class ImageSequenceClip(VideoClip):
         frame_index = min(len(self.clip) - 1, max(0, frame_index))
         return self.clip[frame_index]
 
-    @override
     def fl_frame_transform(
         self,
         func: Callable[[Image.Image, tuple[Any], dict[str, Any]], Image.Image],
@@ -106,7 +103,6 @@ class ImageSequenceClip(VideoClip):
         self.clip = tuple(clip)
         return self
 
-    @override
     @requires_fps
     def fl_clip_transform(self, func, *args, **kwargs):
         td = 1 / self.fps
