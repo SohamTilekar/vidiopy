@@ -1,4 +1,4 @@
-from typing import override, Callable, Self
+from typing import Callable, Union, Type
 from PIL import Image
 import ffmpegio
 import numpy as np
@@ -22,6 +22,7 @@ class VideoFileClip(VideoClip):
         # Set video properties
         self.size = (video_data["width"], video_data["height"])
         self.start = 0.0
+        # not all videos have a duration attribute in their metadata
         if video_data["duration"]:
             self.end = video_data["duration"]
             self._dur = video_data["duration"]
@@ -46,9 +47,8 @@ class VideoFileClip(VideoClip):
     # EFFECT METHODS#
     #################
 
-    @override
     @requires_start_end
-    def fl_frame_transform(self, func, *args, **kwargs) -> Self:
+    def fl_frame_transform(self, func, *args, **kwargs) -> "VideoFileClip":
         clip: list[Image.Image] = []
         for frame in self.clip:
             frame: Image.Image = func(frame, *args, **kwargs)
@@ -56,8 +56,8 @@ class VideoFileClip(VideoClip):
         self.clip = tuple(clip)
         return self
 
-    @override
-    def fl_clip_transform(self, func, *args, **kwargs):
+    @requires_fps
+    def fl_clip_transform(self, func, *args, **kwargs) -> "VideoFileClip":
         td = 1 / self.fps
         frame_time = 0.0
         clip: list[Image.Image] = []
@@ -68,24 +68,30 @@ class VideoFileClip(VideoClip):
         self.clip = tuple(clip)
         return self
 
-    def fx(self, func: Callable, *args, **kwargs):
+    def fx(self, func: Callable, *args, **kwargs) -> "VideoFileClip":
         # Apply an effect function directly to the clip
         self = func(self, *args, **kwargs)
         return self
 
-    @override
+    @requires_fps
     def sub_clip(
-        self, t_start: int | float | None = None, t_end: int | float | None = None
-    ) -> Self:
+        self,
+        t_start: Union[int, float, None] = None,
+        t_end: Union[int, float, None] = None,
+    ) -> "VideoFileClip":
         if t_end is None and t_start is None:
             return self
         if t_end is None:
             t_end = (
                 self.end
                 if self.end
-                else self.duration
-                if self.duration
-                else (_ for _ in ()).throw(ValueError("end or duration must be set."))
+                else (
+                    self.duration
+                    if self.duration
+                    else (_ for _ in ()).throw(
+                        ValueError("end or duration must be set.")
+                    )
+                )
             )
         if t_start is None:
             t_start = self.start if self.start else 0.0
@@ -103,10 +109,12 @@ class VideoFileClip(VideoClip):
         self._dur = t_end - t_start
         return self
 
-    @override
+    @requires_fps
     def sub_clip_copy(
-        self, t_start: int | float | None = None, t_end: int | float | None = None
-    ) -> Self:
+        self,
+        t_start: Union[int, float, None] = None,
+        t_end: Union[int, float, None] = None,
+    ) -> "VideoFileClip":
         clip = self.copy()
         if t_end is None and t_start is None:
             return clip.copy()
@@ -114,9 +122,13 @@ class VideoFileClip(VideoClip):
             t_end = (
                 clip.end
                 if clip.end
-                else clip.duration
-                if clip.duration
-                else (_ for _ in ()).throw(ValueError("end or duration must be set."))
+                else (
+                    clip.duration
+                    if clip.duration
+                    else (_ for _ in ()).throw(
+                        ValueError("end or duration must be set.")
+                    )
+                )
             )
         if t_start is None:
             t_start = clip.start if clip.start else 0.0
@@ -134,7 +146,6 @@ class VideoFileClip(VideoClip):
         self._dur = t_end
         return self
 
-    @override
     @requires_duration
     def make_frame_array(self, t) -> np.ndarray:
         if self.duration is None:
@@ -144,7 +155,6 @@ class VideoFileClip(VideoClip):
         frame_index = int(min(len(self.clip) - 1, max(0, frame_index)))
         return np.array(self.clip[frame_index])
 
-    @override
     @requires_duration
     def make_frame_pil(self, t) -> Image.Image:
         if self.duration is None:
