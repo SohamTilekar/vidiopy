@@ -1,6 +1,9 @@
 from setuptools import setup
 from pathlib import Path
-from vidiopy.__version__ import __version__
+
+# TODO: Add the Support to Download the ffmpeg file using the install function from the config.py while giving the user ability to not downloading it. like pip install vidiopy --no-ffmpeg-install or pip install vidiopy[no_ffmpeg_install] or any thing else.
+
+__version__ = Path("vidiopy/__version__.py").read_text().strip().split('"')[1][:-1]
 
 with open(Path(r".\README.md")) as f:
     long_description = f.read()
@@ -42,7 +45,7 @@ setup(
     long_description_content_type="text/markdown",
     install_requires=[
         "rich>=13.7.0",
-        "numpy>=1.26.3",
+        "numpy>=1.24.4",
         "ffmpegio>=0.9.0",
         "pillow>=10.2.0",
     ],
