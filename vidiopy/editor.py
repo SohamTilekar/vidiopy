@@ -1,7 +1,6 @@
-from .__version__ import __version__
-from .config import set_path, FFMPEG_BINARY, FFPROBE_BINARY
-from .video.fx import *
-from .audio.AudioClip import (
+from vidiopy.__version__ import __version__
+from vidiopy.config import set_path, FFMPEG_BINARY, FFPROBE_BINARY, install_ffmpeg
+from vidiopy.audio.AudioClip import (
     AudioClip,
     AudioFileClip,
     concatenate_audioclips,
@@ -10,10 +9,10 @@ from .audio.AudioClip import (
     AudioArrayClip,
 )
 
-from .Clip import Clip
+from vidiopy.Clip import Clip
 
-from .video.VideoClip import VideoClip
-from .video.VideoFileClip import VideoFileClip
-from .video.ImageSequenceClip import ImageSequenceClip
-from .video.mixing_clip import composite_videoclips, concatenate_videoclips
-from .video.ImageClips import ImageClip, ColorClip, TextClip, Data2ImageClip
+from vidiopy.video.VideoClip import VideoClip
+from vidiopy.video.VideoFileClip import VideoFileClip
+from vidiopy.video.ImageSequenceClip import ImageSequenceClip
+from vidiopy.video.mixing_clip import composite_videoclips, concatenate_videoclips
+from vidiopy.video.ImageClips import ImageClip, ColorClip, TextClip, Data2ImageClip

@@ -1,1 +1,1 @@
-from .editor import *
+from vidiopy.editor import *
