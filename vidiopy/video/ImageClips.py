@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, override, Self
+from typing import Callable, Self
 from PIL import Image, ImageFont, ImageDraw
 from .ImageSequenceClip import ImageSequenceClip
 import numpy as np
@@ -130,12 +130,10 @@ class ImageClip(VideoClip.VideoClip):
         self._dur = value
         return self
 
-    @override
     def set_duration(self, value) -> Self:
         self._dur = value
         return self
 
-    @override
     @requires_start_end
     def fl_frame_transform(self, func, *args, **kwargs) -> Self:
         """
@@ -160,7 +158,6 @@ class ImageClip(VideoClip.VideoClip):
         self.image = func(self.image, *args, **kwargs)
         return self
 
-    @override
     def fl_clip_transform(self, func, *args, **kwargs) -> Self:
         """
         Raise a ValueError indicating that fl_clip is not applicable for ImageClip.
@@ -227,7 +224,6 @@ class ImageClip(VideoClip.VideoClip):
         )
         return self
 
-    @override
     def sub_clip_copy(
         self, start: int | float | None = None, end: int | float | None = None
     ) -> Self:
@@ -235,7 +231,6 @@ class ImageClip(VideoClip.VideoClip):
         clip.sub_clip(start, end)
         return clip
 
-    @override
     def sub_clip(
         self, start: int | float | None = None, end: int | float | None = None
     ) -> Self:
@@ -247,22 +242,18 @@ class ImageClip(VideoClip.VideoClip):
             end = (
                 self.end
                 if self.end is not None
-                else self.duration - start
-                if self.duration is not None
-                else None
+                else self.duration - start if self.duration is not None else None
             )
         self._st = start
         self._dur = end
         self.end = end
         return self
 
-    @override
     def make_frame_array(self, t):
         if self.image is None:
             raise ValueError("image is not set")
         return np.asarray(self.image)
 
-    @override
     def make_frame_pil(self, t) -> Image.Image:
         if self.image is None:
             raise ValueError("image is not set")
