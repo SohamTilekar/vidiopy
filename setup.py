@@ -5,7 +5,7 @@ from pathlib import Path
 
 __version__ = Path("vidiopy/__version__.py").read_text().strip().split('"')[1][:-1]
 
-with open(Path(r".\README.md")) as f:
+with open(Path(r"./README.md")) as f:
     long_description = f.read()
 
 setup(

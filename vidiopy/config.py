@@ -208,10 +208,14 @@ if FFMPEG_BINARY is None or FFPROBE_BINARY is None:
             )
         except ffmpegio.path.FFmpegNotFound:
             ...
+        except ValueError:
+            ...
     elif platform.system() == "Darwin":
         try:
             FFMPEG_BINARY, FFPROBE_BINARY = set_path(
                 os.path.join(os.path.expanduser("~"), "ffmpeg")
             )
         except ffmpegio.path.FFmpegNotFound:
+            ...
+        except ValueError:
             ...
