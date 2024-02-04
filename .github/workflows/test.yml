@@ -35,6 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -e .
+          python -m vidiopy --install_ffmpeg
 
       - name: Run tests
         run: |

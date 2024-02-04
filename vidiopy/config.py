@@ -110,7 +110,12 @@ def install_ffmpeg():
         try:
             subprocess.run("sudo apt install ffmpeg", check=True)
         except Exception as e:
-            ...
+            try:
+                subprocess.run("sudo apt-get install ffmpeg", check=True)
+            except Exception as e:
+                ...
+            else:
+                return "ffmpeg", "ffprobe"
         else:
             return "ffmpeg", "ffprobe"
         try:
