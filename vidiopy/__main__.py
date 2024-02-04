@@ -5,7 +5,7 @@ if __name__ == "__main__":
         from vidiopy.config import *
 
         print("Installing ffmpeg...")
-        install_ffmpeg()
-        print("ffmpeg installed successfully!")
+        x = install_ffmpeg()
+        print(f"ffmpeg installed successfully! at {x[0]} and {x[1]}")
     else:
         from vidiopy.__init__ import *

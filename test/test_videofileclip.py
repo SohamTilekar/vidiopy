@@ -17,6 +17,7 @@ def clip_random_audio():
             )
         )
     )
+    print(f"{pth=}, {os.path.exists(pth)=}")
     return VideoFileClip(pth)
 
 
@@ -31,6 +32,7 @@ def clip_random_no_audio():
             )
         )
     )
+    print(f"{pth=}, {os.path.exists(pth)=}")
     return VideoFileClip(
         pth,
         audio=False,
