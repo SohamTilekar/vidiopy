@@ -288,7 +288,7 @@ class SilenceClip(AudioClip):
 
 class AudioFileClip(SilenceClip):
     def __init__(self, path: str | pathlib.Path, duration: int | float | None = None):
-        info = ffmpegio.probe.audio_streams_basic(path)
+        info = ffmpegio.probe.audio_streams_basic(str(path))
         if not info:
             self.fps = 44100
             self.channels = 1
@@ -306,10 +306,10 @@ class AudioFileClip(SilenceClip):
             self._original_dur = info["duration"]
             self.channels = info["channels"]
             super().__init__(info["duration"], info["sample_rate"], info["channels"])
-            self.path = path
+            self.path = str(path)
             self.start = info["start_time"]
             self.end = info["duration"] - info["start_time"]
-            self._audio_data = ffmpegio.audio.read(path)[1]
+            self._audio_data = ffmpegio.audio.read(str(path))[1]
 
 
 class AudioArrayClip(AudioClip):
@@ -365,7 +365,9 @@ def concatenate_audioclips(
     return AudioArrayClip(np.asarray(clip), fps, duration)
 
 
-def composite_audioclips(clips: list[AudioClip], fps: int | None = 44100) -> AudioArrayClip:
+def composite_audioclips(
+    clips: list[AudioClip], fps: int | None = 44100
+) -> AudioArrayClip:
     fps = fps if fps else max([c.fps if c.fps else 0 for c in clips])
     if not fps:
         raise ValueError("No fps value found place set fps value or fps value in clips")

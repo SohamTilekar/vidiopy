@@ -1,4 +1,4 @@
-from typing import Callable, Union, Type
+from typing import Callable, Union
 from PIL import Image
 import ffmpegio
 import numpy as np
@@ -14,10 +14,10 @@ class VideoFileClip(VideoClip):
         self.filename = filename
 
         # Probe video streams and extract relevant information
-        video_data = ffmpegio.probe.video_streams_basic(filename)[0]
+        video_data = ffmpegio.probe.video_streams_basic(str(filename))[0]
 
         # Import video clip using ffmpeg
-        self.clip, self.fps = self._import_video_clip(filename, ffmpeg_options)
+        self.clip, self.fps = self._import_video_clip(str(filename), ffmpeg_options)
         self.fps = float(self.fps)
         # Set video properties
         self.size = (video_data["width"], video_data["height"])

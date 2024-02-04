@@ -1,3 +1,6 @@
+import os
+from pathlib import Path
+
 import pytest
 from PIL import Image, ImageFilter, ImageEnhance
 from vidiopy import VideoFileClip, SilenceClip
@@ -5,15 +8,31 @@ from vidiopy import VideoFileClip, SilenceClip
 
 @pytest.fixture
 def clip_random_audio():
-    return VideoFileClip(
-        r"D:\soham_code\vidiopy\media\auto_test_media\test_video_random_5f_np.zeros(100, 100, 3).mkv"
+    pth = Path(
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "media/auto_test_media/test_video_random_5f_np.zeros(100, 100, 3).mkv",
+            )
+        )
     )
+    return VideoFileClip(pth)
 
 
 @pytest.fixture
 def clip_random_no_audio():
+    pth = Path(
+        os.path.abspath(
+            os.path.join(
+                os.path.dirname(__file__),
+                "..",
+                "media/auto_test_media/test_video_random_5f_np.zeros(100, 100, 3).mkv",
+            )
+        )
+    )
     return VideoFileClip(
-        r"D:\soham_code\vidiopy\media\auto_test_media\test_video_random_5f_np.zeros(100, 100, 3).mkv",
+        pth,
         audio=False,
     )
 
