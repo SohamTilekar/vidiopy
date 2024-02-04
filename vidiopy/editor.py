@@ -1,5 +1,5 @@
 from vidiopy.__version__ import __version__
-from vidiopy.config import set_path, FFMPEG_BINARY, FFPROBE_BINARY, install_ffmpeg
+from vidiopy.config import set_path, FFMPEG_BINARY, FFPROBE_BINARY
 from vidiopy.audio.AudioClip import (
     AudioClip,
     AudioFileClip,

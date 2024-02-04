@@ -33,9 +33,10 @@ jobs:
           pip install pytest
 
       - name: Install dependencies
-        run: |
+        uses: AnimMouse/setup-ffmpeg@v1
+
+      - run: |
           pip install -e .
-          python -m vidiopy --install_ffmpeg
 
       - name: Run tests
         run: |
