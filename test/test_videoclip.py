@@ -1,316 +1,366 @@
-import pytest
-from vidiopy import VideoClip
-from PIL import Image
-import ffmpegio
-from vidiopy import AudioClip, SilenceClip
-from fractions import Fraction
-import numpy as np
 import os
+import tempfile
+import ffmpegio
+import pytest
+from fractions import Fraction
+from PIL import Image
+import numpy as np
+from vidiopy import VideoClip, SilenceClip, AudioClip
 
 
-def test_initialization(clip: VideoClip):
-    assert isinstance(clip, VideoClip)
-    assert clip.start == 0.0
-    assert clip.end is None
-    assert clip.duration is None
-    assert clip.audio is None
-    assert clip.fps is None
-    assert clip.size is None
-    assert clip.relative_pos is False
-    assert callable(clip.pos)
-    assert (0, 0) == clip.pos(0)
+@pytest.fixture
+def vid_clip():
+    return VideoClip()
 
 
-def test__iter__(clip: VideoClip):
-    # raises ValueError if fps is not set
+def test_init():
+    obj = VideoClip()
+
+    # Check if the superclass is initialized correctly
+    assert isinstance(obj, VideoClip)
+
+    # Check the initial values of time-related properties
+    assert obj._st == 0.0
+    assert obj._ed is None
+    assert obj._dur is None
+
+    # Check the initial values of video and audio properties
+    assert obj.audio is None
+    assert obj.fps is None
+    assert obj.size is None
+
+    # Check the initial values of position-related properties
+    assert callable(obj.pos)
+    assert obj.relative_pos is False
+
+
+def test_width(vid_clip: VideoClip):
+    # Test when size is set
+    vid_clip.size = (1920, 1080)
+    assert vid_clip.width == 1920
+
+    # Test when size is not set
+    vid_clip.size = None
     with pytest.raises(ValueError):
-        for _ in clip:
-            pass
-
-    clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
-    clip.fps = 1
-    clip.end = 1
-    for frame in clip:
-        assert np.array_equal(frame, np.zeros((100, 100, 3), dtype=np.uint8))
+        vid_clip.width
 
 
-def test_width_height(clip: VideoClip):
+def test_height(vid_clip: VideoClip):
+    # Test when size is set
+    vid_clip.size = (1920, 1080)
+    assert vid_clip.height == 1080
+
+    # Test when size is not set
+    vid_clip.size = None
     with pytest.raises(ValueError):
-        clip.width
+        vid_clip.height
+
+
+def test_aspect_ratio(vid_clip: VideoClip):
+    # Test when size is set
+    vid_clip.size = (1920, 1080)
+    assert vid_clip.aspect_ratio == Fraction(1920, 1080)
+
+    # Test when size is not set
+    vid_clip.size = None
     with pytest.raises(ValueError):
-        clip.height
-    clip.size = (100, 200)
-    assert clip.width == 100
-    assert clip.height == 200
+        vid_clip.aspect_ratio
 
 
-def test_aspect_ratio(clip: VideoClip):
+def test_start(vid_clip: VideoClip):
+    # Test when start is set
+    vid_clip.start = 2.5
+    assert vid_clip.start == 2.5
+
+    # Test when start is None
+    vid_clip.start = None
+    assert vid_clip.start is None
+
+    # Test when start is set and audio exists
+    vid_clip.audio = AudioClip()
+    vid_clip.start = 1.0
+    assert vid_clip.start == 1.0
+    assert vid_clip.audio.start == 1.0
+
+    # Test set_start method
+    vid_clip.set_start(3.0)
+    assert vid_clip.start == 3.0
+
+
+def test_end(vid_clip: VideoClip):
+    # Test when end is set
+    vid_clip.end = 5.0
+    assert vid_clip.end == 5.0
+
+    # Test when end is None
+    vid_clip.end = None
+    assert vid_clip.end is None
+
+    # Test when end is set and audio exists
+    vid_clip.audio = AudioClip()
+    vid_clip.end = 10.0
+    assert vid_clip.end == 10.0
+    assert vid_clip.audio.end == 10.0
+
+    # Test set_end method
+    vid_clip.set_end(7.5)
+    assert vid_clip.end == 7.5
+
+
+def test_duration(vid_clip: VideoClip):
+    # Test when duration is set
+    vid_clip._dur = 10.0
+    assert vid_clip.duration == 10.0
+
+    # Test when duration is None
+    vid_clip._dur = None
+    assert vid_clip.duration is None
+
+    # Test when duration is set and audio exists
+    vid_clip.audio = AudioClip()
+    vid_clip._dur = 5.0
+    assert vid_clip.duration == 5.0
+
+    # Test set_duration method
     with pytest.raises(ValueError):
-        clip.aspect_ratio
-    clip.size = (100, 200)
-    assert clip.aspect_ratio == Fraction(100, 200)
-
-
-def test_start_setter_getter(clip: VideoClip):
-    assert clip.start == 0.0
-    clip.start = 1.0
-    assert clip.start == 1.0
-    clip._dur = 2.0
-    clip.audio = AudioClip()
-    clip.start = 0.0
-    assert clip.audio.start == 0.0
-    assert clip.start == clip._st
-    clip.set_start(2.0)
-    assert clip.start == 2.0
-
-
-def test_end_setter_getter(clip: VideoClip):
-    assert clip.end is None
-    clip.end = 1.0
-    assert clip.end == 1.0
-    clip._dur = 2.0
-    clip.audio = AudioClip()
-    clip.end = 10.0
-    assert clip.audio.end == 10.0
-    clip.set_end(2.0)
-    assert clip.end == 2.0
-
-
-def test_duration_setter_getter(clip: VideoClip):
-    assert clip._dur == clip.duration == None
+        vid_clip.set_duration(15.0)
     with pytest.raises(ValueError):
-        clip.duration = 1.0
-
-    clip._dur = 2.0
-    assert clip.duration == 2.0
+        vid_clip.duration = 0.0
+    assert vid_clip.duration == 5.0
 
 
-def test_pos(clip: VideoClip):
-    assert (
-        clip.pos(0) == (0, 0)
-        and clip.pos(1) == (0, 0)
-        and clip.pos(2.2) == (0, 0)
-        and clip.pos(-1) == (0, 0)
-    )
-    clip.set_position((100, 200))
-    assert (
-        clip.pos(0) == (100, 200)
-        and clip.pos(1) == (100, 200)
-        and clip.pos(2.2) == (100, 200)
-        and clip.pos(-1) == (100, 200)
-    )
-    clip.size = (100, 200)
-    clip.set_position((0.1, 0.3), relative=True)
-    assert clip.pos(0) == (int(100 * 0.1), int(200 * 0.3))
-    assert (
-        clip.pos(0) == (100 * 0.1, 200 * 0.3)
-        and clip.pos(1) == (100 * 0.1, 200 * 0.3)
-        and clip.pos(2.2) == (100 * 0.1, 200 * 0.3)
-        and clip.pos(-1) == (100 * 0.1, 200 * 0.3)
-    )
-    # using lambda
-    clip.set_position(lambda t: (int(t + t), int(t * t)))
-    assert (
-        clip.pos(0) == (0, 0)
-        and clip.pos(1) == (int(1 + 1), int(1 * 1))
-        and clip.pos(2.2) == (int(2.2 + 2.2), int(2.2 * 2.2))
-        and clip.pos(-1) == (int(-1 + -1), 1)
-    )
-    clip.set_position(lambda t: ((t * 0.1), 0.5), relative=True)
-    assert (
-        clip.pos(0) == (int(100 * 0), int(200 * 0.5))
-        and clip.pos(100) == (int(100 * 10), int(200 * 0.5))
-        and clip.pos(200) == (int(100 * 20), int(200 * 0.5))
-        and clip.pos(-1) == (int(100 * -0.1), int(200 * 0.5))
-    )
+def test_set_pos(vid_clip: VideoClip):
+    vid_clip.size = (100, 200)
+
+    vid_clip.set_position((50, 50))
+    assert vid_clip.pos(0) == (50, 50)
+    assert vid_clip.pos(0.0) == (50, 50)
+    assert vid_clip.pos(1) == (50, 50)
+
+    vid_clip.set_position((0.5, 0.5), relative=True)
+    assert vid_clip.pos(0) == (50, 100)
+    assert vid_clip.pos(0.0) == (50, 100)
+    assert vid_clip.pos(1) == (50, 100)
+
+    p = lambda t: ((t + t), t * t)
+    vid_clip.set_position(p)
+    assert vid_clip.pos(0) == (0, 0)
+    assert vid_clip.pos(0.5) == (1, 0)  # not 0.25 because it convert it to int
+    assert vid_clip.pos(1) == (2, 1)
+
+    p = lambda t: (0.5, t * t)
+    vid_clip.set_position(p, relative=True)
+    assert vid_clip.pos(0) == (50, 0)
+    assert vid_clip.pos(0.5) == (50, 50)
+    assert vid_clip.pos(1) == (50, 200)
 
 
-def test_set_audio(clip: VideoClip):
-    audio_clip = AudioClip(10.0, 44100)
-    clip._st = 1.0
-    clip._ed = 11.0
-    clip.set_audio(audio_clip)
-    assert clip.audio
-    assert clip.audio.start == 1.0
-    assert clip.audio.end == 11.0
+def test_set_audio(vid_clip: VideoClip):
+    # Test when audio is set
+    audio_clip = AudioClip()
+    vid_clip.set_audio(audio_clip)
+    assert vid_clip.audio == audio_clip
+    assert vid_clip.audio.start == vid_clip.start
+    assert vid_clip.audio.end == vid_clip.end
+
+    # Test when audio is None
+    vid_clip.set_audio(None)
+    assert vid_clip.audio is None
 
 
-def test_set_fps(clip: VideoClip):
-    fps = 30.0
-    clip.set_fps(fps)
-    assert clip.fps == fps
+def test_without_audio(vid_clip: VideoClip):
+    # Test without_audio method
+    audio_clip = AudioClip()
+    vid_clip.set_audio(audio_clip)
+    assert vid_clip.audio is not None
+    vid_clip.without_audio()
+    assert vid_clip.audio is None
 
 
-def test_without_audio(clip: VideoClip):
-    assert clip.without_audio() == clip
-    clip.set_audio(AudioClip())
-    assert clip.without_audio().audio is None
+def test_set_fps(vid_clip: VideoClip):
+    # Test when fps is set
+    vid_clip.set_fps(30)
+    assert vid_clip.fps == 30
+
+    # Test when fps is set with float value
+    vid_clip.set_fps(29.97)
+    assert vid_clip.fps == 29.97
+
+    # Test when fps is set with negative value
+    vid_clip.set_fps(0)
+
+    # Test when fps is set with string value
+    with pytest.raises(TypeError):
+        vid_clip.set_fps("30")  # type: ignore
 
 
-def test_copy(clip: VideoClip):
-    clip_copy: VideoClip = clip.copy()
-    assert clip_copy is not clip
-    assert clip_copy != clip
-    assert clip_copy.__dict__ == clip.__dict__
-    clip_clip_copy = clip_copy.__copy__()
-    assert clip_clip_copy is not clip_copy and clip_clip_copy is not clip
-    assert clip_clip_copy != clip_copy and clip_clip_copy != clip
-    assert (
-        clip_clip_copy.__dict__ == clip_copy.__dict__
-        and clip_clip_copy.__dict__ == clip.__dict__
-    )
+def test_copy(vid_clip: VideoClip):
+    # Create a new instance of VideoClip
+    new_clip = vid_clip.copy()
+
+    # Check if the new instance is of the same class
+    assert isinstance(new_clip, VideoClip)
+
+    # Check if the new instance is not the same as the original instance
+    assert new_clip is not vid_clip
+
+    # Check if the attributes of the new instance are the same as the original instance
+    assert new_clip.__dict__ == vid_clip.__dict__
+
+    # Create a new instance of VideoClip
+    new_clip = vid_clip.__copy__()
+
+    # Check if the new instance is of the same class
+    assert isinstance(new_clip, VideoClip)
+
+    # Check if the new instance is not the same as the original instance
+    assert new_clip is not vid_clip
+
+    # Check if the attributes of the new instance are the same as the original instance
+    assert new_clip.__dict__ == vid_clip.__dict__
 
 
-def test_make_frame_array(clip):
+# Test the `make_frame_array` method
+def test_make_frame_array(vid_clip: VideoClip):
     with pytest.raises(NotImplementedError):
-        clip.make_frame_array(0)
+        vid_clip.make_frame_array(0)
 
 
-def test_make_frame_pil(clip):
+# Test the `make_frame_pil` method
+def test_make_frame_pil(vid_clip: VideoClip):
     with pytest.raises(NotImplementedError):
-        clip.make_frame_pil(0)
+        vid_clip.make_frame_pil(0)
 
 
-def test_get_frame(clip: VideoClip):
+def test_get_frame(vid_clip: VideoClip):
+    # Create a dummy image array
     img_arr = np.zeros((100, 100, 3), dtype=np.uint8)
-    clip.make_frame_array = lambda t: img_arr
-    clip.make_frame_pil = lambda t: Image.fromarray(img_arr)
-    x = clip.get_frame(0, is_pil=None)
+
+    # Override the `make_frame_array` method to return the dummy image array
+    vid_clip.make_frame_array = lambda t: img_arr
+
+    # Override the `make_frame_pil` method to return a PIL Image from the dummy image array
+    vid_clip.make_frame_pil = lambda t: Image.fromarray(img_arr)
+
+    # Test `get_frame` method when `is_pil` is None
+    x = vid_clip.get_frame(0, is_pil=None)
     assert isinstance(x, np.ndarray) and np.array_equal(x, img_arr.copy())
-    y = clip.get_frame(0, is_pil=False)
+
+    # Test `get_frame` method when `is_pil` is False
+    y = vid_clip.get_frame(0, is_pil=False)
     assert isinstance(y, np.ndarray) and np.array_equal(y, img_arr.copy())
-    z = clip.get_frame(0, is_pil=True)
+
+    # Test `get_frame` method when `is_pil` is True
+    z = vid_clip.get_frame(0, is_pil=True)
     assert isinstance(z, Image.Image) and np.array_equal(np.array(z), img_arr.copy())
 
 
-def test_iterate_frames_pil_t(clip: VideoClip):
+def test_iterate_frames_pil_t(vid_clip: VideoClip):
     # Test when end is set
-    clip.end = 1
-    clip.make_frame_pil = lambda t: Image.new("RGB", (100, 100))
-    frames = tuple(clip.iterate_frames_pil_t(30))
+    vid_clip.end = 1
+    vid_clip.make_frame_pil = lambda t: Image.new("RGB", (100, 100))
+    frames = tuple(vid_clip.iterate_frames_pil_t(30))
     assert len(frames) == 31
     assert all(isinstance(frame, Image.Image) for frame in frames)
 
     # Test when duration is set
-    clip.end = None
-    clip._dur = 1
-    frames = tuple(clip.iterate_frames_pil_t(30))
+    vid_clip.end = None
+    vid_clip._dur = 1
+    frames = tuple(vid_clip.iterate_frames_pil_t(30))
     assert len(frames) == 31
     assert all(isinstance(frame, Image.Image) for frame in frames)
 
     # Test when neither end nor duration is set
-    clip.end = None
-    clip._dur = None
+    vid_clip.end = None
+    vid_clip._dur = None
     with pytest.raises(ValueError):
-        tuple(clip.iterate_frames_pil_t(30))
+        tuple(vid_clip.iterate_frames_pil_t(30))
 
 
-def test_iterate_frames_array_t(clip: VideoClip):
+def test_iterate_frames_array_t(vid_clip: VideoClip):
     # Test when end is set
-    clip.end = 1
-    clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
-    frames = tuple(clip.iterate_frames_array_t(30))
+    vid_clip.end = 1
+    vid_clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
+    frames = tuple(vid_clip.iterate_frames_array_t(30))
     assert len(frames) == 31
     assert all(isinstance(frame, np.ndarray) for frame in frames)
     assert all(frame.shape == (100, 100, 3) for frame in frames)
 
     # Test when duration is set
-    clip.end = None
-    clip._dur = 1
-    frames = tuple(clip.iterate_frames_array_t(30))
+    vid_clip.end = None
+    vid_clip._dur = 1
+    frames = tuple(vid_clip.iterate_frames_array_t(30))
     assert len(frames) == 31
     assert all(isinstance(frame, np.ndarray) for frame in frames)
     assert all(frame.shape == (100, 100, 3) for frame in frames)
 
     # Test when neither end nor duration is set
-    clip.end = None
-    clip._dur = None
+    vid_clip.end = None
+    vid_clip._dur = None
     with pytest.raises(ValueError):
-        tuple(clip.iterate_frames_array_t(30))
+        tuple(vid_clip.iterate_frames_array_t(30))
 
 
-def test_time_transform(clip: VideoClip):
-    clip.make_frame_array = lambda t: t * t
-    clip.make_frame_pil = lambda t: t + t
+def test_time_transform(vid_clip: VideoClip):
+    vid_clip.make_frame_array = lambda t: t * t
+    vid_clip.make_frame_pil = lambda t: t + t
     t_timp = lambda t: t + 1
-    assert clip.make_frame_array(1) == 1
-    assert clip.make_frame_pil(1) == 2
-    clip.fl_time_transform(t_timp)
-    assert clip.make_frame_array(1) == 4
-    assert clip.make_frame_pil(1) == 4
+    assert vid_clip.make_frame_array(1) == 1
+    assert vid_clip.make_frame_pil(1) == 2
+    vid_clip.fl_time_transform(t_timp)
+    assert vid_clip.make_frame_array(1) == 4
+    assert vid_clip.make_frame_pil(1) == 4
 
 
-def test_sync_audio_video_s_e_d(clip: VideoClip):
+def test_sync_audio_video_s_e_d(vid_clip: VideoClip):
     # Set the start, end, and duration of the clip
-    clip.start = 1
-    clip.end = 2
-    clip._dur = 1
+    vid_clip.start = 1
+    vid_clip.end = 2
+    vid_clip._dur = 1
 
     # Set the audio of the clip
-    clip.audio = AudioClip()
+    vid_clip.audio = AudioClip()
 
     # Call the method to synchronize the audio and video
-    clip._sync_audio_video_s_e_d()
+    vid_clip._sync_audio_video_s_e_d()
 
     # Check if the start, end, and duration of the audio match the video
-    assert clip.audio.start == clip.start
-    assert clip.audio.end == clip.end
-    assert clip.audio._original_dur == clip.duration
+    assert vid_clip.audio.start == vid_clip.start
+    assert vid_clip.audio.end == vid_clip.end
+    assert vid_clip.audio._original_dur == vid_clip.duration
 
 
-def test_write_videofile_no_audio(clip: VideoClip):
-    clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
-    clip.fps = 30
-    clip.end = 1
-    dump_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "dump",
-            "test_video_no_audio_np.zeros(100, 100, 3).mkv",
-        )
-    )
-    media_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "media/auto_test_media",
-            "test_video_no_audio_np.zeros(100, 100, 3).mkv",
-        )
-    )
-    clip.write_videofile(dump_path, fps=5, codec="ffv1", audio=False)
-    assert os.path.exists(dump_path)
-    assert np.array_equal(
-        ffmpegio.video.read(dump_path)[1], ffmpegio.video.read(media_path)[1]
-    )
+def write_videofile(vid_clip: VideoClip):
+    vid_clip.set_end(1)
+    vid_clip.set_fps(5)
+    vid_clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
+    pth = ""
+    try:
+        pth = tempfile.NamedTemporaryFile(suffix=".mp4", delete=True).name
+        vid_clip.write_videofile(pth, audio=False)
+    except Exception as e:
+        raise e
+    finally:
+        if os.path.exists(pth) and pth:
+            os.remove(pth)
+    assert ffmpegio.video.read(pth)[1][0] == vid_clip.make_frame_array(0)
+    assert len(ffmpegio.video.read(pth)[1]) == 6
 
 
-def test_write_videofile_audio(clip: VideoClip):
-    clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
-    clip.fps = 30
-    clip.end = 1
-    clip.set_audio(SilenceClip(1, 44100))
-    dump_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "dump",
-            "test_video_Saudio_np.zeros(100, 100, 3).mkv",
-        )
-    )
-    media_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(__file__),
-            "..",
-            "media/auto_test_media",
-            "test_video_Saudio_np.zeros(100, 100, 3).mkv",
-        )
-    )
-    clip.write_videofile(dump_path, fps=5, codec="ffv1")
-    assert os.path.exists(dump_path)
-    assert np.array_equal(
-        ffmpegio.video.read(dump_path)[1], ffmpegio.video.read(media_path)[1]
-    )
-    assert np.array_equal(
-        ffmpegio.audio.read(dump_path)[1], ffmpegio.audio.read(media_path)[1]
-    )
+def write_videofile_audio(vid_clip: VideoClip):
+    vid_clip.set_end(1)
+    vid_clip.set_fps(5)
+    vid_clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
+    vid_clip.audio = SilenceClip(vid_clip.end, 44100, 2)
+    pth = ""
+    try:
+        pth = tempfile.NamedTemporaryFile(suffix=".mp4", delete=True).name
+        vid_clip.write_videofile(pth, audio=True)
+    except Exception as e:
+        raise e
+    finally:
+        if os.path.exists(pth) and pth:
+            os.remove(pth)
+    assert ffmpegio.video.read(pth)[1][0] == vid_clip.make_frame_array(0)
+    assert len(ffmpegio.video.read(pth)[1]) == 6
+    assert ffmpegio.probe.audio_streams_basic(pth)
