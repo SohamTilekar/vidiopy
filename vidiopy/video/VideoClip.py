@@ -50,8 +50,6 @@ class VideoClip(Clip):
 
     @requires_fps
     def __iter__(self) -> Generator[np.ndarray[Any, Any], Any, None]:
-        if not self.fps:
-            raise ValueError("FPS is not set")
         return self.iterate_frames_array_t(self.fps)
 
     #############################
@@ -136,10 +134,7 @@ class VideoClip(Clip):
 
     def set_position(
         self,
-        pos: (
-            tuple[int | float, int | float]
-            | Callable[[float | int], tuple[int | float, int | float]]
-        ),
+        pos: tuple[int | float, int | float] | Callable[[float | int], tuple[int | float, int | float]],
         relative=False,
     ) -> Self:
         self.relative_pos = relative
@@ -150,13 +145,7 @@ class VideoClip(Clip):
                     int(pos(t)[1] * self.height),
                 )
             else:
-                if (
-                    isinstance(pos(1), float)
-                    and isinstance(pos(1.1), float)
-                    and isinstance(pos(0), float)
-                ):
-                    raise ValueError("Pos is Invalid Type not tuple of int.")
-                self.pos = lambda t: ((lambda p: (p[0], p[1]))(pos(t)))  # type: ignore
+                self.pos = lambda t: (lambda tup: (int(tup[0]), int(tup[1])))(pos(t))
         elif isinstance(pos, tuple):
             pos_ = int(pos[0]), int(pos[1])
             self.pos: Callable[[float | int], tuple[int, int]] = (
@@ -165,7 +154,9 @@ class VideoClip(Clip):
                 else (lambda t: (int(pos[0] * self.width), int(pos[1] * self.height)))
             )
         else:
-            raise TypeError("Pos is Invalid Type not Callable or tuple of int.")
+            raise TypeError(
+                "Pos is Invalid Type not Callable[[int |  float], tuple[int, int]] or tuple of int | float."
+            )
         return self
 
     def set_audio(self, audio: AudioClip | None) -> Self:
@@ -175,12 +166,15 @@ class VideoClip(Clip):
             self.audio.end = self.end
         return self
 
-    def set_fps(self, fps: int | float) -> Self:
-        self.fps = fps
-        return self
-
     def without_audio(self) -> Self:
         self.audio = None
+        return self
+    
+    def set_fps(self, fps: int | float) -> Self:
+        if not isinstance(fps, (int, float)):
+            raise TypeError("fps must be an int or a float")
+        
+        self.fps = fps
         return self
 
     def __copy__(self) -> Self:
