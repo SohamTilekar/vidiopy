@@ -167,7 +167,7 @@ class AudioClip(Clip):
         func(self, *args, **kwargs)
         return self
 
-    def trim_audio_in_place(
+    def sub_clip(
         self, start: float | int | None = None, end: float | int | None = None
     ) -> Self:
         if self._audio_data is None:
@@ -178,11 +178,16 @@ class AudioClip(Clip):
             start = self.start if self.start is not None else 0
         if end is None:
             end = (
-                self.start + self.duration
-                if self.start is not None and self.duration is not None
-                else 0
+                self.end
+                if self.end
+                else (
+                    self.duration
+                    if self.duration
+                    else (_ for _ in ()).throw(
+                        ValueError("end or duration must be set.")
+                    )
+                )
             )
-
         # Add check for end value
         if end > self.duration:
             raise ValueError("End value cannot be greater than the original duration")
@@ -196,9 +201,11 @@ class AudioClip(Clip):
 
         self._audio_data = self._audio_data[start_frame_index:end_frame_index]
         self._original_dur = end - start
+        self.end = end
+        self.start = start
         return self
 
-    def trim_audio(
+    def sub_clip_copy(
         self, start: float | int | None = None, end: float | int | None = None
     ) -> Self:
         if self._audio_data is None:
@@ -209,9 +216,15 @@ class AudioClip(Clip):
             start = self.start if self.start is not None else 0
         if end is None:
             end = (
-                self.start + self.duration
-                if self.start is not None and self.duration is not None
-                else start + self.duration
+                self.end
+                if self.end
+                else (
+                    self.duration
+                    if self.duration
+                    else (_ for _ in ()).throw(
+                        ValueError("end or duration must be set.")
+                    )
+                )
             )
 
         # Add check for end value
@@ -229,6 +242,8 @@ class AudioClip(Clip):
 
         instance = self.copy()
         instance._audio_data = audio_data
+        instance.start = start
+        instance.end = end
         instance._original_dur = end - start
         return instance
 
@@ -238,7 +253,7 @@ class AudioClip(Clip):
     def __getitem__(self, key):
         if isinstance(key, slice):
             start, end = key.start, key.stop
-            return self.trim_audio(start, end)
+            return self.subclip_copy(start, end)
         else:
             raise TypeError("Invalid argument type.")
 

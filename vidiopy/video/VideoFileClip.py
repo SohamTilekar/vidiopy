@@ -122,6 +122,11 @@ class VideoFileClip(VideoClip):
         self.start = 0.0
         self.end = t_end
         self._dur = t_end - t_start
+
+        if self.audio:
+            audio = self.audio.sub_clip(t_start, t_end)
+            audio.set_start(self.start).set_end(self.end)
+            self.set_audio(audio)
         return self
 
     @requires_fps
@@ -155,11 +160,18 @@ class VideoFileClip(VideoClip):
             frames.append(clip.make_frame_pil(current_frame_time))
             current_frame_time += time_per_frame
 
-        self.clip = tuple(frames)
-        self.start = 0.0
-        self.end = t_end
-        self._dur = t_end
-        return self
+        instance = clip.copy()
+
+        instance.clip = tuple(frames)
+        instance.start = 0.0
+        instance.end = t_end
+        instance._dur = t_end - t_start
+
+        if instance.audio:
+            audio = instance.audio.sub_clip(t_start, t_end)
+            audio.set_start(self.start).set_end(self.end)
+            instance.set_audio(audio)
+        return instance
 
     @requires_duration
     def make_frame_array(self, t) -> np.ndarray:
