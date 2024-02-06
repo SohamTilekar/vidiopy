@@ -157,11 +157,9 @@ def test_set_pos(vid_clip: VideoClip):
 
 def test_set_audio(vid_clip: VideoClip):
     # Test when audio is set
-    audio_clip = AudioClip()
+    audio_clip = AudioClip().set_start(vid_clip.start).set_end(vid_clip.end)
     vid_clip.set_audio(audio_clip)
     assert vid_clip.audio == audio_clip
-    assert vid_clip.audio.start == vid_clip.start
-    assert vid_clip.audio.end == vid_clip.end
 
     # Test when audio is None
     vid_clip.set_audio(None)

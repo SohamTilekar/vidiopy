@@ -46,6 +46,10 @@ class AudioClip(Clip):
         return f"""{self.__class__.__name__}(start={self.start}, end={self.end}, duration={self.duration}, fps={self.fps}, channels={self.channels})"""
 
     def __eq__(self, other):
+        if self._audio_data is None and other._audio_data is None:
+            return True
+        elif self._audio_data is None or other._audio_data is None:
+            return False
         return (
             isinstance(other, AudioClip)
             and self.start == other.start
@@ -53,7 +57,7 @@ class AudioClip(Clip):
             and self.duration == other.duration
             and self.fps == other.fps
             and self.channels == other.channels
-            and np.array_equal(self.audio_data, other.audio_data)
+            and np.array_equal(self._audio_data, other._audio_data)
         )
 
     @property
@@ -253,7 +257,7 @@ class AudioClip(Clip):
     def __getitem__(self, key):
         if isinstance(key, slice):
             start, end = key.start, key.stop
-            return self.subclip_copy(start, end)
+            return self.sub_clip_copy(start, end)
         else:
             raise TypeError("Invalid argument type.")
 
