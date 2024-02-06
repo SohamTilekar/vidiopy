@@ -41,6 +41,20 @@ class ImageSequenceClip(VideoClip):
         if audio is not None:
             self.set_audio(audio)
 
+    def __eq__(self, other) -> bool:
+        if not hasattr(self, "clip"):
+            return False
+        return (
+            isinstance(other, VideoClip)
+            and self.fps == other.fps
+            and self.size == other.size
+            and self.start == other.start
+            and self.end == other.end
+            and self.duration == other.duration
+            and self.audio == other.audio
+            and self.clip == other.clip
+        )
+
     def _import_image_sequence(
         self,
         sequence: (

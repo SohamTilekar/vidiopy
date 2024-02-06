@@ -121,6 +121,18 @@ class ImageClip(VideoClip.VideoClip):
     def __str__(self):
         return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration})"""
 
+    def __eq__(self, other):
+        if not isinstance(other, ImageClip):
+            return False
+        return (
+            self.fps == other.fps
+            and self.size == other.size
+            and self.start == other.start
+            and self.end == other.end
+            and self.duration == other.duration
+            and self.image == other.image
+        )
+
     @property
     def duration(self):
         return self._dur

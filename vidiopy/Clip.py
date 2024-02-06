@@ -2,23 +2,23 @@ from typing import Callable, Self
 import numpy as np
 from copy import copy
 
-class Clip():
+
+class Clip:
     def __init__(self) -> None:
         self.audio = None
 
-    def fx(self, function: Callable[..., Self], *args, **kwargs) -> Self:
-        return function(self, *args, *kwargs)
-    
+    def fx(self, func: Callable[..., Self], *args, **kwargs) -> Self:
+        return func(self, *args, **kwargs)
+
     def copy(self):
         newclip = copy(self)
-        if hasattr(self, 'audio'):
+        if hasattr(self, "audio"):
             newclip.audio = copy(self.audio)
         return newclip
-    
 
     def close(self):
-        """ 
-            Release any resources that are in use.
+        """
+        Release any resources that are in use.
         """
 
         #    Implementation note for subclasses:
@@ -32,6 +32,5 @@ class Clip():
 
     def __enter__(self):
         return self
-    
-    def __exit__(self):
-        ...
+
+    def __exit__(self): ...

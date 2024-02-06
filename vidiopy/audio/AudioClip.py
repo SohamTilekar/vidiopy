@@ -45,6 +45,17 @@ class AudioClip(Clip):
     def __str__(self):
         return f"""{self.__class__.__name__}(start={self.start}, end={self.end}, duration={self.duration}, fps={self.fps}, channels={self.channels})"""
 
+    def __eq__(self, other):
+        return (
+            isinstance(other, AudioClip)
+            and self.start == other.start
+            and self.end == other.end
+            and self.duration == other.duration
+            and self.fps == other.fps
+            and self.channels == other.channels
+            and np.array_equal(self.audio_data, other.audio_data)
+        )
+
     @property
     def audio_data(self) -> np.ndarray:
         if self._audio_data is None:

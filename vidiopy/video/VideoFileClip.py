@@ -1,4 +1,4 @@
-from typing import Callable, Union
+from typing import Any, Callable, Self, Union
 from PIL import Image
 import ffmpegio
 import numpy as np
@@ -43,12 +43,27 @@ class VideoFileClip(VideoClip):
         return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, filename={self.filename}, id={hex(id(self))},
         audio={(self.audio)})"""
 
+    def __eq__(self, other) -> bool:
+        if not hasattr(self, "clip"):
+            return False
+
+        return (
+            isinstance(other, VideoClip)
+            and self.fps == other.fps
+            and self.size == other.size
+            and self.start == other.start
+            and self.end == other.end
+            and self.duration == other.duration
+            and self.audio == other.audio
+            and self.clip == other.clip
+        )
+
     #################
     # EFFECT METHODS#
     #################
 
     @requires_start_end
-    def fl_frame_transform(self, func, *args, **kwargs) -> "VideoFileClip":
+    def fl_frame_transform(self, func, *args, **kwargs):
         clip: list[Image.Image] = []
         for frame in self.clip:
             frame: Image.Image = func(frame, *args, **kwargs)
@@ -57,7 +72,7 @@ class VideoFileClip(VideoClip):
         return self
 
     @requires_fps
-    def fl_clip_transform(self, func, *args, **kwargs) -> "VideoFileClip":
+    def fl_clip_transform(self, func, *args, **kwargs):
         td = 1 / self.fps
         frame_time = 0.0
         clip: list[Image.Image] = []
@@ -68,7 +83,7 @@ class VideoFileClip(VideoClip):
         self.clip = tuple(clip)
         return self
 
-    def fx(self, func: Callable, *args, **kwargs) -> "VideoFileClip":
+    def fx(self, func: Callable[..., Self], *args, **kwargs):
         # Apply an effect function directly to the clip
         self = func(self, *args, **kwargs)
         return self
@@ -78,9 +93,9 @@ class VideoFileClip(VideoClip):
         self,
         t_start: Union[int, float, None] = None,
         t_end: Union[int, float, None] = None,
-    ) -> "VideoFileClip":
+    ):
         if t_end is None and t_start is None:
-            return self
+            return self.copy()
         if t_end is None:
             t_end = (
                 self.end
@@ -114,7 +129,7 @@ class VideoFileClip(VideoClip):
         self,
         t_start: Union[int, float, None] = None,
         t_end: Union[int, float, None] = None,
-    ) -> "VideoFileClip":
+    ):
         clip = self.copy()
         if t_end is None and t_start is None:
             return clip.copy()
