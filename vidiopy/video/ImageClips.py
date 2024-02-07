@@ -271,7 +271,7 @@ class ImageClip(VideoClip.VideoClip):
             raise ValueError("image is not set")
         return self.image
 
-    def to_video_clip(self, fps=None, duration=None, start=0.0, end=None):
+    def to_video_clip(self, fps=None, duration=None):
         """
         Convert `ImageClip` to `VideoClip`
 
@@ -314,18 +314,18 @@ class ImageClip(VideoClip.VideoClip):
         if duration is None:
             duration = self.duration
             if duration is None:
-                raise ValueError("You must specify 'duration'")
-        if end is None:
-            end = self.end if self.end else start + duration
-
+                duration = self.end + self.start if self.end is not None else None
+                if duration is None:
+                    raise ValueError("duration should be set of specify")
         # Generate frames using make_frame_pil
-        frames = tuple(self.make_frame_pil(t) for t in np.arange(start, end, 1 / fps))
+        constant_frame = self.make_frame_pil(0)
+        frames = (constant_frame,) * int((duration) * fps)
 
         # Create ImageSequenceClip from frames
         return (
             ImageSequenceClip(frames, fps=fps, duration=duration, audio=self.audio)
-            .set_start(start)
-            .set_end(end)
+            .set_start(self.start)
+            .set_end(self.end)
         )
 
 
