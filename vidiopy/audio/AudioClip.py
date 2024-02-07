@@ -70,6 +70,10 @@ class AudioClip(Clip):
     def audio_data(self, audio_data: np.ndarray) -> None:
         self._audio_data = audio_data
 
+    def set_fps(self, fps: int | None) -> Self:
+        self.fps = fps
+        return self
+
     def set_data(self, audio_data: np.ndarray) -> Self:
         self._audio_data = audio_data
         return self
