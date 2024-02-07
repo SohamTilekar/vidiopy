@@ -3,7 +3,6 @@ import math
 from pathlib import Path
 from typing import Callable, Self, Any
 from PIL import Image
-import PIL
 import numpy as np
 from ..decorators import *
 from .VideoClip import VideoClip
@@ -26,6 +25,10 @@ class ImageSequenceClip(VideoClip):
         super().__init__()
 
         self.clip: tuple[Image.Image, ...] = self._import_image_sequence(sequence)
+        # Check if the images have the same size
+        for i in range(1, len(self.clip)):
+            if self.clip[i].size != self.clip[0].size:
+                raise ValueError("All images must have the same size.")
         if fps is not None and duration is not None:
             self.fps = fps
             self._dur = duration
@@ -105,10 +108,7 @@ class ImageSequenceClip(VideoClip):
         return self.clip[frame_index]
 
     def fl_frame_transform(
-        self,
-        func: Callable[[Image.Image, tuple[Any], dict[str, Any]], Image.Image],
-        *args,
-        **kwargs
+        self, func: Callable[..., Image.Image], *args, **kwargs
     ) -> Self:
         clip: list[Image.Image] = []
         for frame in self.clip:
