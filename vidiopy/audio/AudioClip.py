@@ -400,65 +400,53 @@ def concatenate_audioclips(
 
 
 def composite_audioclips(
-    clips: list[AudioClip], fps: int | None = 44100
-) -> AudioArrayClip:
-    fps = fps if fps else max([c.fps if c.fps else 0 for c in clips])
-    if not fps:
-        raise ValueError("No fps value found place set fps value or fps value in clips")
-    duration = max(
-        [
-            (
-                c.end - c.start
-                if c.end
-                else (
-                    c.duration - c.start
-                    if c.duration
-                    else (_ for _ in ()).throw(ValueError(""))
-                )
-            )
-            for c in clips
-        ]
+    clips: list[AudioClip], fps: int | None = 44100, use_bg_audio: bool = False
+):
+
+    fps = int(
+        fps
+        or max(*(clip.fps if clip.fps else 0.0 for clip in clips), 0.0)
+        or (_ for _ in ()).throw(ValueError("fps is not set"))
     )
-    if not duration:
-        raise ValueError(
-            "No duration value found place set duration value or duration value in clips"
-        )
-    channels: int = max(
-        [
-            (
-                c.channels
-                if c.channels
-                else (_ for _ in ()).throw(ValueError("clip channels is not set"))
-            )
-            for c in clips
-        ]
-    )
-    if not channels:
-        raise ValueError(
-            "No channels value found place set channels value or channels value in clips"
-        )
-    td = 1 / fps
-    t = 0.0
+    channels = max(*(clip.channels if clip.channels else 0 for clip in clips), 0) or (
+        _ for _ in ()
+    ).throw(ValueError("No Channels"))
+
+    if use_bg_audio:
+        bg_audio = clips[0]
+        clips = clips[1:]
+    else:
+        duration = 0.0
+        for clip in clips:
+            if clip.end:
+                duration = max(clip.end, duration)
+            elif clip.duration:
+                duration = max(clip.duration, duration)
+            else:
+                ...
+        if duration == 0.0:
+            raise ValueError("duration is not set of any clip")
+        bg_audio = SilenceClip(duration, fps, channels)
+
     frames = []
-    while t < duration:
-        frame_ch = []
-        for c in clips:
-            if (
-                c.start < t < c.end
-                if c.end
-                else (
-                    c.duration
-                    if c.duration
-                    else (_ for _ in ()).throw(
-                        ValueError("audio clip duration is not set")
-                    )
-                )
-            ):
-                c_frame = c.get_frame_at_t(t)
-                extend_num = channels - len(c_frame)
-                frame_ch.append(
-                    np.concatenate((c_frame, [c_frame.mean()] * extend_num))
-                )
-        frames.append(np.sum(frame_ch, axis=0))
+    t = 0.0
+    td = 1 / fps
+    while t < (bg_audio.duration or (_ for _ in ()).throw(ValueError(""))):
+        f: list = bg_audio.get_frame_at_t(t).tolist()
+        if len(f) < channels:
+            f.append((sum(f) / len(f)) * (channels - len(f)))
+
+        for clip in clips:
+            if clip.start <= t <= (clip.end or float("inf")):
+                f_c = list(clip.get_frame_at_t(t))
+                if len(f_c) < channels:
+                    f_c.append((sum(f_c) / len(f_c)) * (channels - len(f_c)))
+                for i in range(channels):
+                    f[i] += (f[i] + f_c[i]) / 2
+        frames.append(np.array(f))
         t += td
-    return AudioArrayClip(np.array(frames), fps, duration)
+    return AudioArrayClip(
+        np.array(frames),
+        fps,
+        bg_audio.duration or (_ for _ in ()).throw(ValueError("")),
+    )
