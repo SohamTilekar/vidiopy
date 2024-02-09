@@ -3,6 +3,7 @@ from PIL import Image, ImageOps
 
 from ..audio.AudioClip import SilenceClip, concatenate_audioclips, composite_audioclips
 from .ImageSequenceClip import ImageSequenceClip
+from .ImageClips import ColorClip
 from .VideoClip import VideoClip
 
 
@@ -14,194 +15,60 @@ def composite_videoclips(
     audio: bool = True,
     audio_fps=44100,
 ):
-    frames: list[Image.Image] = []
+    fps = int(
+        fps
+        or max(*(clip.fps if clip.fps else 0.0 for clip in clips), 0.0)
+        or (_ for _ in ()).throw(ValueError("fps is not set"))
+    )
+
     if use_bg_clip:
         bg_clip = clips[0]
         clips = clips[1:]
-        bg_clip._sync_audio_video_s_e_d()
-        fps = (
-            fps
-            if fps is not None
-            else max(clip.fps if clip.fps else 0.0 for clip in clips)
-        )
-        if not fps:
-            raise ValueError(
-                "Provide fps for clips or at least one clip or fps parameter for composite_videoclips"
-            )
-        td = 1 / fps
-        duration: int | float = (
-            bg_clip.duration
-            if bg_clip.duration
-            else (_ for _ in ()).throw(
-                ValueError(
-                    f"Clip duration is not set, clip.__str__ = {bg_clip.__str__()}"
-                )
-            )
-        )
-        end: int | float = bg_clip.end if bg_clip.end else bg_clip.duration
-        start: int | float = bg_clip.start
-        current_time = 0.0
-        if audio:
-            audios = [
-                bg_clip.audio if bg_clip.audio else SilenceClip(duration=duration)
-            ]
-            for clip in clips:
-                if clip.audio:
-                    clip._sync_audio_video_s_e_d()
-                    clip.audio._st = (
-                        clip.audio.start if clip.audio.start > start else start
-                    )
-                    clip.audio._ed = (
-                        clip.audio.end
-                        if clip.audio.end and clip.audio.end < end
-                        else end
-                    )
-                    audios.append(clip.audio)
-                else:
-                    ac_st = clip._st if clip._st > start else start
-                    ac_ed = clip._ed if clip._ed and clip._ed < end else end
-                    ac_dur = (
-                        clip.duration
-                        if clip.duration and clip.duration < duration
-                        else duration
-                    )
-                    aud = SilenceClip(
-                        duration=(
-                            ac_ed - ac_st
-                            if ac_ed
-                            else (
-                                ac_dur - ac_st
-                                if ac_dur
-                                else (_ for _ in ()).throw(
-                                    ValueError(
-                                        f"Clip duration and end is not set, clip.__str__ = {clip.__str__()}"
-                                    )
-                                )
-                            )
-                        ),
-                        channels=1,
-                    )
-                    aud._st = ac_st
-                    aud._ed = ac_ed
-                    audios.append(aud)
-            f_audio = composite_audioclips(audios, fps=audio_fps)
-        else:
-            f_audio = None
-        while current_time < duration:
-            frame = bg_clip.make_frame_pil(current_time)
-            for clip in clips:
-                if (
-                    clip._st < current_time < clip._ed
-                    if clip._ed
-                    else clip.duration if clip.duration else float("inf")
-                ):
-                    frame.paste(
-                        clip.make_frame_pil(current_time),
-                        clip.pos(current_time),
-                        (
-                            clip.make_frame_pil(current_time)
-                            if clip.make_frame_pil(current_time).has_transparency_data
-                            else None
-                        ),
-                    )
-            frames.append(frame)
-            current_time += td
-        return ImageSequenceClip(
-            tuple(frames), fps=fps, duration=duration, audio=f_audio
-        )
-    else:
-        fps = (
-            fps
-            if fps is not None
-            else max(clip.fps if clip.fps else 0.0 for clip in clips)
-        )
-        if not fps:
-            raise ValueError(
-                "Provide fps for clips or at least one clip or fps parameter for composite_videoclips"
-            )
-        td = 1 / fps
-        duration: int | float = 0.0
-        max_size: tuple[int, int] = max(
-            tuple(
-                (
-                    clip.size
-                    if clip.size and clip.size[0] and clip.size[1]
-                    else (_ for _ in ()).throw(
-                        ValueError(
-                            f"Clip Size is not set, clip.__str__ = {clip.__str__()}"
-                        )
-                    )
-                )
-                for clip in clips
-            )
-        )
-        for clip in clips:
-            clip_dur = (
-                clip.end - clip.start
-                if clip.end
-                else clip.duration - clip.start if clip.duration else None
-            )
-            if clip_dur and clip_dur > duration:
-                duration: int | float = clip_dur
+        duration = bg_clip.duration
         if not duration:
-            raise ValueError("Provide duration for clips or at least one clip")
-        if audio:
-            audios = []
-            for clip in clips:
-                if clip.audio:
-                    clip._sync_audio_video_s_e_d()
-                    audios.append(clip.audio)
-                else:
-                    ac_st = clip._st
-                    ac_ed = clip._ed
-                    ac_dur = clip.duration
-                    aud = SilenceClip(
-                        duration=(
-                            ac_ed - ac_st
-                            if ac_ed
-                            else (
-                                ac_dur - ac_st
-                                if ac_dur
-                                else (_ for _ in ()).throw(
-                                    ValueError(
-                                        f"Clip duration and end is not set, clip.__str__ = {clip.__str__()}"
-                                    )
-                                )
-                            )
-                        ),
-                        fps=audio_fps,
-                        channels=1,
-                    )
-                    aud._st = ac_st
-                    aud._ed = ac_ed
-                    audios.append(aud)
-            f_audio = composite_audioclips(audios, fps=audio_fps)
-        else:
-            f_audio = None
-        current_time = 0.0
-        while current_time < duration:
-            current_frame = Image.new("RGBA", max_size, bg_color)
-            for clip in clips:
-                if (
-                    clip.start < current_time < clip.end
-                    if clip.end
-                    else clip.duration if clip.duration else float("inf")
-                ):
-                    tmp_clip_frame = clip.make_frame_pil(current_time)
-                    current_frame.paste(
-                        tmp_clip_frame,
-                        clip.pos(current_time),
-                        (
-                            tmp_clip_frame
-                            if tmp_clip_frame.has_transparency_data
-                            else None
-                        ),
-                    )
-            frames.append(current_frame)
-            current_time += td
-        return ImageSequenceClip(
-            tuple(frames), fps=fps, duration=duration, audio=f_audio
-        )
+            duration = bg_clip.end
+        if not duration:
+            raise ValueError("duration is not set of bg_clip")
+    else:
+        duration = 0.0
+        for clip in clips:
+            if clip.end:
+                duration = max(clip.end, duration)
+            elif clip.duration:
+                duration = max(clip.duration, duration)
+            else:
+                ...
+        if duration == 0.0:
+            raise ValueError("duration is not set of any clip")
+        bg_clip = ColorClip(bg_color, duration=duration)
+
+    t = 0.0
+    frames = []
+    while t < duration:
+        f = bg_clip.make_frame_pil(t)
+        for clip in clips:
+            if clip.start <= t < (clip.end or float("inf")):
+                frame = clip.make_frame_pil(t)
+                f.paste(
+                    frame, clip.pos(t), frame if frame.has_transparency_data else None
+                )
+        frames.append(f)
+        t += 1 / fps
+    f_frames = tuple(frames)
+    del frames
+
+    if audio:
+        aud_ = []
+        for clip in clips:
+            if clip.audio is not None:
+                aud_.append(clip.audio)
+            else:
+                aud_.append(SilenceClip(duration=duration))
+        aud = composite_audioclips(aud_, fps=audio_fps, use_bg_audio=use_bg_clip)
+    else:
+        aud = None
+
+    return ImageSequenceClip(f_frames, fps=fps, duration=duration, audio=aud)
 
 
 def concatenate_videoclips(
