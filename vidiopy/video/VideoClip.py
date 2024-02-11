@@ -292,7 +292,7 @@ class VideoClip(Clip):
         )
         return self
 
-    def fl_time_transform(self, func_t: Callable[[int], int]) -> Self:
+    def fl_time_transform(self, func_t: Callable[[int | float], int]) -> Self:
         original_make_frame_pil_t = self.make_frame_pil
         original_make_frame_array_t = self.make_frame_array
 

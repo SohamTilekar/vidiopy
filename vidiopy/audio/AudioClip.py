@@ -13,8 +13,9 @@ The following classes are defined:
 
 """
 
+from functools import wraps
 import pathlib
-from typing import Generator, Self
+from typing import Callable, Generator, Self
 from copy import copy as copy_
 import ffmpegio
 import numpy as np
@@ -177,6 +178,15 @@ class AudioClip(Clip):
         if self._audio_data is None:
             raise ValueError("Audio data is not set")
         func(self, *args, **kwargs)
+        return self
+
+    def fl_time_transform(self, func: Callable[[int | float], int]) -> Self:
+        orignal_get_frame_at_t = copy_(self.get_frame_at_t)
+        
+        @wraps(orignal_get_frame_at_t)
+        def new_get_frame_at_t(t: int | float) -> np.ndarray:
+            return orignal_get_frame_at_t(func(t))
+        self.get_frame_at_t = new_get_frame_at_t
         return self
 
     def sub_clip(
