@@ -46,19 +46,23 @@ class AudioClip(Clip):
         return f"""{self.__class__.__name__}(start={self.start}, end={self.end}, duration={self.duration}, fps={self.fps}, channels={self.channels})"""
 
     def __eq__(self, other):
-        if self._audio_data is None and other._audio_data is None:
-            return True
-        elif self._audio_data is None or other._audio_data is None:
-            return False
-        return (
-            isinstance(other, AudioClip)
-            and self.start == other.start
-            and self.end == other.end
-            and self.duration == other.duration
-            and self.fps == other.fps
-            and self.channels == other.channels
-            and np.array_equal(self._audio_data, other._audio_data)
-        )
+        if isinstance(other, AudioClip):
+            return (
+                self.start == other.start
+                and self.end == other.end
+                and self.duration == other.duration
+                and self.fps == other.fps
+                and self.channels == other.channels
+                and (
+                    (
+                        self._audio_data is not None
+                        and other._audio_data is not None
+                        and np.array_equal(self._audio_data, other._audio_data)
+                    )
+                    or (self._audio_data is None and other._audio_data is None)
+                )
+            )
+        return False
 
     @property
     def audio_data(self) -> np.ndarray:
@@ -70,12 +74,12 @@ class AudioClip(Clip):
     def audio_data(self, audio_data: np.ndarray) -> None:
         self._audio_data = audio_data
 
-    def set_fps(self, fps: int | None) -> Self:
-        self.fps = fps
-        return self
-
     def set_data(self, audio_data: np.ndarray) -> Self:
         self._audio_data = audio_data
+        return self
+
+    def set_fps(self, fps: int | None) -> Self:
+        self.fps = fps
         return self
 
     @property
@@ -287,28 +291,6 @@ class AudioClip(Clip):
             ]
         )
         ffmpegio.audio.write(path, fps, temp_audio_data, overwrite=overwrite, **kwargs)
-
-        # # Calculating the in_fps of the audio data using the audio length and the duration
-        # in_fps = len(self._audio_data) // self.duration
-
-        # if overwrite:
-        #     if os.path.isfile(path):
-        #         os.remove(path)
-        #     with ffmpegio.open(url_fg=path,
-        #                        mode='wa',
-        #                        rate_in=in_fps,
-        #                        rate=fps,
-        #                        **kwargs) as writer:
-        #         for frame in self._audio_data:
-        #             writer.write(frame)
-        # else:
-        #     if os.path.isfile(path):
-        #         raise ValueError(
-        #             'File already exists. Please use a different filename or delete the existing file or put `overwrite=True`.')
-        #     with ffmpegio.open(path, 'w', in_fps, rate=fps, **kwargs) as writer:
-        #         for frame in self._audio_data:
-        #             writer.write(frame)
-        # return self
 
 
 class SilenceClip(AudioClip):
