@@ -338,7 +338,7 @@ def test_AudioClip_write_audiofile():
     try:
         # Test when self._audio_data is not set
         with pytest.raises(ValueError):
-            clip.write_audiofile(temp_file)
+            clip.write_audiofile(temp_file, show_log=True)
 
         # Create an audio data array
         audio_data = np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]])
@@ -348,24 +348,24 @@ def test_AudioClip_write_audiofile():
         # Test when fps is not set
         clip.fps = None
         with pytest.raises(ValueError):
-            clip.write_audiofile(temp_file)
+            clip.write_audiofile(temp_file, show_log=True)
 
         # Test when self.duration and self.end are not set
         clip.fps = 30
         clip._original_dur = None
         clip.end = None
         with pytest.raises(ValueError):
-            clip.write_audiofile(temp_file)
+            clip.write_audiofile(temp_file, show_log=True)
 
         # Test when self.channels is not set
         clip._original_dur = 10.0
         clip.channels = None
         with pytest.raises(ValueError):
-            clip.write_audiofile(temp_file)
+            clip.write_audiofile(temp_file, show_log=True)
 
         # Test successful write
         clip.channels = 1
-        clip.write_audiofile(temp_file)
+        clip.write_audiofile(temp_file, show_log=True)
         assert os.path.exists(temp_file)
     finally:
         if os.path.exists(temp_file):
@@ -382,7 +382,7 @@ def test_write_audioclip():
         temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
         fname = temp_file.name
         temp_file.close()
-        clip.write_audiofile(fname)
+        clip.write_audiofile(fname, show_log=True)
         assert os.path.exists(fname)
         assert ffmpegio.probe.audio_streams_basic(fname)[0]["duration"] == 1
         assert ffmpegio.audio.read(fname)[1].shape == (44100, 1)

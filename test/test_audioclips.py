@@ -29,7 +29,7 @@ def test_AudioFileClip_init():
     path = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
     path.close()
     path = path.name
-    SilenceClip(10, 44100, 2).write_audiofile(path, fps=44100)
+    SilenceClip(10, 44100, 2).write_audiofile(path, fps=44100, show_log=True)
     duration = 10.0
 
     try:

@@ -182,10 +182,11 @@ class AudioClip(Clip):
 
     def fl_time_transform(self, func: Callable[[int | float], int]) -> Self:
         orignal_get_frame_at_t = copy_(self.get_frame_at_t)
-        
+
         @wraps(orignal_get_frame_at_t)
         def new_get_frame_at_t(t: int | float) -> np.ndarray:
             return orignal_get_frame_at_t(func(t))
+
         self.get_frame_at_t = new_get_frame_at_t
         return self
 
@@ -280,7 +281,7 @@ class AudioClip(Clip):
             raise TypeError("Invalid argument type.")
 
     def write_audiofile(
-        self, path: str, fps: int | None = None, overwrite=True, **kwargs
+        self, path: str, fps: int | None = None, overwrite=True, show_log=False, **kwargs
     ):
         if fps is None:
             if self.fps is None:
@@ -300,7 +301,9 @@ class AudioClip(Clip):
                 for t in np.arange(0, self.end or self.duration, 1 / fps)
             ]
         )
-        ffmpegio.audio.write(path, fps, temp_audio_data, overwrite=overwrite, **kwargs)
+        ffmpegio.audio.write(
+            path, fps, temp_audio_data, overwrite=overwrite, show_log=show_log, **kwargs
+        )
 
 
 class SilenceClip(AudioClip):
