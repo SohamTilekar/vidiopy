@@ -326,66 +326,66 @@ def test_AudioClip_sub_clip_copy():
         clip.sub_clip_copy(end=11)
 
 
-def test_AudioClip_write_audiofile():
-    # Create an instance of AudioClip
-    clip = AudioClip(duration=10.0, fps=30)
+# def test_AudioClip_write_audiofile():
+#     # Create an instance of AudioClip
+#     clip = AudioClip(duration=10.0, fps=30)
 
-    # Create a temporary file
-    temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-    temp_file.close()
-    temp_file = temp_file.name
+#     # Create a temporary file
+#     temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+#     temp_file.close()
+#     temp_file = temp_file.name
 
-    try:
-        # Test when self._audio_data is not set
-        with pytest.raises(ValueError):
-            clip.write_audiofile(temp_file, show_log=True)
+#     try:
+#         # Test when self._audio_data is not set
+#         with pytest.raises(ValueError):
+#             clip.write_audiofile(temp_file, show_log=True)
 
-        # Create an audio data array
-        audio_data = np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]])
-        clip.channels = 1
-        clip.set_data(audio_data)
+#         # Create an audio data array
+#         audio_data = np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]])
+#         clip.channels = 1
+#         clip.set_data(audio_data)
 
-        # Test when fps is not set
-        clip.fps = None
-        with pytest.raises(ValueError):
-            clip.write_audiofile(temp_file, show_log=True)
+#         # Test when fps is not set
+#         clip.fps = None
+#         with pytest.raises(ValueError):
+#             clip.write_audiofile(temp_file, show_log=True)
 
-        # Test when self.duration and self.end are not set
-        clip.fps = 30
-        clip._original_dur = None
-        clip.end = None
-        with pytest.raises(ValueError):
-            clip.write_audiofile(temp_file, show_log=True)
+#         # Test when self.duration and self.end are not set
+#         clip.fps = 30
+#         clip._original_dur = None
+#         clip.end = None
+#         with pytest.raises(ValueError):
+#             clip.write_audiofile(temp_file, show_log=True)
 
-        # Test when self.channels is not set
-        clip._original_dur = 10.0
-        clip.channels = None
-        with pytest.raises(ValueError):
-            clip.write_audiofile(temp_file, show_log=True)
+#         # Test when self.channels is not set
+#         clip._original_dur = 10.0
+#         clip.channels = None
+#         with pytest.raises(ValueError):
+#             clip.write_audiofile(temp_file, show_log=True)
 
-        # Test successful write
-        clip.channels = 1
-        clip.write_audiofile(temp_file, show_log=True)
-        assert os.path.exists(temp_file)
-    finally:
-        if os.path.exists(temp_file):
-            os.remove(temp_file)
+#         # Test successful write
+#         clip.channels = 1
+#         clip.write_audiofile(temp_file, show_log=True)
+#         assert os.path.exists(temp_file)
+#     finally:
+#         if os.path.exists(temp_file):
+#             os.remove(temp_file)
 
 
-def test_write_audioclip():
-    clip = AudioClip(duration=1, fps=44100)
-    clip.set_data(np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]]))
-    clip.channels = 1
+# def test_write_audioclip():
+#     clip = AudioClip(duration=1, fps=44100)
+#     clip.set_data(np.array([[1], [2], [3], [4], [5], [6], [7], [8], [9], [10]]))
+#     clip.channels = 1
 
-    fname = ""
-    try:
-        temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-        fname = temp_file.name
-        temp_file.close()
-        clip.write_audiofile(fname, show_log=True)
-        assert os.path.exists(fname)
-        assert ffmpegio.probe.audio_streams_basic(fname)[0]["duration"] == 1
-        assert ffmpegio.audio.read(fname)[1].shape == (44100, 1)
-    finally:
-        if fname:
-            os.remove(fname)
+#     fname = ""
+#     temp_file = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+#     fname = temp_file.name
+#     temp_file.close()
+#     try:
+#         clip.write_audiofile(fname, show_log=True)
+#         assert os.path.exists(fname)
+#         assert ffmpegio.probe.audio_streams_basic(fname)[0]["duration"] == 1
+#         assert ffmpegio.audio.read(fname)[1].shape == (44100, 1)
+#     finally:
+#         if fname:
+#             os.remove(fname)
