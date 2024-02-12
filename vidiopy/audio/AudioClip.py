@@ -180,7 +180,7 @@ class AudioClip(Clip):
         func(self, *args, **kwargs)
         return self
 
-    def fl_time_transform(self, func: Callable[[int | float], int]) -> Self:
+    def fl_time_transform(self, func: Callable[[int | float], int | float]) -> Self:
         orignal_get_frame_at_t = copy_(self.get_frame_at_t)
 
         @wraps(orignal_get_frame_at_t)
@@ -281,7 +281,12 @@ class AudioClip(Clip):
             raise TypeError("Invalid argument type.")
 
     def write_audiofile(
-        self, path: str, fps: int | None = None, overwrite=True, show_log=False, **kwargs
+        self,
+        path: str,
+        fps: int | None = None,
+        overwrite=True,
+        show_log=False,
+        **kwargs,
     ):
         if fps is None:
             if self.fps is None:

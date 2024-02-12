@@ -132,9 +132,16 @@ class VideoClip(Clip):
         raise ValueError("Duration is not allowed to be set")
         return self
 
+    def _set_duration(self, value: int | float) -> Self:
+        self._dur = value
+        return self
+
     def set_position(
         self,
-        pos: tuple[int | float, int | float] | Callable[[float | int], tuple[int | float, int | float]],
+        pos: (
+            tuple[int | float, int | float]
+            | Callable[[float | int], tuple[int | float, int | float]]
+        ),
         relative=False,
     ) -> Self:
         self.relative_pos = relative
@@ -169,11 +176,11 @@ class VideoClip(Clip):
     def without_audio(self) -> Self:
         self.audio = None
         return self
-    
+
     def set_fps(self, fps: int | float) -> Self:
         if not isinstance(fps, (int, float)):
             raise TypeError("fps must be an int or a float")
-        
+
         self.fps = fps
         return self
 
@@ -292,7 +299,7 @@ class VideoClip(Clip):
         )
         return self
 
-    def fl_time_transform(self, func_t: Callable[[int | float], int]) -> Self:
+    def fl_time_transform(self, func_t: Callable[[int | float], int | float]) -> Self:
         original_make_frame_pil_t = self.make_frame_pil
         original_make_frame_array_t = self.make_frame_array
 
@@ -308,6 +315,9 @@ class VideoClip(Clip):
 
         self.make_frame_array = modified_make_frame_array_t
         self.make_frame_pil = modified_make_frame_pil_t
+
+        if self.audio:
+            self.audio = self.audio.fl_time_transform(func_t)
         return self
 
     def fx(self, func, *args, **kwargs) -> Self:
