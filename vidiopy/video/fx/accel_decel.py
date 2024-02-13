@@ -1,10 +1,8 @@
 from typing import Callable
 
-from vidiopy.video.VideoClip import VideoClip
-
 
 def accel_decel(
-    clip: VideoClip,
+    clip,
     new_duration: Callable[[int | float], int | float] | float | int | None = None,
     ratio: int | float = 1,
 ):
