@@ -50,5 +50,5 @@ setup(
         "pillow>=10.2.0",
     ],
     include_package_data=True,
-    python_requires=">=3.11, <=3.12.1",
+    python_requires=">=3.11, <=3.12.2",
 )
