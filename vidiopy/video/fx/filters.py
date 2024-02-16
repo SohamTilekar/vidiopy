@@ -38,7 +38,7 @@ def median_filter(video: VideoClip, size=3):
     return video.fl_frame_transform(_filter, size)
 
 
-def contrast(video: VideoClip, factor=1.5):
+def contrast(video: VideoClip, factor=1.0):
     """Return a video with a contrast effect."""
 
     def _contrast(frame: Image.Image, factor=factor):
@@ -48,7 +48,7 @@ def contrast(video: VideoClip, factor=1.5):
     return video.fl_frame_transform(_contrast, factor)
 
 
-def brightness(video: VideoClip, factor=1.5):
+def brightness(video: VideoClip, factor=1.0):
     """Return a video with a brightness effect."""
 
     def _brightness(frame: Image.Image, factor=factor):
@@ -58,7 +58,7 @@ def brightness(video: VideoClip, factor=1.5):
     return video.fl_frame_transform(_brightness, factor)
 
 
-def saturation(video: VideoClip, factor=1.5):
+def saturation(video: VideoClip, factor=1.0):
     """Return a video with a saturation effect."""
 
     def _saturation(frame: Image.Image, factor=factor):
@@ -68,7 +68,7 @@ def saturation(video: VideoClip, factor=1.5):
     return video.fl_frame_transform(_saturation, factor)
 
 
-def sharpness(video: VideoClip, factor=1.5):
+def sharpness(video: VideoClip, factor=1.0):
     """Return a video with a sharpness effect."""
 
     def _sharpness(frame: Image.Image, factor=factor):
