@@ -34,7 +34,6 @@ VidioPy relies on the following Python packages:
 2. [numpy](https://numpy.org/)
 3. [ffmpegio](https://github.com/python-ffmpegio/python-ffmpegio)
 4. [pillow](https://pypi.org/project/pillow/)
-5. [decorator](https://pypi.org/project/decorator/)
 
 Pip will automatically install these dependencies for you during installation. If installing from source, manual installation of these dependencies is required.
 

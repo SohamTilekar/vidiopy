@@ -17,6 +17,10 @@ limitations:
 - still in development.
 - less documentation & Features.
 
+## How Vidiopy works
+
+Vidiopy Uses the [ffmpeg](https://www.ffmpeg.org/) library to read and write video files. The processing of the different media is is proceed using modules like Numpy,  opencv, Pillow, ETC.
+
 ## Example code
 
 ```python
