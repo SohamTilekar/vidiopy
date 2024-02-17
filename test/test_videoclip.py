@@ -138,21 +138,21 @@ def test_set_pos(vid_clip: VideoClip):
     assert vid_clip.pos(1) == (50, 50)
 
     vid_clip.set_position((0.5, 0.5), relative=True)
-    assert vid_clip.pos(0) == (50, 100)
-    assert vid_clip.pos(0.0) == (50, 100)
-    assert vid_clip.pos(1) == (50, 100)
+    assert vid_clip.pos(0) == (0.5, 0.5)
+    assert vid_clip.pos(0.0) == (0.5, 0.5)
+    assert vid_clip.pos(1) == (0.5, 0.5)
 
     p = lambda t: ((t + t), t * t)
     vid_clip.set_position(p)
     assert vid_clip.pos(0) == (0, 0)
-    assert vid_clip.pos(0.5) == (1, 0)  # not 0.25 because it convert it to int
+    assert vid_clip.pos(0.5) == (1, 0.25)  # not 0.25 because it convert it to int
     assert vid_clip.pos(1) == (2, 1)
 
     p = lambda t: (0.5, t * t)
     vid_clip.set_position(p, relative=True)
-    assert vid_clip.pos(0) == (50, 0)
-    assert vid_clip.pos(0.5) == (50, 50)
-    assert vid_clip.pos(1) == (50, 200)
+    assert vid_clip.pos(0) == (0.5, 0)
+    assert vid_clip.pos(0.5) == (0.5, 0.25)
+    assert vid_clip.pos(1) == (0.5, 1)
 
 
 def test_set_audio(vid_clip: VideoClip):

@@ -48,9 +48,45 @@ def composite_videoclips(
         f = bg_clip.make_frame_pil(t)
         for clip in clips:
             if clip.start <= t < (clip.end or float("inf")):
+                pos_x = 0
+                pos_y = 0
                 frame = clip.make_frame_pil(t)
+                pos_: tuple[int | str | float, int | str | float] = clip.pos(t)
+                if isinstance(pos_[0], str):
+                    if pos_[0] == "center":
+                        pos_x = f.size[0] // 2 - frame.size[0] // 2
+                    elif pos_[0] == "left":
+                        pos_x = 0
+                    elif pos_[0] == "right":
+                        pos_x = f.size[0] - frame.size[0]
+                    else:
+                        raise ValueError(f"pos[0] must be 'center', 'left' or 'right'")
+                elif isinstance(pos_[0], int) or isinstance(pos_[0], float):
+                    pos_x = int(pos_[0])
+                else:
+                    raise TypeError(
+                        f"pos must output tuple of str or float or int, not {type(pos_[0])}"
+                    )
+
+                if isinstance(pos_[1], str):
+                    if pos_[1] == "center":
+                        pos_y = f.size[1] // 2 - frame.size[1] // 2
+                    elif pos_[1] == "top":
+                        pos_y = 0
+                    elif pos_[1] == "bottom":
+                        pos_y = f.size[1] - frame.size[1]
+                    else:
+                        raise ValueError(f"pos[1] must be 'center', 'top' or 'bottom'")
+                elif isinstance(pos_[1], int) or isinstance(pos_[1], float):
+                    pos_y = int(pos_[1])
+                else:
+                    raise TypeError(
+                        f"pos must output tuple of str or float or int, not {type(pos_[1])}"
+                    )
                 f.paste(
-                    frame, clip.pos(t), frame if frame.has_transparency_data else None
+                    frame,
+                    (pos_x, pos_y),
+                    frame if frame.has_transparency_data else None,
                 )
         frames.append(f)
         t += 1 / fps

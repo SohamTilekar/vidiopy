@@ -32,7 +32,9 @@ class VideoClip(Clip):
         self.size: tuple[int, int] | None = None
 
         # Position-related properties
-        self.pos = lambda t: (0, 0)
+        self.pos: Callable[
+            [float | int], tuple[int | str | float, int | str | float]
+        ] = lambda t: (0, 0)
         self.relative_pos = False
 
     #################
@@ -59,6 +61,18 @@ class VideoClip(Clip):
     @property
     @requires_size
     def width(self) -> int:
+        """
+        This is a property that returns the width of the video clip.
+
+        The width is the first element of the size tuple (width, height).
+        This property requires that the size of the video clip is set before accessing it.
+
+        Raises:
+            ValueError: If the size of the video clip is not set.
+
+        Returns:
+            int: The width of the video clip.
+        """
         if self.size is not None:
             return self.size[0]
         else:
@@ -69,6 +83,18 @@ class VideoClip(Clip):
     @property
     @requires_size
     def height(self) -> int:
+        """
+        This is a property that returns the height of the video clip.
+
+        The height is the second element of the size tuple (width, height).
+        This property requires that the size of the video clip is set before accessing it.
+
+        Raises:
+            ValueError: If the size of the video clip is not set.
+
+        Returns:
+            int: The height of the video clip.
+        """
         if self.size is not None:
             return self.size[1]
         else:
@@ -79,17 +105,45 @@ class VideoClip(Clip):
     @property
     @requires_size
     def aspect_ratio(self) -> Fraction:
-        if isinstance(self.w, int) and isinstance(self.w, int):
+        """
+        This is a property that returns the aspect ratio of the video clip.
+
+        The aspect ratio is the ratio of the width to the height of the video clip.
+        It is represented as a Fraction for precise calculations.
+        This property requires that the size of the video clip is set before accessing it.
+
+        Raises:
+            ValueError: If the size of the video clip is not valid.
+
+        Returns:
+            Fraction: The aspect ratio of the video clip.
+        """
+        if isinstance(self.w, int) and isinstance(self.h, int):
             return Fraction(self.w, self.h)
         else:
             raise ValueError("Size is not Valid")
 
     @property
     def start(self) -> int | float:
+        """
+        The start property is a getter for the _st attribute.
+
+        Returns:
+            int | float: The start time of the video clip.
+        """
         return self._st
 
     @start.setter
-    def start(self, t) -> Self:
+    def start(self, t) -> "VideoClip":
+        """
+        The start property is a setter for the _st attribute.
+
+        Args:
+            t (int | float): The start time of the video clip.
+
+        Returns:
+            VideoClip: The instance of the VideoClip after setting the start time.
+        """
         self._st = t
 
         if self.start is None:
@@ -99,71 +153,160 @@ class VideoClip(Clip):
             self.audio.start = self.start
         return self
 
-    def set_start(self, value: int | float) -> Self:
+    def set_start(self, value: int | float) -> "VideoClip":
+        """
+        The set_start method is used to set the start time of the video clip.
+
+        Args:
+            value (int | float): The start time of the video clip.
+
+        Returns:
+            VideoClip: The instance of the VideoClip after setting the start time.
+        """
         self.start = value
         return self
 
     @property
     def end(self) -> int | float | None:
+        """
+        Property that gets the end time of the video clip.
+
+        Returns:
+            int | float | None: The end time of the video clip. If the end time is not set, it returns None.
+        """
         return self._ed
 
     @end.setter
-    def end(self, t) -> Self:
+    def end(self, t) -> "VideoClip":
+        """
+        Setter for the end time of the video clip.
+
+        Args:
+            t (int | float): The end time to set for the video clip.
+
+        Returns:
+            VideoClip: The instance of the VideoClip after setting the end time.
+        """
         self._ed = t
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
         return self
 
-    def set_end(self, value) -> Self:
+    def set_end(self, value) -> "VideoClip":
+        """
+        Method to set the end time of the video clip. This is an alternative to using the end property setter.
+
+        Args:
+            value (int | float): The end time to set for the video clip.
+
+        Returns:
+            VideoClip: The instance of the VideoClip after setting the end time.
+        """
         self.end = value
         return self
 
     @property
     def duration(self) -> int | float | None:
+        """
+        Property that gets the duration of the video clip.
+
+        Returns:
+            int | float | None: The duration of the video clip. If the duration is not set, it returns None.
+        """
         return self._dur
 
     @duration.setter
-    def duration(self, dur: int | float) -> Self:
+    def duration(self, dur: int | float) -> "VideoClip":
+        """
+        Setter for the duration of the video clip.
+        it raises a ValueError since duration is not allowed to be set.
+        but you can change the duration using clip._dur = value or _set_duration method.
+
+        Args:
+            dur (int | float): The duration to set for the video clip.
+
+        Returns:
+            NoReturn: Raises a ValueError since duration is not allowed to be set.
+
+        Raises:
+            ValueError: If an attempt is made to set the duration, a ValueError is raised.
+        """
         self.set_duration(dur)
         return self
 
-    def set_duration(self, value) -> Self:
+    def set_duration(self, value) -> "VideoClip":
+        """
+        Setter for the duration of the video clip.
+        it raises a ValueError since duration is not allowed to be set.
+        but you can change the duration using clip._dur = value or the _set_duration method.
+
+        Args:
+            dur (int | float): The duration to set for the video clip.
+
+        Returns:
+            NoReturn: Raises a ValueError since duration is not allowed to be set.
+
+        Raises:
+            ValueError: If an attempt is made to set the duration, a ValueError is raised.
+        """
         raise ValueError("Duration is not allowed to be set")
         return self
 
-    def _set_duration(self, value: int | float) -> Self:
+    def _set_duration(self, value: int | float) -> "VideoClip":
+        """
+        Private method to set the duration of the video clip.
+
+        Args:
+            value (int | float): The duration to set for the video clip.
+
+        Returns:
+            VideoClip: The instance of the VideoClip after setting the duration.
+        """
         self._dur = value
         return self
 
     def set_position(
         self,
         pos: (
-            tuple[int | float, int | float]
-            | Callable[[float | int], tuple[int | float, int | float]]
+            tuple[int | float | str, int | float | str]
+            | list[int | float | str]
+            | Callable[[float | int], tuple[int | float | str, int | float | str]]
         ),
         relative=False,
     ) -> Self:
+        """
+        Sets the position of the video clip.
+        This is useful for the concatenate method, where the position of the video clip is used  to set it on other clip.
+        This method allows the position of the video clip to be set either as a fixed tuple of coordinates, or as a function that returns a tuple of coordinates at each time. The position can be set as absolute or relative to the size of the clip using the relative.
+
+        Note:
+            - It Should Be the coordinates of the Video on the top left corner.
+            - If relative is True, the position should be between the 0.0 & 1.0.
+            - If relative is False, the position should be between the 0 & width or height of the video.
+
+
+        Parameters:
+        pos (tuple or callable): The position to set for the video clip. This can be either:
+            - a tuple of two integers or floats, representing the x and y coordinates of the position, or
+            - a callable that takes a single float or integer argument (representing the time) and returns a tuple of two integers or floats, representing the x and y coordinates of the position.
+        relative (bool, optional): Whether the position is relative to the size of the clip. If True, the position is interpreted as a fraction of the clip's width and height. Defaults to False.
+
+        Raises:
+        TypeError: If `pos` is not a tuple or a callable.
+
+        Returns:
+        self: Returns the instance of the class.
+        """
         self.relative_pos = relative
         if callable(pos):
-            if relative:
-                self.pos = lambda t: (
-                    int(pos(t)[0] * self.width),
-                    int(pos(t)[1] * self.height),
-                )
-            else:
-                self.pos = lambda t: (lambda tup: (int(tup[0]), int(tup[1])))(pos(t))
-        elif isinstance(pos, tuple):
-            pos_ = int(pos[0]), int(pos[1])
-            self.pos: Callable[[float | int], tuple[int, int]] = (
-                (lambda t: pos_)
-                if not self.relative_pos
-                else (lambda t: (int(pos[0] * self.width), int(pos[1] * self.height)))
-            )
-        else:
-            raise TypeError(
-                "Pos is Invalid Type not Callable[[int |  float], tuple[int, int]] or tuple of int | float."
-            )
+            self.pos = pos
+        elif isinstance(pos, (tuple, list)):
+            if len(pos) != 2:
+                raise ValueError("Position must be a tuple of two elements")
+            x = pos[0]
+            y = pos[1]
+            self.pos = lambda t: (x, y)
         return self
 
     def set_audio(self, audio: AudioClip | None) -> Self:
