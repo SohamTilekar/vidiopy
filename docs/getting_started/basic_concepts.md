@@ -1,24 +1,23 @@
 # Basic Concepts
 
-There are 2 main types of clip in VidioPY: `VideoClip` and `AudioClip`. The first one is used for videos and the second one for Audio. Both of them are based on the `Clip` class, which is the base class for all clips in VidioPY.
+VidioPY primarily works with two types of clips: `VideoClip` and `AudioClip`. Both are derived from the `Clip` base class and can be manipulated in various ways such as cutting, slowing down, darkening, or mixing with other clips to create new ones. These clips can then be exported to various file formats such as MP4, GIF, MP3, etc.
 
-They can be modified (cut, slowed down, darkened…) or put mixed with clips to form new clips, they can be written to files (as a MP4, a GIF, a MP3, etc.).
-VideoClips for instance can be created from a video file, an image, a text, or a custom animation. They can have an audio track (which is an AudioClip).
+`VideoClip` instances can be created from a video file, an image, a text, or a custom animation, and can include an audio track, which is an `AudioClip`.
 
-A clip can be modified using one of moviepy’s numerous effects (like in `clip.resize(width="360")`, `clip.subclip(t1,t2)`, or `clip.fx(vidiopy.brightness, 1.5)`) or using a user-implemented effect. VidioPY implements many functions (like `clip.fl_frame_transform`, `clip.fl_clip_transform`, `clip.fl_time_transform`, `clip.fx`, etc.) which make it very easy to code your own effect in a few lines.
+VidioPY provides numerous effects that can be applied to a clip (e.g., `clip.resize(width="360")`, `clip.subclip(t1,t2)`, or `clip.fx(vidiopy.brightness, 1.5)`). Additionally, VidioPY implements several functions (like `clip.fl_frame_transform`, `clip.fl_clip_transform`, `clip.fl_time_transform`, `clip.fx`, etc.) that make it easy to create custom effects.
 
 ## VideoClip
 
 ### Creating a VideoClip
 
-There are many ways to create a VideoClip. The most common way is to load a video file using `VideoFileClip`:
+A `VideoClip` can be created in several ways. The most common method is to load a video file using `VideoFileClip`:
 
 ```python
 from vidiopy import VideoFileClip
 clip = VideoFileClip("path/to/video.mp4")
 ```
 
-You can also create a VideoClip from an image:
+A VideoClip can also be created from an image:
 
 ```python
 from vidiopy import ImageClip
@@ -27,10 +26,7 @@ clip = ImageClip("path/to/image.png")
 
 ### Modifying a VideoClip
 
-There are may attributes of the VideoClip class, some of them are:
-fps, duration, size, audio, start, end, start, etc.
-
-You can set them using the `set` methods relative to the attribute you want to set.
+A `VideoClip` has several attributes such as fps, duration, size, audio, start, end, etc. These can be modified using the corresponding `set` methods:
 
 ```python
 clip = clip.set_duration(10) # Not Allowed for the VideoClips only for the ImageClips
@@ -44,8 +40,7 @@ clip = clip.set_audio(audio) # Set the audio of the clip. use full for the Image
 
 ### Applying Effects to a VideoClip
 
-There are May effects that can be applied to the VideoClip. Some of them are:
-resize, crop, subclip, fx, etc.
+Various effects can be applied to a VideoClip, including resize, crop, subclip, fx, etc.:
 
 ```python
 clip = resize(clip, width=360) # Resize the clip to the given width
@@ -57,7 +52,7 @@ clip = clip.fx(vidiopy.brightness, 1.5) # Apply the brightness effect to the cli
 
 ### Exporting a VideoClip
 
-You can write a VideoClip to a file using the `write_videofile` method:
+A `VideoClip` can be exported to a file using the `write_videofile` method:
 
 ```python
 clip.write_videofile("path/to/output/video.mp4") # Write the clip to a file
@@ -70,7 +65,7 @@ clip.save_frame("path/to/output/frame.png", t=5) # Save the frame of the clip to
 
 ### Creating an AudioClip
 
-There are many ways to create an AudioClip. The most common way is to load an audio file using `AudioFileClip` or `SilenceClip`:
+An `AudioClip` can be created by loading an audio file using `AudioFileClip` or `SilenceClip`:
 
 ```python
 from vidiopy import AudioFileClip
@@ -80,10 +75,7 @@ clip = SilenceClip(duration=10) # Create a silent audio clip
 
 ### Modifying an AudioClip
 
-There are may attributes of the AudioClip class, some of them are:
-audio_data, fps, start, end, etc.
-
-You can set them using the `set` methods relative to the attribute you want to set.
+An `AudioClip` has several attributes such as audio_data, fps, start, end, etc. These can be modified using the corresponding `set` methods:
 
 ```python
 clip.fps = 24 # Set the fps of the clip
@@ -95,8 +87,7 @@ clip.audio_data = audio_data # Set the audio data of the clip
 
 ### Applying Effects to an AudioClip
 
-There are May effects that can be applied to the AudioClip. Some of them are:
-audio_normalize, sub_clip, etc.
+An `AudioClip` has several attributes such as audio_data, fps, start, end, etc. These can be modified using the corresponding set methods:
 
 ```python
 clip = clip.sub_clip(start=5, end=10) # Cut the clip to the given duration
@@ -106,7 +97,7 @@ clip = audio_normalize(clip) # Apply the normalize effect to the clip
 
 ### Exporting an AudioClip
 
-You can write an AudioClip to a file using the `write_audiofile` method:
+An `AudioClip` can be exported to a file using the `write_audiofile` method:
 
 ```python
 clip.write_audiofile("path/to/output/audio.mp3") # Write the clip to a file
