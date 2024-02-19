@@ -75,19 +75,19 @@ def test_concatenate_videoclips():
     clips = [clip1, clip2]
 
     # Test when scaling_strategy is None
-    result = concatenate_videoclips(clips, fps=30, scaling_strategy=None)
+    result = concatenate_videoclips(clips, fps=30, scaling_strategy="scale_same")
     assert isinstance(result, ImageSequenceClip)
     assert result.fps == 30
     assert result.duration == 30
 
     # Test when scaling_strategy is True
-    result = concatenate_videoclips(clips, fps=30, scaling_strategy=True)
+    result = concatenate_videoclips(clips, fps=30, scaling_strategy="scale_up")
     assert isinstance(result, ImageSequenceClip)
     assert result.fps == 30
     assert result.duration == 30
 
     # Test when scaling_strategy is False
-    result = concatenate_videoclips(clips, fps=30, scaling_strategy=False)
+    result = concatenate_videoclips(clips, fps=30, scaling_strategy="scale_down")
     assert isinstance(result, ImageSequenceClip)
     assert result.fps == 30
     assert result.duration == 30

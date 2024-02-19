@@ -15,6 +15,35 @@ def composite_videoclips(
     audio: bool = True,
     audio_fps=44100,
 ):
+    """
+    Composites multiple video clips into a single video clip.
+
+    This function takes a sequence of video clips and composites them into a single video clip. The clips are layered on top of each other in the order they appear in the sequence. The background of the composite clip can be a solid color or the first clip in the sequence. The function also handles the positioning of each clip in the composite clip and the audio of the composite clip.
+
+    Args:
+        clips (Sequence[VideoClip]): The sequence of video clips to composite.
+        fps (int | float | None, optional): The frames per second of the composite clip. If not specified, it is set to the maximum fps of the clips in the sequence or raises a ValueError if none of the clips have fps set.
+        bg_color (tuple[int, ...], optional): The background color of the composite clip as a tuple of integers representing RGBA values. Default is (0, 0, 0, 0) which is transparent.
+        use_bg_clip (bool, optional): Whether to use the first clip in the sequence as the background of the composite clip. Default is False.
+        audio (bool, optional): Whether to include audio in the composite clip. If True, the audio of the clips in the sequence is also composited. Default is True.
+        audio_fps (int, optional): The frames per second of the audio of the composite clip. Default is 44100.
+
+    Returns:
+        ImageSequenceClip: The composite video clip as an instance of the ImageSequenceClip class.
+
+    Raises:
+        ValueError: If neither fps nor duration is set for any of the clips in the sequence.
+        ValueError: If the position of a clip in the composite clip is not specified correctly.
+        TypeError: If the position of a clip in the composite clip is not of the correct type.
+
+    Example:
+        >>> clip1 = VideoClip(...)
+        >>> clip2 = VideoClip(...)
+        >>> composite_clip = composite_videoclips([clip1, clip2], fps=24)
+
+    Note:
+        This function uses the ImageSequenceClip class to create the composite video clip and the composite_audioclips function to composite the audio of the clips.
+    """
     fps = int(
         fps
         or max(*(clip.fps if clip.fps else 0.0 for clip in clips), 0.0)
@@ -47,11 +76,13 @@ def composite_videoclips(
     while t < duration:
         f = bg_clip.make_frame_pil(t)
         for clip in clips:
-            if clip.start <= t < (clip.end or float("inf")):
+            if clip.start <= t + clip.start < (clip.end or float("inf")):
                 pos_x = 0
                 pos_y = 0
-                frame = clip.make_frame_pil(t)
-                pos_: tuple[int | str | float, int | str | float] = clip.pos(t)
+                frame = clip.make_frame_pil(t + clip.start)
+                pos_: tuple[int | str | float, int | str | float] = clip.pos(
+                    t + clip.start
+                )
                 if isinstance(pos_[0], str):
                     if pos_[0] == "center":
                         pos_x = f.size[0] // 2 - frame.size[0] // 2
@@ -111,14 +142,47 @@ def concatenate_videoclips(
     clips: Sequence[VideoClip],
     transparent: bool = False,
     fps: int | float | None = None,
-    scaling_strategy: bool | None = None,
+    scaling_strategy: str = "scale_same",
     transition: (
         VideoClip | Callable[[Image.Image, Image.Image, int | float], VideoClip] | None
     ) = None,
     audio: bool = True,
     audio_fps: int | None = None,
 ):
+    """
+    Concatenates multiple video clips into a single video clip.
+
+    This function takes a sequence of video clips and concatenates them into a single video clip. The clips are appended one after the other in the order they appear in the sequence. The function also handles the scaling of each clip in the concatenated clip and the audio of the concatenated clip.
+
+    Args:
+        clips (Sequence[VideoClip]): The sequence of video clips to concatenate.
+        transparent (bool, optional): Whether to use a transparent background for the concatenated clip. Default is False.
+        fps (int | float | None, optional): The frames per second of the concatenated clip. If not specified, it is set to the maximum fps of the clips in the sequence or raises a ValueError if none of the clips have fps set.
+        scaling_strategy (bool | None, optional): The scaling strategy to use for the clips in the concatenated clip. If 'scale_up', the clips are scaled up to fit the size of the concatenated clip. If 'scale_down', the clips are scaled down to fit the size of the concatenated clip. If 'scale_same', the clips are not scaled. Default is 'scale_same'.
+        transition (VideoClip | Callable[[Image.Image, Image.Image, int | float], VideoClip] | None, optional): The transition to use between the clips in the concatenated clip. If a VideoClip, it is used as the transition. If a callable, it is called with the last frame of the previous clip, the first frame of the next clip, and the duration of the transition to generate the transition. If None, no transition is used. Default is None.
+        audio (bool, optional): Whether to include audio in the concatenated clip. If True, the audio of the clips in the sequence is also concatenated. Default is True.
+        audio_fps (int | None, optional): The frames per second of the audio of the concatenated clip. Default is None.
+
+    Returns:
+        ImageSequenceClip: The concatenated video clip as an instance of the ImageSequenceClip class.
+
+    Raises:
+        ValueError: If neither fps nor duration is set for any of the clips in the sequence.
+        ValueError: If the size of a clip in the concatenated clip is not specified correctly.
+        TypeError: If the scaling strategy of a clip in the concatenated clip is not of the correct type.
+
+    Example:
+        >>> clip1 = VideoClip(...)
+        >>> clip2 = ImageClip(...)
+        >>> concatenated_clip = concatenate_videoclips([clip1, clip2], fps=24)
+
+    Note:
+        This function uses the ImageSequenceClip class to create the concatenated video clip and the concatenate_audioclips function to concatenate the audio of the clips.
+    """
     # TODO: Add transition support
+    if transition is not None:
+        raise NotImplementedError("transition is not supported yet")
+
     fps = (
         fps if fps is not None else max(clip.fps if clip.fps else 0.0 for clip in clips)
     )
@@ -141,7 +205,7 @@ def concatenate_videoclips(
     td = 1 / fps
     duration: int | float = sum(duration_per_clip)
 
-    if scaling_strategy is None:
+    if scaling_strategy == "scale_same":
 
         def increase_scale(
             frame: Image.Image, new_size: tuple[int, int]
@@ -202,7 +266,7 @@ def concatenate_videoclips(
         else:
             return ImageSequenceClip(f_frames, fps=fps, duration=duration)
 
-    elif scaling_strategy is True:
+    elif scaling_strategy == "scale_up":
 
         def increase_scale(
             frame: Image.Image, new_size: tuple[int, int]
@@ -255,7 +319,7 @@ def concatenate_videoclips(
             )
         else:
             return ImageSequenceClip(f_frames, fps=fps, duration=duration)
-    elif scaling_strategy is False:
+    elif scaling_strategy == "scale_down":
 
         def increase_scale(
             frame: Image.Image, new_size: tuple[int, int]
@@ -310,5 +374,5 @@ def concatenate_videoclips(
             return ImageSequenceClip(f_frames, fps=fps, duration=duration)
     else:
         raise TypeError(
-            f"scaling_strategy must be bool or None, not {type(scaling_strategy)}"
+            f"scaling_strategy must be 'scale_same', 'scale_up' or 'scale_down', not '{scaling_strategy}'"
         )
