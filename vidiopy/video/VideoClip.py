@@ -177,7 +177,7 @@ class VideoClip(Clip):
         return self._ed
 
     @end.setter
-    def end(self, t) -> "VideoClip":
+    def end(self, t) -> Self:
         """
         Setter for the end time of the video clip.
 
@@ -310,6 +310,18 @@ class VideoClip(Clip):
         return self
 
     def set_audio(self, audio: AudioClip | None) -> Self:
+        """
+        Sets the audio for the video clip.
+
+        This method assigns the provided audio clip to the video clip. If the audio clip is not None,
+        it also sets the start and end times of the audio clip to match the video clip's start and end times.
+
+        Parameters:
+        audio (AudioClip | None): The audio clip to be set to the video clip. If None, no audio is set.
+
+        Returns:
+        Self: Returns the instance of the class with updated audio clip.
+        """
         self.audio = audio
         if self.audio:
             self.audio.start = self.start
@@ -317,10 +329,46 @@ class VideoClip(Clip):
         return self
 
     def without_audio(self) -> Self:
+        """
+        Removes the audio from the current VideoClip instance.
+
+        This method sets the 'audio' attribute of the VideoClip instance to None, effectively removing any audio that the clip might have.
+
+        Returns:
+            VideoClip: The same instance of the VideoClip but without any audio. This allows for method chaining.
+
+        Example:
+            >>> clip = VideoClip(...)
+            >>> clip_without_audio = clip.without_audio()
+
+        Note:
+            This method modifies the VideoClip instance in-place. If you want to keep the original clip with audio, consider making a copy before calling this method.
+        """
         self.audio = None
         return self
 
-    def set_fps(self, fps: int | float) -> Self:
+    def set_fps(self, fps: int | float) -> "Self":
+        """
+        Set the frames per second (fps) for the video clip.
+
+        This method allows you to set the fps for the video clip. The fps value
+        determines how many frames are shown per second during playback. A higher
+        fps value results in smoother video playback.
+
+        Parameters:
+        fps (int | float): The frames per second value to set. This can be an integer
+        or a float. For example, a value of 24 would mean 24 frames are shown per second.
+
+        Raises:
+        TypeError: If the provided fps value is not an integer or a float.
+
+        Returns:
+        Self: Returns the instance of the class, allowing for method chaining.
+
+        Example:
+        >>> clip = VideoClip()
+        >>> clip.set_fps(24)
+        """
         if not isinstance(fps, (int, float)):
             raise TypeError("fps must be an int or a float")
 
@@ -328,6 +376,20 @@ class VideoClip(Clip):
         return self
 
     def __copy__(self) -> Self:
+        """
+        Create a shallow copy of the current instance.
+
+        This method creates a new instance of the same class and copies all the
+        attributes of the current instance to the new one. If the attribute value
+        is an object, it will be a reference to the same object, not a new copy.
+
+        Returns:
+        Self: A new instance of the same class with the same attributes.
+
+        Example:
+        >>> clip1 = VideoClip()
+        >>> clip2 = copy.copy(clip1)
+        """
         # Get the class of the current instance
         cls = self.__class__
 
@@ -350,12 +412,75 @@ class VideoClip(Clip):
     ####################################
 
     def make_frame_array(self, t) -> np.ndarray:
-        raise NotImplementedError("Make Frame is Not Set.")
+        """
+        Generate a frame at time `t` as a NumPy array.
+
+        This method is intended to be overridden in subclasses. It should return
+        a NumPy array representing the frame at the given time.
+
+        Parameters:
+        t (float): The time at which to generate the frame.
+
+        Raises:
+        NotImplementedError: If the method is not overridden in a subclass.
+
+        Returns:
+        np.ndarray: A NumPy array representing the frame at time `t`.
+
+        Example:
+        >>> clip = VideoClipSubclass()
+        >>> frame = clip.make_frame_array(0.5)
+        """
+        raise NotImplementedError(
+            "Make Frame is Not Set., Must be overridden in the subclass."
+        )
 
     def make_frame_pil(self, t) -> Image.Image:
-        raise NotImplementedError("Make Frame pil is Not Set.")
+        """
+        Generate a frame at time `t` as a PIL Image.
+
+        This method is intended to be overridden in subclasses. It should return
+        a PIL Image representing the frame at the given time.
+
+        Parameters:
+        t (float): The time at which to generate the frame.
+
+        Raises:
+        NotImplementedError: If the method is not overridden in a subclass.
+
+        Returns:
+        Image.Image: A PIL Image representing the frame at time `t`.
+
+        Example:
+        >>> clip = VideoClipSubclass()
+        >>> frame = clip.make_frame_pil(0.5)
+        """
+        raise NotImplementedError(
+            "Make Frame pil is Not Set., Must be overridden in the subclass."
+        )
 
     def get_frame(self, t: int | float, is_pil=None) -> np.ndarray | Image.Image:
+        """
+        Get a frame at time `t`.
+
+        This method returns a frame at the given time `t`. The frame can be returned
+        as a NumPy array or a PIL Image, depending on the value of `is_pil`.
+
+        Parameters:
+            t (int | float): The time at which to get the frame.
+            is_pil (bool, optional): If True, the frame is returned as a PIL Image. If False or None, the frame is returned as a NumPy array. Defaults to None.
+
+        Raises:
+            ValueError: If `is_pil` is not True, False, or None.
+
+        Returns:
+            np.ndarray | Image.Image: The frame at time `t` as a NumPy array or a PIL Image.
+
+        Example:
+        >>> clip = VideoClip()
+        >>> frame_array = clip.get_frame(0.5)
+        >>> frame_pil = clip.get_frame(0.5, is_pil=True)
+        """
         if is_pil is None or is_pil is False:
             return self.make_frame_array(t)
         elif is_pil is True:
@@ -366,6 +491,26 @@ class VideoClip(Clip):
     def iterate_frames_pil_t(
         self, fps: int | float
     ) -> Generator[Image.Image, Any, None]:
+        """
+        Iterate over frames as PIL Images at a given frames per second (fps).
+
+        This method generates frames at a given fps as PIL Images. The frames are
+        generated from the start of the clip to the end or duration, whichever is set.
+
+        Parameters:
+            fps (int | float): The frames per second at which to generate frames.
+
+        Raises:
+            ValueError: If neither end nor duration is set.
+
+        Yields:
+            Image.Image: The next frame as a PIL Image.
+
+        Example:
+        >>> clip = VideoClip()
+        >>> for frame in clip.iterate_frames_pil_t(24):
+        ...     # Do something with frame
+        """
         time_dif = 1 / fps
         t = self.start
         if self.end is not None:
@@ -382,6 +527,26 @@ class VideoClip(Clip):
     def iterate_frames_array_t(
         self, fps: int | float
     ) -> Generator[np.ndarray, Any, None]:
+        """
+        Iterate over frames as NumPy arrays at a given frames per second (fps).
+
+        This method generates frames at a given fps as NumPy arrays. The frames are
+        generated from the start of the clip to the end or duration, whichever is set.
+
+        Parameters:
+            fps (int | float): The frames per second at which to generate frames.
+
+        Raises:
+            ValueError: If neither end nor duration is set.
+
+        Yields:
+            np.ndarray: The next frame as a NumPy array.
+
+        Example:
+        >>> clip = VideoClip()
+        >>> for frame in clip.iterate_frames_array_t(24):
+        ...     # Do something with frame
+        """
         time_dif = 1 / fps
         t = 0
         if self.end is not None:
@@ -443,6 +608,26 @@ class VideoClip(Clip):
         return self
 
     def fl_time_transform(self, func_t: Callable[[int | float], int | float]) -> Self:
+        """
+        Apply a time transformation function to the clip.
+
+        This method modifies the `make_frame_array` and `make_frame_pil` methods
+        to apply a time transformation function `func_t` to the time `t` before
+        generating the frame. This can be used to speed up, slow down, or reverse
+        the clip, among other things.
+
+        If the clip has audio, the same time transformation is applied to the audio.
+
+        Parameters:
+            func_t (Callable[[int | float], int | float]): The time transformation function to apply. This function should take a time `t` and return a new time.
+
+        Returns:
+            Self: Returns the instance of the class, allowing for method chaining.
+
+        Example:
+        >>> clip = VideoClip()
+        >>> clip.fl_time_transform(lambda t: 2*t)  # Speed up the clip by a factor of 2
+        """
         original_make_frame_pil_t = self.make_frame_pil
         original_make_frame_array_t = self.make_frame_array
 
@@ -463,19 +648,61 @@ class VideoClip(Clip):
             self.audio = self.audio.fl_time_transform(func_t)
         return self
 
-    def fx(self, func, *args, **kwargs) -> Self:
+    def fx(self, func: Callable[..., Self], *args, **kwargs) -> Self:
+        """
+        Apply an effect function to the clip.
+
+        This method applies an effect function `func` to the clip. The effect function
+        should take the clip as its first argument, followed by any number of positional
+        and keyword arguments.
+
+        The effect function should return a new clip, which is then returned by this method.
+
+        Parameters:
+            func (Callable[..., Self]): The effect function to apply. This function should take the clip as its first argument, followed by any number of positional and keyword arguments.
+            *args: Positional arguments to pass to the effect function.
+            **kwargs: Keyword arguments to pass to the effect function.
+
+        Returns:
+            Self: The new clip returned by the effect function.
+
+        Example:
+        >>> clip = VideoClip()
+        >>> clip.fx(effect_function, arg1, arg2, kwarg1=value1)
+        """
         self = func(self, *args, **kwargs)
         return self
 
     def sub_fx(
         self,
-        func,
+        func: Callable[..., Self],
         *args,
         start_t: int | float | None = None,
         end_t: int | float | None = None,
         **kwargs,
     ) -> Self:
-        """\
+        """
+        Apply an effect function to a subclip of the clip.
+
+        This method creates a subclip from `start_t` to `end_t`, applies an effect
+        function `func` to the subclip, and returns the modified subclip.
+
+        The effect function should take the clip as its first argument, followed by
+        any number of positional and keyword arguments.
+
+        Parameters:
+            func (Callable[..., Self]): The effect function to apply. This function should take the clip as its first argument, followed by any number of positional and keyword arguments.
+            *args: Positional arguments to pass to the effect function.
+            start_t (int | float | None, optional): The start time of the subclip. If None, the start of the clip is used. Defaults to None.
+            end_t (int | float | None, optional): The end time of the subclip. If None, the end of the clip is used. Defaults to None.
+            **kwargs: Keyword arguments to pass to the effect function.
+
+        Returns:
+            Self: The modified subclip.
+
+        Example:
+        >>> clip = VideoClip()
+        >>> subclip = clip.sub_fx(effect_function, arg1, arg2, start_t=1, end_t=2, kwarg1=value1)
         """
         clip = copy_(self)
         clip = clip.sub_clip(start_t, end_t)
@@ -483,6 +710,25 @@ class VideoClip(Clip):
         return clip
 
     def _sync_audio_video_s_e_d(self) -> Self:
+        """
+        Synchronizes the audio and video start, end, and duration attributes.
+
+        This method is used to ensure that the audio and video parts of a clip are in sync.
+        It sets the start, end, and original duration of the audio to match the video.
+
+        Returns:
+            Self: Returns the instance of the class with updated audio attributes.
+
+        Raises:
+            None
+
+        Example:
+            >>> video_clip = VideoClip()
+            >>> video_clip._sync_audio_video_s_e_d()
+
+        Note:
+            This is an internal method, typically not meant to be used directly by the user.
+        """
         if self.audio:
             self.audio.start = self.start
             self.audio.end = self.end
@@ -510,6 +756,41 @@ class VideoClip(Clip):
         logger="bar",
         over_write_output=True,
     ) -> Self:
+        """
+        Writes the video clip to a file.
+
+        This method generates video frames, processes them, and writes them to a file.
+        If audio is present in the clip, it is also written to the file.
+
+        Args:
+            filename (str): The name of the file to write.
+            fps (int, optional): The frames per second to use for the output video. If not provided, the fps of the video clip is used.
+            codec (str, optional): The codec to use for the output video.
+            bitrate (str, optional): The bitrate to use for the output video.
+            audio (bool, optional): Whether to include audio in the output video. Defaults to True.
+            audio_fps (int, optional): The frames per second to use for the audio. Defaults to 44100.
+            preset (str, optional): The preset to use for the output video. Defaults to "medium".
+            pixel_format (str, optional): The pixel format to use for the output video.
+            audio_codec (str, optional): The codec to use for the audio.
+            audio_bitrate (str, optional): The bitrate to use for the audio.
+            threads (int, optional): The number of threads to use for writing the video file.
+            ffmpeg_params (dict[str, str] | None, optional): Additional parameters to pass to ffmpeg.
+            logger (str, optional): The logger to use. Defaults to "bar".
+            over_write_output (bool, optional): Whether to overwrite the output file if it already exists. Defaults to True.
+
+        Returns:
+            Self: Returns the instance of the class.
+
+        Raises:
+            Exception: If fps is not provided and not set in the video clip.
+
+        Example:
+            >>> video_clip = VideoClip()
+            >>> video_clip.write_videofile("output.mp4")
+
+        Note:
+            This method uses ffmpeg to write the video file.
+        """
         # Generate video frames using iterate_frames_array_t method
         total_frames = (
             int(
@@ -677,6 +958,45 @@ class VideoClip(Clip):
         logger="bar",
         over_write_output=True,
     ) -> Self:
+        """
+        Writes a subclip of the video clip to a file.
+
+        This method generates video frames for a specific part of the video (subclip), processes them, and writes them to a file.
+        If audio is present in the clip, it is also written to the file.
+
+        Args:
+            filename (str): The name of the file to write.
+            start_t (int | float | None, optional): The start time of the subclip. If not provided, the start of the video is used.
+            end_t (int | float | None, optional): The end time of the subclip. If not provided, the end of the video is used.
+            fps (int, optional): The frames per second to use for the output video. If not provided, the fps of the video clip is used.
+            codec (str, optional): The codec to use for the output video.
+            bitrate (str, optional): The bitrate to use for the output video.
+            audio (bool, optional): Whether to include audio in the output video. Defaults to True.
+            audio_fps (int, optional): The frames per second to use for the audio. Defaults to 44100.
+            preset (str, optional): The preset to use for the output video. Defaults to "medium".
+            pixel_format (str, optional): The pixel format to use for the output video.
+            audio_codec (str, optional): The codec to use for the audio.
+            audio_bitrate (str, optional): The bitrate to use for the audio.
+            write_logfile (bool, optional): Whether to write a logfile. Defaults to False.
+            verbose (bool, optional): Whether to print verbose output. Defaults to True.
+            threads (int, optional): The number of threads to use for writing the video file.
+            ffmpeg_params (dict[str, str] | None, optional): Additional parameters to pass to ffmpeg.
+            logger (str, optional): The logger to use. Defaults to "bar".
+            over_write_output (bool, optional): Whether to overwrite the output file if it already exists. Defaults to True.
+
+        Returns:
+            Self: Returns the instance of the class.
+
+        Raises:
+            Exception: If fps is not provided and not set in the video clip.
+
+        Example:
+            >>> video_clip = VideoClip()
+            >>> video_clip.write_videofile_subclip("output.mp4", start_t=10, end_t=20)
+
+        Note:
+            This method uses ffmpeg to write the video file.
+        """
         clip = self.sub_clip_copy(start_t, end_t)
         clip.write_videofile(
             filename,
@@ -701,6 +1021,29 @@ class VideoClip(Clip):
     def write_image_sequence(
         self, nformat: str, fps: int | float | None = None, dir="."
     ) -> Self:
+        """
+        Writes the frames of the video clip as an image sequence.
+
+        This method generates video frames, processes them, and writes them as images to a directory.
+        The images are named by their frame number and the provided format.
+
+        Args:
+            nformat (str): The format to use for the output images.
+            fps (int | float | None, optional): The frames per second to use for the output images. If not provided, the fps of the video clip is used.
+            dir (str, optional): The directory to write the images to. Defaults to the current directory.
+
+        Returns:
+            Self: Returns the instance of the class.
+
+        Raises:
+            ValueError: If fps is not provided and fps and duration are not set in the video clip.
+
+        Example:
+            >>> video_clip = VideoClip()
+            >>> video_clip.write_image_sequence("png", fps=24, dir="frames")
+
+        """
+
         def save_frame(frame: Image.Image, frame_number: int):
             frame.save(
                 os.path.join(
@@ -736,11 +1079,47 @@ class VideoClip(Clip):
         )
         return self
 
-    def save_frame(self, t, filename) -> Self:
+    def save_frame(self, t: int | float, filename: str) -> Self:
+        """
+        Saves a specific frame of the video clip as an image.
+
+        This method generates a video frame for a specific time, processes it, and writes it as an image to a file.
+
+        Args:
+            t (int | float): The time of the frame to save.
+            filename (str): The name of the file to write.
+
+        Returns:
+            Self: Returns the instance of the class.
+
+        Raises:
+            None
+
+        Example:
+            >>> video_clip = VideoClip()
+            >>> video_clip.save_frame(10, "frame10.png")
+
+        """
         self.make_frame_pil(t).save(filename)
         return self
 
-    def to_ImageClip(self, t):
-        import ImageClips
+    def to_ImageClip(self, t: int | float):
+        """
+        Converts a specific frame of the video clip to an ImageClip.
 
+        This method generates a video frame for a specific time, processes it, and converts it to an ImageClip.
+
+        Args:
+            t (int | float): The time of the frame to convert.
+
+        Returns:
+            Data2ImageClip: The converted ImageClip.
+
+        Raises:
+            None
+
+        Example:
+            >>> video_clip = VideoClip()
+            >>> image_clip = video_clip.to_ImageClip(10)
+        """
         return ImageClips.Data2ImageClip(self.make_frame_pil(t))
