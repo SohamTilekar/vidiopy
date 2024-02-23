@@ -1,7 +1,7 @@
 _.py
 .py
 test.py
-venv/
+.venv/
 .idea/
 .vscode/
 **/__pycache__/
