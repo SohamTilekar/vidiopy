@@ -5,72 +5,119 @@ site_url: https://github.com/SohamTilekar/vidiopy
 
 repo_name: SohamTilekar/vidiopy
 repo_url: https://github.com/SohamTilekar/vidiopy
+edit_uri: edit/master/docs/
+
+copyright: Copyright &copy; 2023 - 2024 Soham Tilekar Under MIT License
+
+nav:
+  - Home: index.md
+  - Documentation:
+      - Installation: getting_started\download_install.md
+      - Getting Started:
+          - Quick Presentation: getting_started\quick_presentation.md
+          - Basic Concepts: getting_started\basic_concepts.md
+          - Read & Write: getting_started\read&write.md
+          - Mixing Clips: getting_started\mixing_clip.md
+      - Reference Manual:
+          - Reference Manual: reference_manual\reference_manual.md
+          - Clip: reference_manual\clips\clip.md
+          - VideoClip: reference_manual\clips\videoclip.md
+
+  - Contribute:
+      - Contributing: more/CONTRIBUTING.md
+      - Style Guide: more/code style guide.md
 
 theme:
   name: material
+  custom_dir: overrides
+  logo: media/vidiopy_logo.png
+  favicon: media/vidiopy_logo.png
+  icon:
+    annotation: material/more
   palette:
-    # Palette toggle for dark mode
-    - scheme: slate
-      toggle:
-        icon: material/brightness-4
-        name: Switch to light mode
-
-    # Palette toggle for light mode
-    - scheme: default
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
-
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
   features:
-    - navigation.instant
-    - navigation.instant.progress
-    - navigation.tracking
-    - navigation.tabs
-    - navigation.tabs.sticky
-    - navigation.expand
-    - navigation.path
-    - navigation.prune
+    - header.autohide
     - navigation.footer
     - search.suggest
     - search.highlight
-
-  logo: media/vidiopy_logo.png
-  favicon: media/vidiopy_logo.png
-
-extra:
-  social:
-    - icon: fontawesome/brands/github
-      link: https://github.com/SohamTilekar/vidiopy
+    - search.share
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.instant.preview
+    - navigation.path
+    - navigation.prune
+    - navigation.tracking
+    - content.action.edit
+    - content.action.view
+    - toc.follow
 
 plugins:
   - search
 
 markdown_extensions:
-  # Python Markdown
-  - abbr
-  - admonition
-  - attr_list
-  - def_list
-  - footnotes
-  - md_in_html
   - toc:
       permalink: true
-
-  # Python Markdown Extensions
-  - pymdownx.arithmatex:
-      generic: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.betterem:
       smart_enable: all
-  - pymdownx.caret
-  - pymdownx.details
-  - pymdownx.highlight
-  - pymdownx.inlinehilite
-  - pymdownx.keys
-  - pymdownx.mark
-  - pymdownx.smartsymbols
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tabbed:
       alternate_style: true
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.betterem
+  - pymdownx.keys
+  - pymdownx.details
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - md_in_html
+  - footnotes
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+
+extra:
+  # generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/SohamTilekar/vidiopy
+    - icon: fontawesome/solid/paper-plane
+      link: mailto:sohamtilekar233@gmail.com
+
+extra_css:
+  - "stylesheets/extra.css"
