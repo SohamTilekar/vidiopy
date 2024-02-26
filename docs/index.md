@@ -4,19 +4,17 @@ VidioPy is a Python library for video processing. It provides a simple API for c
 
 ## Overview
 
-1.[Download & Install](download_install.md)
+1.[Download & Install](getting_started/download_install.md)
 
-2.[Getting Started](getting_started/quick_presentation.md)
+1.[Getting Started](getting_started/quick_presentation.md)
 
-3.[Advanced Usage](advanced_usage.md)
+1.[Reference Manual](reference_manual\reference_manual.md)
 
-4.[Reference Manual](refrence_manual.md)
+<!-- 1.[Galleries](galleries.md)
 
-5.[Galleries](galleries.md)
+1.[examples](examples.md)
 
-6.[examples](examples.md)
-
-7.[FAQ](faq.md)
+1.[FAQ](faq.md) -->
 
 ## Contributing
 
