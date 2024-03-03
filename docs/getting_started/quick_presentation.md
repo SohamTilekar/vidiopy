@@ -2,7 +2,7 @@
 
 ## Advantages and limitations
 
-MoviePy has been developed with the following goals in mind:
+VidioPy has been developed with the following goals in mind:
 
 Advantages:
 
@@ -19,11 +19,38 @@ limitations:
 
 ## How Vidiopy works
 
-Vidiopy Uses the [ffmpeg](https://www.ffmpeg.org/) library to read and write video files. The processing of the different media is is proceed using modules like Numpy,  opencv, Pillow, ETC.
+Vidiopy Uses the [ffmpeg](https://www.ffmpeg.org/) (1) library to read and write video files. The processing of the different media is is proceed using modules like Numpy,  opencv, Pillow, ETC.
+{ .annotate }
+
+1. ffmpeg is a tool for handling multimedia files. It is used for reading and writing video files, and for converting between   different video and audio formats.
+
+```mermaid
+flowchart LR
+    subgraph clips
+        video(film reel)
+        audio(sound wave)
+        pictures(image)
+    end
+    Processing[numpy, opencv, pillow, etc]
+    subgraph processing
+        Processing
+    end
+    subgraph output
+        Output_Image(Image Sequence, Image File)
+        Output_Video(Video File)
+        Output_Audio(Audio File)
+    end
+    video -->|ffmpeg| processing
+    audio -->|ffmpeg| processing
+    pictures -->|ffmpeg or pillow| processing
+    processing -->|ffmpeg| Output_Video
+    processing -->|ffmpeg| Output_Audio
+    processing -->|ffmpeg or pillow| Output_Image
+```
 
 ## Example code
 
-```python
+```python linenums="1"
 from vidiopy import VideoFileClip, TextClip
 
 # Load myHolidays.mp4 and trimming it to 10 seconds. 50s to 60s.
@@ -50,3 +77,4 @@ video.write_image_sequence("image%03d.png", fps=24) # %03d are placeholders for 
 video.write_image_sequence("image%03d.jpg", fps=24) # %03d are placeholders for the numbers 001, 002, 003, etc. fps = frames per second
 video.write_image_sequence("image%03d.bmp", fps=24) # %03d are placeholders for the numbers 001, 002, 003, etc. fps = frames per second
 ```
+
