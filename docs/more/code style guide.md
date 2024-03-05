@@ -4,7 +4,7 @@
 
 ### function and method docstring template
 
-```python
+```python linenums="1"
 """\
 A Brief Description of the Function or Method
 
@@ -78,7 +78,7 @@ A Brief Description of the Function or Method
 
 ### class docstring template
 
-```python
+```python linenums="1"
 """\
 A Brief Description of the Class
 
