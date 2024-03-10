@@ -9,6 +9,7 @@ from ..Clip import Clip
 __all__ = [
     "AudioClip",
     "AudioFileClip",
+    "SilenceClip",
     "AudioArrayClip",
     "concatenate_audioclips",
     "composite_audioclips",
