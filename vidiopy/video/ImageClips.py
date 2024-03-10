@@ -36,7 +36,7 @@ class ImageClip(VideoClip.VideoClip):
         Generate a frame using PIL for a given time.
 
     Note:
-    The ImageClip class extends the VideoClip class from the moviepy library and is designed
+    The ImageClip class extends the VideoClip class from the Vidiopy library and is designed
     for creating video clips from a single image. It provides methods for frame transformations,
     applying generic functions, and generating frames in different formats.
 
