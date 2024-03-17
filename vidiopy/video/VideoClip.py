@@ -287,16 +287,16 @@ class VideoClip(Clip):
 
 
         Parameters:
-        pos (tuple or callable): The position to set for the video clip. This can be either:
-            - a tuple of two integers or floats, representing the x and y coordinates of the position, or
-            - a callable that takes a single float or integer argument (representing the time) and returns a tuple of two integers or floats, representing the x and y coordinates of the position.
-        relative (bool, optional): Whether the position is relative to the size of the clip. If True, the position is interpreted as a fraction of the clip's width and height. Defaults to False.
+            pos (tuple or callable): The position to set for the video clip. This can be either:
+                - a tuple of two integers or floats, representing the x and y coordinates of the position, or
+                - a callable that takes a single float or integer argument (representing the time) and returns a tuple of two integers or floats, representing the x and y coordinates of the position.
+            relative (bool, optional): Whether the position is relative to the size of the clip. If True, the position is interpreted as a fraction of the clip's width and height. Defaults to False.
 
         Raises:
-        TypeError: If `pos` is not a tuple or a callable.
+        TypeError:   If `pos` is not a tuple or a callable.
 
         Returns:
-        self: Returns the instance of the class.
+            self: Returns the instance of the class.
         """
         self.relative_pos = relative
         if callable(pos):
@@ -563,34 +563,79 @@ class VideoClip(Clip):
     def sub_clip_copy(
         self, t_start: int | float | None = None, t_end: int | float | None = None
     ) -> Self:
-        """\
-        Returns a subclip of the clip.__copy__, starting at time t_start (in seconds)
+        """
+        Returns a subclip of the clip.__copy__, starting at time t_start (in seconds).
+
+        Parameters:
+            t_start (int | float | None, optional): The start time of the subclip in seconds. Defaults to None.
+            t_end (int | float | None, optional): The end time of the subclip in seconds. Defaults to None.
+
+        Returns:
+            Self: The subclip of the clip.
+
+        Raises:
+            NotImplementedError: If the method is not overridden in a subclass.
+
+        Example:
+            >>> clip = VideoClip()
+            >>> subclip = clip.sub_clip_copy(t_start=1.5, t_end=3.5)
         """
         raise NotImplementedError("sub_clip method must be overridden in the subclass.")
 
     def sub_clip(
         self, t_start: int | float | None = None, t_end: int | float | None = None
     ) -> Self:
-        """\
-        Returns a subclip of the clip, starting at time t_start (in seconds)
+        """
+        Returns a subclip of the clip, starting at time t_start and ending at time t_end.
+
+        Parameters:
+            t_start (int | float | None, optional): The start time of the subclip in seconds. Defaults to None.
+            t_end (int | float | None, optional): The end time of the subclip in seconds. Defaults to None.
+
+        Returns:
+            Self: The subclip of the clip.
+
+        Raises:
+            NotImplementedError: If the method is not overridden in a subclass.
+
+        Example:
+            >>> clip = VideoClip()
+            >>> subclip = clip.sub_clip(t_start=1.5, t_end=3.5)
         """
         raise NotImplementedError("sub_clip method must be overridden in the subclass.")
 
     def fl_frame_transform(self, func, *args, **kwargs) -> Self:
-        """\
-        Apply a frame transformation function to each frame of the video clip.
-        calls the function func on each frame of the clip. like below
-        >>> frames = []
-        >>> for frame in clip._Depends_upon_sub_class_:
-        >>>     frame = func(frame, *args, **kwargs)
-        >>>     frames.append(frame)
-        >>> clip._Depends_upon_sub_class_ = tuple(frames)
-        Just boiler plate code can be modified as per the need.
-        """
-        raise NotImplementedError(
-            "fl_frame_transform method must be overridden in the subclass."
-        )
-        return self
+            """
+            Apply a frame transformation function to each frame of the video clip.
+
+            This method calls the provided function `func` on each frame of the clip and applies the transformation.
+            The transformed frames are then stored in a list and assigned back to the clip.
+
+            Parameters:
+                - func: The frame transformation function to be applied.
+                - *args: Additional positional arguments to be passed to the transformation function.
+                - **kwargs: Additional keyword arguments to be passed to the transformation function.
+
+            Returns:
+                - Self: The modified video clip object.
+
+            Example:
+                >>> def grayscale(frame):
+                >>>     # Convert frame to grayscale
+                >>>     return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                >>>
+                >>> clip = VideoClip()
+                >>> clip.fl_frame_transform(grayscale)
+                
+            Note:
+                - This method is meant to be overridden in the subclass. If not overridden, it raises a NotImplementedError.
+                - The transformation function `func` should accept a single frame as the first argument and return the transformed frame.
+
+            """
+            raise NotImplementedError(
+                "fl_frame_transform method must be overridden in the subclass."
+            )
+            return self
 
     def fl_clip_transform(self, func, *args, **kwargs) -> Self:
         """\
