@@ -1,2 +1,4 @@
-[Clips](clips/clip.md)
-[VideoClip](clips/clip.md)
+- [Clips](clips/clip.md)
+- VideoClips
+  - [VideoClip](clips/videoclip.md)
+  - [VideoFileClip](clips/videofileclip.md)
