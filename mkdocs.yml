@@ -21,9 +21,15 @@ nav:
       - Reference Manual:
           - Reference Manual: reference_manual\reference_manual.md
           - Clip: reference_manual\clips\clip.md
-          - VideoClip:
-              - VideoClip: reference_manual\clips\videoclip.md
-              - VideoFileClip: reference_manual\clips\videofileclip.md
+          - VideoClips:
+              - VideoClip: reference_manual\clips\video_clips\videoclip.md
+              - VideoFileClip: reference_manual\clips\video_clips\videofileclip.md
+              - ImageClip: reference_manual\clips\video_clips\imageclips.md
+              - ImageSequenceClip: reference_manual\clips\video_clips\imagesequenceclip.md
+              - Mixing VideoClip: reference_manual\clips\video_clips\mixing_clips.md
+          - AudioClips:
+              - AudioClip: reference_manual\clips\audio_clips\audioclip.md
+              - SilenceClip: reference_manual\clips\audio_clips\silenceclip.md
 
   - Contribute:
       - Contributing: more/CONTRIBUTING.md

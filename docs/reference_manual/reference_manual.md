@@ -1,4 +1,10 @@
 - [Clips](clips/clip.md)
 - VideoClips
-  - [VideoClip](clips/videoclip.md)
-  - [VideoFileClip](clips/videofileclip.md)
+  - [VideoClip](clips/video_clips/videoclip.md)
+  - [VideoFileClip](clips/video_clips/videofileclip.md)
+  - [ImageClips](clips/video_clips/imageclips.md)
+  - [ImageSequenceClip](clips/video_clips/imagesequenceclip.md)
+  - [Mining Clip](clips/video_clips/mixing_clips.md)
+- Audioclips
+  - [AudioClip](clips/audio_clips/audioclip.md)
+  - [SilenceClip](clips/audio_clips/silenceclip.md)
