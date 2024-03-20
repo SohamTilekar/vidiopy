@@ -30,6 +30,7 @@ nav:
           - AudioClips:
               - AudioClip: reference_manual/clips/audio_clips/audioclip.md
               - SilenceClip: reference_manual/clips/audio_clips/silenceclip.md
+              - AudioFileClip: reference_manual/clips/audio_clips/audiofileclip.md
 
   - Contribute:
       - Contributing: more/CONTRIBUTING.md

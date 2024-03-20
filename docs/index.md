@@ -8,7 +8,7 @@ VidioPy is a Python library for video processing. It provides a simple API for c
 
 1.[Getting Started](getting_started/quick_presentation.md)
 
-1.[Reference Manual](reference_manual\reference_manual.md)
+1.[Reference Manual](reference_manual/reference_manual.md)
 
 <!-- 1.[Galleries](galleries.md)
 
