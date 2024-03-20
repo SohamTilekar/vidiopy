@@ -174,6 +174,8 @@ class ImageClip(VideoClip.VideoClip):
         """
         Raise a ValueError indicating that fl_clip is not applicable for ImageClip.
 
+        The Clip should be converted to VideoClip using `to_video_clip` method first.
+
         Parameters:
         - func: Unused.
         - *args: Unused.
@@ -231,6 +233,33 @@ class ImageClip(VideoClip.VideoClip):
         end_t: int | float | None = None,
         **kwargs,
     ) -> Self:
+        """
+        Apply a custom function to the Image Clip.
+
+        Note: Before using the `sub_fx` method, you need to convert the image clip to a video clip using `to_video_clip()` function.
+
+        Args:
+            func: The custom function to apply to the Image Clip.
+            *args: Additional positional arguments to pass to the custom function.
+            start_t: The start time of the subclip in seconds. If None, the subclip starts from the beginning.
+            end_t: The end time of the subclip in seconds. If None, the subclip ends at the last frame.
+            **kwargs: Additional keyword arguments to pass to the custom function.
+
+        Returns:
+            Self: The modified ImageClips instance.
+
+        Example:
+            ```python
+            # Convert the image clip to a video clip
+            video_clip = image_clip.to_video_clip()
+
+            # Apply a custom function to the video clip
+            modified_clip = video_clip.sub_fx(custom_function, start_t=2, end_t=5)
+            ```
+
+        Raises:
+            ValueError: If the method is called on an Image Clip instead of a Video Clip.
+        """
         raise ValueError(
             "Convert this Image Clip to Video Clip following is the function `to_video_clip`"
         )
@@ -239,6 +268,19 @@ class ImageClip(VideoClip.VideoClip):
     def sub_clip_copy(
         self, start: int | float | None = None, end: int | float | None = None
     ) -> Self:
+        """
+        Create a copy of the current clip and apply sub-clip operation.
+        Read more about sub-clip operation in the `sub_clip` method.
+
+        Args:
+            start (int | float | None): Start time of the sub-clip in seconds.
+                If None, the sub-clip starts from the beginning of the original clip.
+            end (int | float | None): End time of the sub-clip in seconds.
+                If None, the sub-clip ends at the end of the original clip.
+
+        Returns:
+            Self: A new instance of the clip with the sub-clip applied.
+        """
         clip = self.copy()
         clip.sub_clip(start, end)
         return clip
@@ -246,10 +288,26 @@ class ImageClip(VideoClip.VideoClip):
     def sub_clip(
         self, start: int | float | None = None, end: int | float | None = None
     ) -> Self:
+        """
+        Returns a sub-clip of the current clip.
+
+        Args:
+            start (int | float | None, optional): The start time of the sub-clip in seconds. Defaults to None.
+            end (int | float | None, optional): The end time of the sub-clip in seconds. Defaults to None.
+
+        Returns:
+            Self: The sub-clip.
+
+        Note:
+            It modifies the current clip in-place.
+            If both `start` and `end` are None, the original clip is returned.
+            If `start` is None, it defaults to 0.
+            If `end` is None, it defaults to the end time of the original clip.
+        """
         if start is None and end is None:
             return self
         if start is None:
-            start = self.start
+            start = 0
         if end is None:
             end = (
                 self.end
@@ -262,11 +320,35 @@ class ImageClip(VideoClip.VideoClip):
         return self
 
     def make_frame_array(self, t):
+        """
+        Gives the numpy array representation of the image at a given time.
+
+        Args:
+            t (float): The timestamp of the frame.
+
+        Returns:
+            numpy.ndarray: The numpy array representation of the image.
+
+        Raises:
+            ValueError: If the image is not set.
+        """
         if self.image is None:
             raise ValueError("image is not set")
         return np.asarray(self.image)
 
     def make_frame_pil(self, t) -> Image.Image:
+        """
+        Returns the image frame at a given time.
+
+        Args:
+            t (float): The time at which to retrieve the frame.
+
+        Returns:
+            PIL.Image.Image: The image frame at the given time.
+
+        Raises:
+            ValueError: If the image is not set.
+        """
         if self.image is None:
             raise ValueError("image is not set")
         return self.image
@@ -305,6 +387,7 @@ class ImageClip(VideoClip.VideoClip):
         # Example Usage
         image_clip = ImageClip()
         video_clip = image_clip.to_video_clip(fps=24, duration=10.0, start=2.0, end=12.0)
+        video_clip.sub_fx(custom_function, start_t=2, end_t=5)
         ```
         """
         if fps is None:

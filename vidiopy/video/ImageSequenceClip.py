@@ -29,6 +29,7 @@ class ImageSequenceClip(VideoClip):
         fl_frame_transform(func, *args, **kwargs): Applies a function to each frame of the clip.
         fl_clip_transform(func, *args, **kwargs): Applies a function to each frame of the clip along with its timestamp.
     """
+
     def __init__(
         self,
         sequence: (
