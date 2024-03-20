@@ -29,8 +29,10 @@ nav:
               - Mixing VideoClip: reference_manual/clips/video_clips/mixing_clips.md
           - AudioClips:
               - AudioClip: reference_manual/clips/audio_clips/audioclip.md
-              - SilenceClip: reference_manual/clips/audio_clips/silenceclip.md
               - AudioFileClip: reference_manual/clips/audio_clips/audiofileclip.md
+              - AudioArrayClip: reference_manual/clips/audio_clips/audioarrayclip.md
+              - SilenceClip: reference_manual/clips/audio_clips/silenceclip.md
+              - Mixing AudioClip: reference_manual/clips/audio_clips/mixingaudio.md
 
   - Contribute:
       - Contributing: more/CONTRIBUTING.md
