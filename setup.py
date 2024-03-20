@@ -3,7 +3,7 @@ from pathlib import Path
 
 # TODO: Add the Support to Download the ffmpeg file using the install function from the config.py while giving the user ability to not downloading it. like pip install vidiopy --no-ffmpeg-install or pip install vidiopy[no_ffmpeg_install] or any thing else.
 
-__version__ = Path("vidiopy/__version__.py").read_text().strip().split('"')[1][:-1]
+__version__ = Path("vidiopy/__version__.py").read_text().strip().split('"')[1]
 
 with open(Path(r"./README.md")) as f:
     long_description = f.read()
