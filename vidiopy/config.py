@@ -9,8 +9,11 @@ FFMPEG_BINARY = None
 FFPROBE_BINARY = None
 
 try:
-    FFMPEG_BINARY = ffmpegio.get_path()
-    FFPROBE_BINARY = ffmpegio.get_path(probe=True)
+    try:
+        FFMPEG_BINARY = ffmpegio.get_path()
+        FFPROBE_BINARY = ffmpegio.get_path(probe=True)
+    except Exception:
+        ffmpegio.set_path(os.path.join(__file__, "binary"))
 except Exception:
     try:
         if os.path.exists(
