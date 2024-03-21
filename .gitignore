@@ -1,5 +1,3 @@
-_.py
-.py
 test.py
 .venv/
 .idea/
@@ -12,3 +10,4 @@ dump/*
 !dump/folder_info.md
 vidiopy/binary/*
 !vidiopy/binary/folder_info.md
+*_.*
