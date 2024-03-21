@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
-from PIL import Image
+import numpy.typing as npt
+from PIL import Image, ImageFilter
 import os
 import ffmpegio
 import tempfile
@@ -36,9 +37,9 @@ def file_clip():
 def test_init_no_audio(file_clip_no_audio: VideoFileClip):
     # Assert the attributes are set correctly
     assert file_clip_no_audio.filename
-    assert isinstance(file_clip_no_audio.clip, tuple)
-    assert isinstance(file_clip_no_audio.clip[0], Image.Image)
-    assert np.array(file_clip_no_audio.clip).shape == (5, 100, 100, 3)
+    assert isinstance(file_clip_no_audio.clip, np.ndarray)
+    assert isinstance(file_clip_no_audio.clip[0], np.ndarray)
+    assert file_clip_no_audio.clip.shape == (5, 100, 100, 3)
     assert file_clip_no_audio.fps == 5
     assert file_clip_no_audio.size == (100, 100)
     assert file_clip_no_audio.start == 0.0
@@ -51,9 +52,9 @@ def test_init_no_audio(file_clip_no_audio: VideoFileClip):
 def test_init_audio(file_clip):
     # Assert the attributes are set correctly
     assert file_clip.filename
-    assert isinstance(file_clip.clip, tuple)
-    assert isinstance(file_clip.clip[0], Image.Image)
-    assert np.array(file_clip.clip).shape == (5, 100, 100, 3)
+    assert isinstance(file_clip.clip, np.ndarray)
+    assert isinstance(file_clip.clip[0], np.ndarray)
+    assert file_clip.clip.shape == (5, 100, 100, 3)
     assert file_clip.fps == 5
     assert file_clip.size == (100, 100)
     assert file_clip.start == 0.0
@@ -66,10 +67,10 @@ def test_init_audio(file_clip):
 
 def test_frame_transform(file_clip: VideoFileClip):
     # Define a transformation function
-    def transform_func(frame: Image.Image):
+    def transform_func(frame: npt.NDArray):
         # Apply some transformation to the frame
-        # For example, convert to grayscale
-        return frame.convert("L")
+        frame = np.array(Image.fromarray(frame).filter(ImageFilter.ModeFilter))
+        return frame
 
     # Apply the transformation to the file clip
     old_clip = file_clip.copy()
@@ -79,12 +80,21 @@ def test_frame_transform(file_clip: VideoFileClip):
     assert transformed_clip is not old_clip
     assert isinstance(transformed_clip, VideoFileClip)
     assert transformed_clip.clip is not old_clip.clip
-    assert transformed_clip.clip[0] == old_clip.clip[0].convert("L")
-    assert transformed_clip.clip[1] == old_clip.clip[1].convert("L")
-    assert transformed_clip.clip[-1] == old_clip.clip[-1].convert("L")
-    assert isinstance(transformed_clip.clip, tuple)
-    assert isinstance(transformed_clip.clip[0], Image.Image)
-    assert np.array(transformed_clip.clip).shape == (5, 100, 100)
+    assert np.array_equal(
+        transformed_clip.clip[0],
+        np.array(Image.fromarray(old_clip.clip[0]).filter(ImageFilter.ModeFilter)),
+    )
+    assert np.array_equal(
+        transformed_clip.clip[1],
+        np.array(Image.fromarray(old_clip.clip[1]).filter(ImageFilter.ModeFilter)),
+    )
+    assert np.array_equal(
+        transformed_clip.clip[-1],
+        np.array(Image.fromarray(old_clip.clip[-1]).filter(ImageFilter.ModeFilter)),
+    )
+    assert isinstance(transformed_clip.clip, np.ndarray)
+    assert isinstance(transformed_clip.clip[0], np.ndarray)
+    assert transformed_clip.clip.shape == (5, 100, 100, 3)
     assert transformed_clip.fps == 5
     assert transformed_clip.size == (100, 100)
     assert transformed_clip.start == 0.0
@@ -98,10 +108,10 @@ def test_clip_transform(file_clip: VideoFileClip):
     old_clip = file_clip.copy()
 
     # Define a transformation function
-    def transform_func(frame: Image.Image, frame_time: float):
+    def transform_func(frame: npt.NDArray[np.uint8], frame_time: float):
         # Apply some transformation to the frame
         # For example, resize the frame
-        resized_frame = frame.resize((200, 200))
+        resized_frame = np.array(Image.fromarray(frame).resize((200, 200)))
         return resized_frame
 
     # Apply the transformation to the file clip
@@ -109,12 +119,11 @@ def test_clip_transform(file_clip: VideoFileClip):
 
     assert transformed_clip is file_clip
     assert isinstance(transformed_clip, VideoFileClip)
-    assert transformed_clip.clip != old_clip.clip
-    assert isinstance(transformed_clip.clip, tuple)
-    assert isinstance(transformed_clip.clip[0], Image.Image)
-    assert np.array(transformed_clip.clip).shape == (5, 200, 200, 3)
+    assert not np.array_equal(transformed_clip.clip, old_clip.clip)
+    assert isinstance(transformed_clip.clip, np.ndarray)
+    assert isinstance(transformed_clip.clip[0], np.ndarray)
+    assert transformed_clip.clip.shape == (5, 200, 200, 3)
     assert transformed_clip.fps == 5
-    assert transformed_clip.clip[0].size == (200, 200)
     assert transformed_clip.start == 0.0
     assert transformed_clip.end == 1
     assert transformed_clip._dur == 1
@@ -138,7 +147,7 @@ def test_fx(file_clip: VideoFileClip):
     assert isinstance(transformed_clip, VideoFileClip)
     assert transformed_clip._dur == 2
     assert transformed_clip.filename == old_clip.filename
-    assert transformed_clip.clip == old_clip.clip
+    assert np.array_equal(transformed_clip.clip, old_clip.clip)
     assert transformed_clip.fps == old_clip.fps
     assert transformed_clip.size == old_clip.size
     assert transformed_clip.start == old_clip.start
@@ -149,7 +158,7 @@ def test_fx(file_clip: VideoFileClip):
 
 
 def test_sub_clip(file_clip: VideoFileClip):
-    assert file_clip == file_clip.sub_clip()
+    assert file_clip is file_clip.sub_clip()
     sub_clip = file_clip.sub_clip(t_start=0.5)
     assert sub_clip.end == 1
     assert sub_clip.duration == 0.5
@@ -192,7 +201,7 @@ def test_make_frame_pil(file_clip: VideoFileClip):
     file_clip._dur = 1  # set duration
     t = 0.2  # time for which we want the frame
     expected_frame_index = int(t / (file_clip._dur / len(file_clip.clip)))
-    expected_frame = file_clip.clip[expected_frame_index]
+    expected_frame = Image.fromarray(file_clip.clip[expected_frame_index])
     assert isinstance(file_clip.make_frame_pil(t), Image.Image)
     assert file_clip.make_frame_pil(t) == expected_frame
 
