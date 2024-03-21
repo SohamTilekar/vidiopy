@@ -1,7 +1,8 @@
-from typing import Self, Union
+from typing import Callable, Self, Union
 from PIL import Image
 import ffmpegio
 import numpy as np
+import numpy.typing as npt
 from .VideoClip import VideoClip
 from ..audio.AudioClip import AudioFileClip
 from ..decorators import *
@@ -21,7 +22,7 @@ class VideoFileClip(VideoClip):
         end (float): The end time of the video clip.
         duration (float): The duration of the video clip.
         audio (AudioFileClip): The audio of the video clip.
-        clip (tuple): The frames of the video clip as PIL Images.
+        clip (np.NDarray): The frames of the video clip.
 
     Methods:
         fl_frame_transform(func, *args, **kwargs): Applies a function to each frame of the video clip.
@@ -56,7 +57,11 @@ class VideoFileClip(VideoClip):
             This method uses ffmpeg to read the video file.
         """
         super().__init__()
-
+        self.filename: str
+        self.fps: float | int
+        self.size: tuple[int, int]
+        self.start: float | int
+        self._dur: float | int
         self.filename = filename
 
         # Probe video streams and extract relevant information
@@ -64,7 +69,6 @@ class VideoFileClip(VideoClip):
 
         # Import video clip using ffmpeg
         self.clip, self.fps = self._import_video_clip(str(filename), ffmpeg_options)
-        self.fps = float(self.fps)
         # Set video properties
         self.size = (video_data["width"], video_data["height"])
         self.start = 0.0
@@ -77,9 +81,9 @@ class VideoFileClip(VideoClip):
             self._dur = self.end
         # If audio is enabled, attach audio clip
         if audio:
-            audio = AudioFileClip(filename, self._dur)
-            audio.set_start(self.start).set_end(self.end)
-            self.set_audio(audio)
+            _audio = AudioFileClip(filename, self._dur)
+            _audio.set_start(self.start).set_end(self.end)
+            self.set_audio(_audio)
 
     def __repr__(self) -> str:
         return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, filename={self.filename}, id={hex(id(self))},
@@ -101,7 +105,7 @@ class VideoFileClip(VideoClip):
             and self.end == other.end
             and self.duration == other.duration
             and self.audio == other.audio
-            and self.clip == other.clip
+            and np.array_equal(self.clip, other.clip)
         )
 
     #################
@@ -109,7 +113,7 @@ class VideoFileClip(VideoClip):
     #################
 
     @requires_start_end
-    def fl_frame_transform(self, func, *args, **kwargs) -> Self:
+    def fl_frame_transform(self, func: Callable, *args, **kwargs) -> Self:
         """
         Applies a function to each frame of the video clip.
 
@@ -135,11 +139,14 @@ class VideoFileClip(VideoClip):
         Note:
             This method requires the start and end of the video clip to be set.
         """
-        clip: list[Image.Image] = []
-        for frame in self.clip:
-            frame: Image.Image = func(frame, *args, **kwargs)
-            clip.append(frame)
-        self.clip = tuple(clip)
+        x = func(self.clip[0], *args, **kwargs)
+        final_shape = (len(self.clip),) + x.shape
+        clip_array: npt.NDArray[np.uint8] = np.empty(final_shape, dtype=np.uint8)
+        clip_array[0] = x
+        del x
+        for i, frame in enumerate(self.clip):
+            clip_array[i] = func(frame, *args, **kwargs)
+        self.clip = clip_array
         return self
 
     @requires_fps
@@ -173,12 +180,15 @@ class VideoFileClip(VideoClip):
         """
         td = 1 / self.fps
         frame_time = 0.0
-        clip: list[Image.Image] = []
-        for frame in self.clip:
-            clip.append(func(frame, frame_time, *args, **kwargs))
+        x = func(self.clip[0], 0.0, *args, **kwargs)
+        final_shape = (len(self.clip),) + x.shape
+        clip_array: npt.NDArray[np.uint8] = np.empty(final_shape, dtype=np.uint8)
+        clip_array[0] = x
+        del x
+        for i, frame in enumerate(self.clip):
+            clip_array[i] = func(frame, frame_time, *args, **kwargs)
             frame_time += td
-        del self.clip
-        self.clip = tuple(clip)
+        self.clip = clip_array
         return self
 
     @requires_fps
@@ -188,30 +198,21 @@ class VideoFileClip(VideoClip):
         t_end: Union[int, float, None] = None,
     ):
         if t_end is None and t_start is None:
-            return self.copy()
+            return self
         if t_end is None:
-            t_end = (
-                self.end
-                if self.end
-                else (
-                    self.duration
-                    if self.duration
-                    else (_ for _ in ()).throw(
-                        ValueError("end or duration must be set.")
-                    )
-                )
-            )
+            t_end = self.end if self.end else self._dur
         if t_start is None:
             t_start = self.start if self.start else 0.0
-        frames = []
-        time_per_frame = 1 / self.fps
-        current_frame_time = self.start
 
-        while current_frame_time < t_end:
-            frames.append(self.make_frame_pil(current_frame_time))
-            current_frame_time += time_per_frame
+        time_per_frame = self._dur / len(self.clip)
+        start_idx = t_start / time_per_frame
+        start_idx = int(min(len(self.clip) - 1, max(0, start_idx)))
 
-        self.clip = tuple(frames)
+        end_idx = t_end / time_per_frame
+        end_idx = int(min(len(self.clip) - 1, max(0, end_idx)))
+
+        self.clip = self.clip[start_idx:end_idx]
+
         self.start = 0.0
         self.end = t_end
         self._dur = t_end - t_start
@@ -232,30 +233,18 @@ class VideoFileClip(VideoClip):
         if t_end is None and t_start is None:
             return clip.copy()
         if t_end is None:
-            t_end = (
-                clip.end
-                if clip.end
-                else (
-                    clip.duration
-                    if clip.duration
-                    else (_ for _ in ()).throw(
-                        ValueError("end or duration must be set.")
-                    )
-                )
-            )
+            t_end = clip.end if clip.end else clip._dur
         if t_start is None:
             t_start = clip.start if clip.start else 0.0
-        frames = []
+
         time_per_frame = 1 / clip.fps
-        current_frame_time = clip.start
-
-        while current_frame_time < t_end:
-            frames.append(clip.make_frame_pil(current_frame_time))
-            current_frame_time += time_per_frame
-
         instance = clip.copy()
+        start_idx = t_start / time_per_frame
+        start_idx = int(min(len(instance.clip) - 1, max(0, start_idx)))
+        end_idx = t_end / time_per_frame
+        end_idx = int(min(len(instance.clip) - 1, max(0, end_idx)))
+        instance.clip = instance.clip[start_idx:end_idx]
 
-        instance.clip = tuple(frames)
         instance.start = 0.0
         instance.end = t_end
         instance._dur = t_end - t_start
@@ -294,7 +283,7 @@ class VideoFileClip(VideoClip):
         time_per_frame = self.duration / len(self.clip)
         frame_index = t / time_per_frame
         frame_index = int(min(len(self.clip) - 1, max(0, frame_index)))
-        return np.array(self.clip[frame_index])
+        return self.clip[frame_index]
 
     @requires_duration
     def make_frame_pil(self, t: int | float) -> Image.Image:
@@ -324,11 +313,11 @@ class VideoFileClip(VideoClip):
         time_per_frame = self.duration / len(self.clip)
         frame_index = t / time_per_frame
         frame_index = int(min(len(self.clip) - 1, max(0, frame_index)))
-        return self.clip[frame_index]
+        return Image.fromarray(self.clip[frame_index])
 
     def _import_video_clip(
         self, file_name: str, ffmpeg_options: dict | None = None
-    ) -> tuple:
+    ) -> tuple[npt.NDArray[np.uint8], float | int]:
         """
         Imports a video clip from a file using ffmpeg.
 
@@ -351,6 +340,7 @@ class VideoFileClip(VideoClip):
         Note:
             This method uses ffmpeg to read the video file.
         """
+        frames: np.ndarray
         options = {**(ffmpeg_options if ffmpeg_options else {})}
         fps, frames = ffmpegio.video.read(file_name, **options)
-        return tuple(Image.fromarray(frame) for frame in frames), fps
+        return frames, fps
