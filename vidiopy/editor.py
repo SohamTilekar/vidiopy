@@ -8,6 +8,7 @@ from vidiopy.audio.AudioClip import (
     SilenceClip,
     AudioArrayClip,
 )
+import vidiopy.audio.fx as audio_fx
 
 from vidiopy.Clip import Clip
 
@@ -16,4 +17,4 @@ from vidiopy.video.VideoFileClip import VideoFileClip
 from vidiopy.video.ImageSequenceClip import ImageSequenceClip
 from vidiopy.video.mixing_clip import composite_videoclips, concatenate_videoclips
 from vidiopy.video.ImageClips import ImageClip, ColorClip, TextClip, Data2ImageClip
-from vidiopy.video.fx import *
+import vidiopy.video.fx as video_fx
