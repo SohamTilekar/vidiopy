@@ -85,14 +85,14 @@ def test_make_frame_pil(image_sequence_clip: ImageSequenceClip):
 
 def test_fl_frame_transform(image_sequence_clip: ImageSequenceClip):
     # Define a transformation function
-    def transform_func(frame: Image.Image):
+    def transform_func(frame: np.ndarray):
         # Convert to grayscale
-        return frame.convert("L")
+        return np.array(Image.fromarray(frame).convert("L"))
 
     # Apply the transformation to the clip
     transformed_clip = image_sequence_clip.fl_frame_transform(transform_func)
     assert isinstance(transformed_clip, ImageSequenceClip)
-    assert all(frame.mode == "L" for frame in transformed_clip.clip)
+    assert all(Image.fromarray(frame).mode == "L" for frame in transformed_clip.clip)
 
 
 if __name__ == "__main__":
