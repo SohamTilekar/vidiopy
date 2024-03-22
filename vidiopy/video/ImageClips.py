@@ -147,7 +147,6 @@ class ImageClip(VideoClip.VideoClip):
         self._dur = value
         return self
 
-    @requires_start_end
     def fl_frame_transform(self, func, *args, **kwargs) -> Self:
         """
         Apply a frame transformation function to the image.
@@ -197,33 +196,6 @@ class ImageClip(VideoClip.VideoClip):
         raise ValueError(
             "Convert this Image Clip to Video Clip following is the function `to_video_clip`"
         )
-        return self
-
-    def fx(self, func: Callable, *args, **kwargs):
-        """
-        Apply a generic function to the ImageClip.
-
-        Parameters:
-        - func (Callable): The function to apply.
-        - *args: Additional positional arguments for the function.
-        - **kwargs: Additional keyword arguments for the function.
-
-        Returns:
-        - ImageClip: The current ImageClip instance.
-
-        Note: This method modifies the current ImageClip instance in-place.
-
-        Example Usage:
-        ```python
-        def custom_function(image):
-            # Some custom processing on the image
-            return modified_image
-
-        image_clip = ImageClip(image_path, fps=30, duration=5.0)
-        image_clip.fx(custom_function, some_arg=42)
-        ```
-        """
-        func(*args, **kwargs)
         return self
 
     def sub_fx(

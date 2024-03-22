@@ -79,7 +79,7 @@ def test_fl_clip_transform(image_clip: ImageClip):
 
 
 def test_fx(image_clip: ImageClip):
-    def func():
+    def func(clip):
         pass
 
     assert image_clip.fx(func) == image_clip
