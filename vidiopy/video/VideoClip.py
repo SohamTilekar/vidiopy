@@ -605,37 +605,37 @@ class VideoClip(Clip):
         raise NotImplementedError("sub_clip method must be overridden in the subclass.")
 
     def fl_frame_transform(self, func, *args, **kwargs) -> Self:
-            """
-            Apply a frame transformation function to each frame of the video clip.
+        """
+        Apply a frame transformation function to each frame of the video clip.
 
-            This method calls the provided function `func` on each frame of the clip and applies the transformation.
-            The transformed frames are then stored in a list and assigned back to the clip.
+        This method calls the provided function `func` on each frame of the clip and applies the transformation.
+        The transformed frames are then stored in a list and assigned back to the clip.
 
-            Parameters:
-                - func: The frame transformation function to be applied.
-                - *args: Additional positional arguments to be passed to the transformation function.
-                - **kwargs: Additional keyword arguments to be passed to the transformation function.
+        Parameters:
+            - func: The frame transformation function to be applied.
+            - *args: Additional positional arguments to be passed to the transformation function.
+            - **kwargs: Additional keyword arguments to be passed to the transformation function.
 
-            Returns:
-                - Self: The modified video clip object.
+        Returns:
+            - Self: The modified video clip object.
 
-            Example:
-                >>> def grayscale(frame):
-                >>>     # Convert frame to grayscale
-                >>>     return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                >>>
-                >>> clip = VideoClip()
-                >>> clip.fl_frame_transform(grayscale)
-                
-            Note:
-                - This method is meant to be overridden in the subclass. If not overridden, it raises a NotImplementedError.
-                - The transformation function `func` should accept a single frame as the first argument and return the transformed frame.
+        Example:
+            >>> def grayscale(frame):
+            >>>     # Convert frame to grayscale
+            >>>     return cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            >>>
+            >>> clip = VideoClip()
+            >>> clip.fl_frame_transform(grayscale)
 
-            """
-            raise NotImplementedError(
-                "fl_frame_transform method must be overridden in the subclass."
-            )
-            return self
+        Note:
+            - This method is meant to be overridden in the subclass. If not overridden, it raises a NotImplementedError.
+            - The transformation function `func` should accept a single frame as the first argument and return the transformed frame.
+
+        """
+        raise NotImplementedError(
+            "fl_frame_transform method must be overridden in the subclass."
+        )
+        return self
 
     def fl_clip_transform(self, func, *args, **kwargs) -> Self:
         """\
@@ -693,7 +693,7 @@ class VideoClip(Clip):
             self.audio = self.audio.fl_time_transform(func_t)
         return self
 
-    def fx(self, func: Callable[..., Self], *args, **kwargs) -> Self:
+    def fx(self, func: Callable, *args, **kwargs) -> Self:
         """
         Apply an effect function to the clip.
 
@@ -715,7 +715,7 @@ class VideoClip(Clip):
         >>> clip = VideoClip()
         >>> clip.fx(effect_function, arg1, arg2, kwarg1=value1)
         """
-        self = func(self, *args, **kwargs)
+        func(self, *args, **kwargs)
         return self
 
     def sub_fx(
@@ -800,6 +800,7 @@ class VideoClip(Clip):
         ffmpeg_params: dict[str, str] | None = None,
         logger="bar",
         over_write_output=True,
+        show_log=False,
     ) -> Self:
         """
         Writes the video clip to a file.
@@ -884,7 +885,7 @@ class VideoClip(Clip):
             "[bold magenta]Vidiopy[/bold magenta] - Video Frames Has Been Processed :thumbs_up:."
         )
         # Extract audio name without extension
-        audio_name, _ = os.path.splitext(filename)
+        audio_name = os.path.split(filename)[1].split(".")[0]
 
         # Set default values for ffmpeg options
         ffmpeg_options = {
@@ -935,6 +936,7 @@ class VideoClip(Clip):
                     video_np,
                     overwrite=over_write_output,
                     progress=function_callback,
+                    show_log=show_log,
                     **ffmpeg_options,
                 )
                 progress_bar.update(pbar, completed=True, visible=False)
