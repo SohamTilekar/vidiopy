@@ -3,6 +3,7 @@ from typing import Callable, Self
 from PIL import Image, ImageFont, ImageDraw
 from .ImageSequenceClip import ImageSequenceClip
 import numpy as np
+import numpy.typing as npt
 from . import VideoClip
 from ..decorators import *
 
@@ -83,7 +84,7 @@ class ImageClip(VideoClip.VideoClip):
         else:
             self.imagepath = None
         # Import image if provided
-        self.image: Image.Image | None = (
+        self.image: npt.NDArray[np.uint8] | None = (
             self._import_image(image) if image is not None else None
         )
 
@@ -95,9 +96,9 @@ class ImageClip(VideoClip.VideoClip):
         self.end = self.duration
 
         if self.image is not None:
-            self.size = self.image.size
+            self.size = self.image.shape[:2][::-1]
 
-    def _import_image(self, image) -> Image.Image:
+    def _import_image(self, image) -> npt.NDArray[np.uint8]:
         """
         Import the image from various sources.
 
@@ -108,12 +109,12 @@ class ImageClip(VideoClip.VideoClip):
         - Image.Image: The imported image data.
         """
         if isinstance(image, Image.Image):
-            return image
+            return np.array(image)
         elif isinstance(image, np.ndarray):
-            return Image.fromarray(image)
+            return image
         elif isinstance(image, (str, Path, bytes)):
-            return Image.open(image)
-        return Image.open(image)
+            return np.array(Image.open(image))
+        return np.array(Image.open(image))
 
     def __repr__(self):
         return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, imagepath={self.imagepath}, id={hex(id(self))})"""
@@ -130,7 +131,7 @@ class ImageClip(VideoClip.VideoClip):
             and self.start == other.start
             and self.end == other.end
             and self.duration == other.duration
-            and self.image == other.image
+            and np.array_equal(self.image, other.image)
         )
 
     @property
@@ -307,19 +308,19 @@ class ImageClip(VideoClip.VideoClip):
         if start is None and end is None:
             return self
         if start is None:
-            start = 0
+            start = 0.0
         if end is None:
             end = (
                 self.end
                 if self.end is not None
                 else self.duration - start if self.duration is not None else None
             )
-        self._st = start
-        self._dur = end
-        self.end = end
+        self._st = 0
+        self._dur = end - start if end is not None else None
+        self.end = self._dur
         return self
 
-    def make_frame_array(self, t):
+    def make_frame_array(self, t) -> npt.NDArray[np.uint8]:
         """
         Gives the numpy array representation of the image at a given time.
 
@@ -334,7 +335,7 @@ class ImageClip(VideoClip.VideoClip):
         """
         if self.image is None:
             raise ValueError("image is not set")
-        return np.asarray(self.image)
+        return self.image
 
     def make_frame_pil(self, t) -> Image.Image:
         """
@@ -351,7 +352,7 @@ class ImageClip(VideoClip.VideoClip):
         """
         if self.image is None:
             raise ValueError("image is not set")
-        return self.image
+        return Image.fromarray(self.image)
 
     def to_video_clip(self, fps=None, duration=None):
         """
@@ -463,9 +464,9 @@ class Data2ImageClip(ImageClip):
         self.image = self._import_image(data)
 
         # Set the size attribute based on the image size
-        self.size = self.image.size
+        self.size = self.image.shape[:2]
 
-    def _import_image(self, image) -> Image.Image:
+    def _import_image(self, image) -> npt.NDArray[np.uint8]:
         """
         Private method to convert the provided data (numpy array or PIL Image) into a PIL Image.
 
@@ -480,9 +481,9 @@ class Data2ImageClip(ImageClip):
         """
         # Convert the provided data (numpy array or PIL Image) into a PIL Image
         if isinstance(image, np.ndarray):
-            return Image.fromarray(image)
-        elif isinstance(image, Image.Image):
             return image
+        elif isinstance(image, Image.Image):
+            return np.array(image)
 
         else:
             # Raise an error if the input type is not supported
@@ -707,7 +708,7 @@ class ColorClip(Data2ImageClip):
         color_clip.set_size((800, 600))
         ```
         """
-        self.image = self.image.resize(size)
+        self.image = Image.fromarray(self.image).resize(size)
         self.size = size
 
 

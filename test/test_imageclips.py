@@ -67,10 +67,10 @@ def test_set_duration(image_clip: ImageClip):
 
 def test_fl_frame_transform(image_clip: ImageClip):
     def transform(img):
-        return img.rotate(90)
+        return np.array(Image.fromarray(img).rotate(90))
 
     image_clip.fl_frame_transform(transform)
-    assert image_clip.image == transform(image_clip.image)
+    assert np.array_equal(image_clip.image, transform(image_clip.image))
 
 
 def test_fl_clip_transform(image_clip: ImageClip):
@@ -88,15 +88,15 @@ def test_fx(image_clip: ImageClip):
 def test_sub_clip(image_clip: ImageClip):
     new_ = image_clip.sub_clip(1, 4)
     assert new_ is image_clip
-    assert image_clip.start == 1
-    assert image_clip.end == 4
+    assert image_clip.start == 0
+    assert image_clip.end == 3
 
 
 def test_sub_clip_copy(image_clip: ImageClip):
     new_ = image_clip.sub_clip_copy(1, 4)
     assert new_ is not image_clip
-    assert new_.start == 1
-    assert new_.end == 4
+    assert new_.start == 0
+    assert new_.end == 3
 
 
 def test_make_frame_array(image_clip: ImageClip):
@@ -104,7 +104,7 @@ def test_make_frame_array(image_clip: ImageClip):
 
 
 def test_make_frame_pil(image_clip: ImageClip):
-    assert image_clip.make_frame_pil(0) == image_clip.image
+    assert image_clip.make_frame_pil(0) == Image.fromarray(image_clip.image)
 
 
 def test_to_video_clip():
