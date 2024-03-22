@@ -113,7 +113,9 @@ class VideoFileClip(VideoClip):
     #################
 
     @requires_start_end
-    def fl_frame_transform(self, func: Callable, *args, **kwargs) -> Self:
+    def fl_frame_transform(
+        self, func: Callable[..., npt.NDArray], *args, **kwargs
+    ) -> Self:
         """
         Applies a function to each frame of the video clip.
 
@@ -150,7 +152,9 @@ class VideoFileClip(VideoClip):
         return self
 
     @requires_fps
-    def fl_clip_transform(self, func, *args, **kwargs) -> Self:
+    def fl_clip_transform(
+        self, func: Callable[..., npt.NDArray], *args, **kwargs
+    ) -> Self:
         """
         Applies a function to each frame of the video clip along with its timestamp.
 
