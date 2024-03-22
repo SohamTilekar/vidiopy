@@ -1,9 +1,10 @@
 import os
 import math
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Sequence
 from PIL import Image
 import numpy as np
+import numpy.typing as npt
 from ..decorators import *
 from .VideoClip import VideoClip
 
@@ -33,11 +34,11 @@ class ImageSequenceClip(VideoClip):
     def __init__(
         self,
         sequence: (
-            str
-            | Path
-            | tuple[Image.Image, ...]
-            | tuple[np.ndarray, ...]
-            | tuple[str | Path, ...]
+            Path
+            | str
+            | Sequence[Image.Image]
+            | Sequence[np.ndarray]
+            | Sequence[str | Path]
         ),
         fps: int | float | None = None,
         duration: int | float | None = None,
@@ -67,11 +68,8 @@ class ImageSequenceClip(VideoClip):
         # method body goes here
         super().__init__()
 
-        self.clip: tuple[Image.Image, ...] = self._import_image_sequence(sequence)
+        self.clip: npt.NDArray[np.uint8] = self._import_image_sequence(sequence)
         # Check if the images have the same size
-        for i in range(1, len(self.clip)):
-            if self.clip[i].size != self.clip[0].size:
-                raise ValueError("All images must have the same size.")
         if fps is not None and duration is not None:
             self.fps = fps
             self._dur = duration
@@ -98,15 +96,19 @@ class ImageSequenceClip(VideoClip):
             and self.end == other.end
             and self.duration == other.duration
             and self.audio == other.audio
-            and self.clip == other.clip
+            and np.array_equal(self.clip, other.clip)
         )
 
     def _import_image_sequence(
         self,
         sequence: (
-            str | Path | tuple[str | Path] | tuple[Image.Image] | tuple[np.ndarray]
+            str
+            | Path
+            | Sequence[str | Path]
+            | Sequence[Image.Image]
+            | Sequence[np.ndarray]
         ),
-    ) -> tuple[Image.Image, ...]:
+    ) -> npt.NDArray[np.uint8]:
         """
         Imports an image sequence from a tuple of PIL Images, paths to images, numpy arrays, or a path to a directory.
 
@@ -128,19 +130,7 @@ class ImageSequenceClip(VideoClip):
         Note:
             This method uses the PIL Image class to open images and convert numpy arrays to images.
         """
-        if isinstance(sequence, tuple):
-            if isinstance(sequence[0], Image.Image):
-                return sequence
-            elif isinstance(sequence[0], np.ndarray):
-                return tuple(map(Image.fromarray, sequence))
-            elif isinstance(sequence[0], (str, Path)) or (
-                hasattr(sequence[0], "read") and callable(getattr(sequence[0], "read"))
-            ):
-                return tuple(map(Image.open, sequence))
-            raise TypeError(
-                "The sequence should contain either PIL images or paths to images or numpy array."
-            )
-        elif isinstance(sequence, (str, Path)):
+        if isinstance(sequence, (str, Path)):
             # use set comprehension to remove duplicates
             files = [
                 os.path.join(sequence, file)
@@ -150,7 +140,15 @@ class ImageSequenceClip(VideoClip):
                 in set(Image.registered_extensions().keys())
             ]
             files.sort()
-            return tuple(map(Image.open, files))
+            return np.stack(tuple(map(np.array, map(Image.open, files))))
+        elif isinstance(sequence[0], Image.Image):
+            return np.stack(tuple(map(np.array, sequence)))
+        elif isinstance(sequence[0], np.ndarray):
+            return np.stack(sequence, axis=0)
+        elif isinstance(sequence[0], (str, Path)) or (
+            hasattr(sequence[0], "read") and callable(getattr(sequence[0], "read"))
+        ):
+            return np.stack(tuple(map(np.array, map(Image.open, sequence))))
         raise TypeError(
             "The argument must be either a tuple of PIL images or paths to images or a path to a directory."
         )
@@ -181,7 +179,7 @@ class ImageSequenceClip(VideoClip):
         time_per_frame = (self.duration if self.duration else self.end) / len(self.clip)
         frame_index = math.floor(t / time_per_frame)
         frame_index = min(len(self.clip) - 1, max(0, frame_index))
-        return np.array(self.clip[frame_index])
+        return self.clip[frame_index]
 
     @requires_duration_or_end
     def make_frame_pil(self, t: int | float) -> Image.Image:
@@ -211,10 +209,10 @@ class ImageSequenceClip(VideoClip):
         time_per_frame = (self.duration if self.duration else self.end) / len(self.clip)
         frame_index = math.floor(t / time_per_frame)
         frame_index = min(len(self.clip) - 1, max(0, frame_index))
-        return self.clip[frame_index]
+        return Image.fromarray(self.clip[frame_index])
 
     def fl_frame_transform(
-        self, func: Callable[..., Image.Image], *args, **kwargs
+        self, func: Callable[..., npt.NDArray[np.uint8]], *args, **kwargs
     ) -> "ImageSequenceClip":
         """
         Applies a function to each frame of the image sequence clip.
@@ -239,16 +237,16 @@ class ImageSequenceClip(VideoClip):
         Note:
             This method modifies the current instance of the ImageSequenceClip class in-place.
         """
-        clip: list[Image.Image] = []
+        clip: list[npt.NDArray] = []
         for frame in self.clip:
             frame = func(frame, *args, **kwargs)
             clip.append(frame)
-        self.clip = tuple(clip)
+        self.clip = np.concatenate(clip, axis=0, dtype=np.uint8)
         return self
 
     @requires_fps
     def fl_clip_transform(
-        self, func: Callable[..., Image.Image], *args, **kwargs
+        self, func: Callable[..., npt.NDArray], *args, **kwargs
     ) -> "ImageSequenceClip":
         """
         Applies a function to each frame of the image sequence clip along with its timestamp.
@@ -279,6 +277,5 @@ class ImageSequenceClip(VideoClip):
         for frame in self.clip:
             clip.append(func(frame, frame_time, *args, **kwargs))
             frame_time += td
-        del self.clip
-        self.clip = tuple(clip)
+        self.clip = np.concatenate(clip, axis=0, dtype=np.uint8)
         return self
