@@ -27,3 +27,7 @@
     --md-code-hl-generic-color: #005cc5; /* Darker blue */
     --md-code-hl-variable-color: #005cc5; /* Darker blue */
 }
+
+.md-typeset iframe.giscus-frame {
+    color-scheme: light dark !important;
+}
