@@ -3,8 +3,9 @@ from typing import Callable
 
 def accel_decel(
     clip,
-    new_duration: Callable[[int | float], int | float] | float | int | None = None,
+    new_duration: float | int | None = None,
     ratio: int | float = 1,
+    func: Callable[[float | int], float | int] | None = None,
 ):
     if new_duration is None and ratio == 1:
         ...
@@ -19,18 +20,15 @@ def accel_decel(
         else:
             raise ValueError("Clip Duration is Not Set")
     elif new_duration is not None:
-        if callable(new_duration):
-            clip.fl_time_transform(new_duration)
-        elif isinstance(new_duration, (int, float)):
-            if clip._dur is not None:
-                clip.start = new_duration / clip._dur * clip.start
-                clip.end = (
-                    (new_duration / clip._dur * clip.end)
-                    if clip.end is not None
-                    else None
-                )
-                clip._dur = new_duration
-            else:
-                raise ValueError("Clip Duration is Not Set")
+        if clip._dur is not None:
+            clip.start = new_duration / clip._dur * clip.start
+            clip.end = (
+                (new_duration / clip._dur * clip.end) if clip.end is not None else None
+            )
+            clip._dur = new_duration
+        else:
+            raise ValueError("Clip Duration is Not Set")
+    if func is not None:
+        clip.fl_time_transform(func)
     clip._sync_audio_video_s_e_d()
     return clip
