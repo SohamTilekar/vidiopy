@@ -1,9 +1,7 @@
 from typing import Callable, Sequence
 from PIL import Image, ImageOps
-
 from ..audio.AudioClip import SilenceClip, concatenate_audioclips, composite_audioclips
 from .ImageSequenceClip import ImageSequenceClip
-from .ImageClips import ColorClip
 from .VideoClip import VideoClip
 
 
@@ -58,7 +56,9 @@ def composite_videoclips(
             duration = bg_clip.end
         if not duration:
             raise ValueError("duration is not set of bg_clip")
+        bg_make_frame = bg_clip.make_frame_pil
     else:
+        size = [0, 0]
         duration = 0.0
         for clip in clips:
             if clip.end:
@@ -67,14 +67,24 @@ def composite_videoclips(
                 duration = max(clip.duration, duration)
             else:
                 ...
+            if clip.size:
+                if size[0] < clip.size[0]:
+                    size[0] = clip.size[0]
+                if size[1] < clip.size[1]:
+                    size[1] = clip.size[1]
+        if size == [0, 0]:
+            raise ValueError("size is not set of any clip")
         if duration == 0.0:
             raise ValueError("duration is not set of any clip")
-        bg_clip = ColorClip(bg_color, duration=duration)
+        bg = Image.new("RGBA" or "RGB", tuple(size), bg_color)
+
+        def bg_make_frame(t):
+            return bg.copy()
 
     t = 0.0
     frames = []
     while t < duration:
-        f = bg_clip.make_frame_pil(t)
+        f = bg_make_frame(t)
         for clip in clips:
             if clip.start <= t + clip.start < (clip.end or float("inf")):
                 pos_x = 0
@@ -92,8 +102,11 @@ def composite_videoclips(
                         pos_x = f.size[0] - frame.size[0]
                     else:
                         raise ValueError(f"pos[0] must be 'center', 'left' or 'right'")
-                elif isinstance(pos_[0], int) or isinstance(pos_[0], float):
-                    pos_x = int(pos_[0])
+                elif isinstance(pos_[0], (int, float)):
+                    if clip.relative_pos:
+                        pos_x = int(pos_[0] * f.size[0])
+                    else:
+                        pos_x = int(pos_[0])
                 else:
                     raise TypeError(
                         f"pos must output tuple of str or float or int, not {type(pos_[0])}"
@@ -109,7 +122,10 @@ def composite_videoclips(
                     else:
                         raise ValueError(f"pos[1] must be 'center', 'top' or 'bottom'")
                 elif isinstance(pos_[1], int) or isinstance(pos_[1], float):
-                    pos_y = int(pos_[1])
+                    if clip.relative_pos:
+                        pos_y = int(pos_[1] * f.size[1])
+                    else:
+                        pos_y = int(pos_[1])
                 else:
                     raise TypeError(
                         f"pos must output tuple of str or float or int, not {type(pos_[1])}"
