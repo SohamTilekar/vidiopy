@@ -81,7 +81,7 @@ class ImageSequenceClip(VideoClip):
             self._dur = len(self.clip) / fps
         else:
             raise ValueError("You must specify either fps or duration.")
-
+        self.size = self.clip[0].shape[:2][::-1]
         if audio is not None:
             self.set_audio(audio)
 
