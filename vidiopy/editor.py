@@ -18,3 +18,5 @@ from vidiopy.video.ImageSequenceClip import ImageSequenceClip
 from vidiopy.video.mixing_clip import composite_videoclips, concatenate_videoclips
 from vidiopy.video.ImageClips import ImageClip, ColorClip, TextClip, Data2ImageClip
 import vidiopy.video.fx as video_fx
+
+from vidiopy.video.preview import preview
