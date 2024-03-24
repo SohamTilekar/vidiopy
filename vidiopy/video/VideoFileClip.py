@@ -112,7 +112,6 @@ class VideoFileClip(VideoClip):
     # EFFECT METHODS#
     #################
 
-    @requires_start_end
     def fl_frame_transform(
         self, func: Callable[..., npt.NDArray], *args, **kwargs
     ) -> Self:
