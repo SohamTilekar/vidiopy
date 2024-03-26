@@ -50,17 +50,9 @@ class Clip:
 
     def close(self):
         """
-        Release any resources that are in use.
+        Release any resources that are in use. & Delete the object.
         """
-
-        #    Implementation note for subclasses:
-        #
-        #    * Memory-based resources can be left to the garbage-collector.
-        #    * However, any open files should be closed, and subprocesses
-        #      should be terminated.
-        #    * Be wary that shallow copies are frequently used.
-        #      Closing a Clip may affect its copies.
-        #    * Therefore, should NOT be called by __del__().
+        pass
 
     def __enter__(self):
         return self
