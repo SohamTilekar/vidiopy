@@ -1,8 +1,12 @@
 import ctypes
 from pathlib import Path
 from typing import NoReturn, Self
+import sys
 
-lib = ctypes.cdll.LoadLibrary(str(Path(__file__).parent / "Clip.so"))
+if sys.platform == "win32":
+    lib = ctypes.cdll.LoadLibrary(str(Path(__file__).parent / "Clip.dll"))
+else:
+    lib = ctypes.cdll.LoadLibrary(str(Path(__file__).parent / "Clip.so"))
 
 
 class Clip:
