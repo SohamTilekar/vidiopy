@@ -11,3 +11,5 @@ dump/*
 vidiopy/binary/*
 !vidiopy/binary/folder_info.md
 *_.*
+*.so
+*.dll
