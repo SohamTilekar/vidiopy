@@ -1,4 +1,3 @@
-from re import S
 from rich import print as rich_print
 from functools import wraps
 import rich.progress as progress
@@ -13,7 +12,7 @@ import ffmpegio
 import numpy as np
 from ..Clip import Clip
 from ..audio.AudioClip import AudioClip
-from ..decorators import *
+from ..decorators import requires_size, requires_fps
 from .. import config
 
 
@@ -957,7 +956,7 @@ class VideoClip(Clip):
                 # Combine video and audio using ffmpeg
                 with progress.Progress(transient=True) as progress_bar:
                     sp = progress_bar.add_task("Combining Video & Audio", total=None)
-                    x = subprocess.run(
+                    subprocess.run(
                         f'{config.FFMPEG_BINARY} -i "{temp_video_file_name}" -i "{audio_file_name}" -acodec copy {"-y " if over_write_output else ""} "{filename}"',
                         capture_output=True,
                         text=True,
@@ -998,8 +997,6 @@ class VideoClip(Clip):
         pixel_format=None,
         audio_codec=None,
         audio_bitrate=None,
-        write_logfile=False,
-        verbose=True,
         threads=None,
         ffmpeg_params: dict[str, str] | None = None,
         logger="bar",
@@ -1046,22 +1043,20 @@ class VideoClip(Clip):
         """
         clip = self.sub_clip_copy(start_t, end_t)
         clip.write_videofile(
-            filename,
-            fps,
-            codec,
-            bitrate,
-            audio,
-            audio_fps,
-            preset,
-            pixel_format,
-            audio_codec,
-            audio_bitrate,
-            write_logfile,
-            verbose,
-            threads,
-            ffmpeg_params,
-            logger,
-            over_write_output,
+            filename=filename,
+            fps=fps,
+            codec=codec,
+            bitrate=bitrate,
+            audio=audio,
+            audio_fps=audio_fps,
+            preset=preset,
+            pixel_format=pixel_format,
+            audio_codec=audio_codec,
+            audio_bitrate=audio_bitrate,
+            threads=threads,
+            ffmpeg_params=ffmpeg_params,
+            logger=logger,
+            over_write_output=over_write_output,
         )
         return self
 
