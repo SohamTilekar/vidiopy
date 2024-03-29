@@ -1,6 +1,7 @@
 """This module manages the configuration of ffmpeg and ffprobe binaries."""
 
 import os
+from typing_extensions import Union
 import ffmpegio
 
 __all__ = ["FFMPEG_BINARY", "FFPROBE_BINARY", "set_path"]
@@ -40,7 +41,9 @@ except Exception:
         ...
 
 
-def set_path(ffmpeg_path: str | None = None, ffprobe_path: str | None = None):
+def set_path(
+    ffmpeg_path: Union[str, None] = None, ffprobe_path: Union[str, None] = None
+):
     """
     Sets the paths for the ffmpeg and ffprobe binaries.
 
