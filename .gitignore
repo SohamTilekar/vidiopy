@@ -13,3 +13,7 @@ vidiopy/binary/*
 *_.*
 *.so
 *.dll
+*.obj
+*.o
+*.exp
+*.lib
