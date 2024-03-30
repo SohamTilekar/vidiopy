@@ -5,6 +5,9 @@ from pathlib import Path
 
 __version__ = Path("vidiopy/__version__.py").read_text().strip().split('"')[1]
 
+with open(Path(r"./requirements.txt")) as f:
+    requirements = f.read().splitlines()
+
 with open(Path(r"./README.md")) as f:
     long_description = f.read()
 
@@ -43,12 +46,7 @@ setup(
     ],
     license="MIT License",
     long_description_content_type="text/markdown",
-    install_requires=[
-        "rich>=13.7.0",
-        "numpy>=1.24.4",
-        "ffmpegio>=0.9.0",
-        "pillow>=10.2.0",
-    ],
+    install_requires=requirements,
     include_package_data=True,
     python_requires=">=3.11, <=3.12.2",
 )
