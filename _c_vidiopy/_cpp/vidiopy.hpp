@@ -6,8 +6,20 @@
 #define SHARED_EXPORT_API
 #endif
 
-#include <functional>
 #include <vector>
+#include <functional>
+#include <string>
+
+typedef struct PositionBundle
+{
+    char xChar;
+    int xInt;
+    double xDouble;
+
+    char yChar;
+    int yInt;
+    double yDouble;
+};
 
 class Clip
 {
@@ -16,8 +28,11 @@ public:
     double end;
     double duration;
     double fps;
-    char *name;
-    std::vector<std::function<double(double)>> time_transforms;
+    std::string name;
+    void setTimeTransforms(std::function<PositionBundle(double)> func);
+
+private:
+    std::vector<std::function<PositionBundle(double)>> timeTransforms;
 };
 
 class AudioClip : public Clip
