@@ -30,7 +30,7 @@ jobs:
       - name: Install FFMPEG
         uses: AnimMouse/setup-ffmpeg@v1
         with:
-          version: 6.1.1
+          version: master
 
       - name: Pre Install
         run: |
