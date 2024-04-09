@@ -10,17 +10,6 @@
 #include <functional>
 #include <string>
 
-typedef struct PositionBundle
-{
-    char xChar;
-    int xInt;
-    double xDouble;
-
-    char yChar;
-    int yInt;
-    double yDouble;
-};
-
 class Clip
 {
 public:
@@ -29,10 +18,10 @@ public:
     double duration;
     double fps;
     std::string name;
-    void setTimeTransforms(std::function<PositionBundle(double)> func);
+    void setTimeTransforms(std::function<double(double)> func);
 
 private:
-    std::vector<std::function<PositionBundle(double)>> timeTransforms;
+    std::vector<std::function<double(double)>> timeTransforms;
 };
 
 class AudioClip : public Clip
@@ -41,4 +30,32 @@ class AudioClip : public Clip
 
 class VideoClip : public Clip
 {
+private:
+    struct PositionBundle
+    {
+        char xChar;
+        int xInt;
+        double xDouble;
+
+        char yChar;
+        int yInt;
+        double yDouble;
+    };
+
+public:
+    int size[2];
+    AudioClip *audio;
+    bool relativePos;
+
+    void setAudio(AudioClip *audio);
+    void withoutAudio();
+    VideoClip *copy();
+    PositionBundle getPosition(double time);
+    virtual VideoClip subClip(double tStart, double tEnd);
+    virtual VideoClip subClipCopy(double tStart, double tEnd);
+    void syncAudioVideoSED();
+    void writeVideoFile();
+    void writeVideoFileSubclip();
+    void writeImageSequence();
+    void saveFrame();
 };
