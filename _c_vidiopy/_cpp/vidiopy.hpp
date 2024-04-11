@@ -46,7 +46,11 @@ public:
     int size[2];
     AudioClip *audio;
     bool relativePos;
-    std::function<PositionBundle(double)> Pos;
+    std::function<PositionBundle(double)> Pos = [](double time)
+    {
+        PositionBundle pos;
+        return pos;
+    };
 
     void setAudio(AudioClip *audio);
     void withoutAudio();
@@ -64,8 +68,4 @@ public:
     void setPos(double x, char y);
     void setPos(char x, double y);
     void setPos(std::function<PositionBundle(double)> func, bool relative = false);
-    void writeVideoFile();
-    void writeVideoFileSubclip();
-    void writeImageSequence();
-    void saveFrame();
 };
