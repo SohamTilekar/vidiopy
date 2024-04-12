@@ -3,6 +3,13 @@
 import os
 from typing_extensions import Union
 import ffmpegio
+from pathlib import Path
+import ctypes
+
+libPath: Path = Path(__file__).parent / "_cpp" / "vidiopy.hpp"
+
+lib: ctypes.CDLL = ctypes.CDLL(str(libPath))
+
 
 __all__ = ["FFMPEG_BINARY", "FFPROBE_BINARY", "set_path"]
 
