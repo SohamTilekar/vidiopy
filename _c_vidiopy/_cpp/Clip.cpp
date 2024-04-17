@@ -1,21 +1,24 @@
 #include "vidiopy.hpp"
 
-class Clip
+void Clip::setTimeTransforms(std::function<double(double)> func)
 {
-public:
-    double start;
-    double end;
-    double duration;
-    double fps;
-    std::string name;
-    void setTimeTransforms(std::function<double(double)> func)
-    {
-        timeTransforms.push_back(func);
-    };
-
-private:
-    std::vector<std::function<double(double)>> timeTransforms;
+    timeTransforms.push_back(func);
 };
+
+uint8_t ***Clip::iterFrame(double fps)
+{
+    return getFrame(fps);
+};
+
+uint8_t *Clip::iterFrameFlattened(double fps)
+{
+    return getFrameFlattened(fps);
+};
+
+uint8_t ***Clip::getFrame(double time) { return nullptr; };
+uint8_t *Clip::getFrameFlattened(double time) { return nullptr; };
+void Clip::frameTransform(std::function<uint8_t ***(uint8_t ***data)> func){};
+void Clip::clipTransform(std::function<uint8_t ***(uint8_t ***data, double time)> func){};
 
 extern "C"
 {
@@ -77,5 +80,24 @@ extern "C"
     SHARED_EXPORT_API void Clip_setTimeTransforms(Clip *clip, std::function<double(double)> func)
     {
         clip->setTimeTransforms(func);
+    }
+    SHARED_EXPORT_API uint8_t ***Clip_getFrame(Clip *clip, double time)
+    {
+        return clip->getFrame(time);
+    }
+
+    SHARED_EXPORT_API uint8_t *Clip_getFrameFlattened(Clip *clip, double time)
+    {
+        return clip->getFrameFlattened(time);
+    }
+
+    SHARED_EXPORT_API void Clip_frameTransform(Clip *clip, std::function<uint8_t ***(uint8_t ***data)> func)
+    {
+        clip->frameTransform(func);
+    }
+
+    SHARED_EXPORT_API void Clip_clipTransform(Clip *clip, std::function<uint8_t ***(uint8_t ***data, double time)> func)
+    {
+        clip->clipTransform(func);
     }
 }

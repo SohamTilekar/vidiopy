@@ -19,6 +19,12 @@ public:
     double fps;
     std::string name;
     void setTimeTransforms(std::function<double(double)> func);
+    uint8_t ***iterFrame(double fps);
+    uint8_t *iterFrameFlattened(double fps);
+    virtual void frameTransform(std::function<uint8_t ***(uint8_t ***data)> func);
+    virtual void clipTransform(std::function<uint8_t ***(uint8_t ***data, double time)> func);
+    virtual uint8_t ***getFrame(double time);
+    virtual uint8_t *getFrameFlattened(double time);
 
 private:
     std::vector<std::function<double(double)>> timeTransforms;
@@ -52,13 +58,13 @@ public:
         return pos;
     };
 
-    void setAudio(AudioClip *audio);
-    void withoutAudio();
-    VideoClip *copy();
-    virtual VideoClip *subClip(double tStart, double tEnd);
-    virtual VideoClip *subClipCopy(double tStart, double tEnd);
     virtual uint8_t ***getFrame(double time);
     virtual uint8_t *getFrameFlattened(double time);
+    void setAudio(AudioClip *audio);
+    void withoutAudio();
+    virtual VideoClip *copy();
+    virtual VideoClip *subClip(double tStart, double tEnd);
+    virtual VideoClip *subClipCopy(double tStart, double tEnd);
     void syncAudioVideoSED();
     void setPos(int x, int y);
     void setPos(double x, double y);
@@ -69,3 +75,11 @@ public:
     void setPos(char x, double y);
     void setPos(std::function<PositionBundle(double)> func, bool relative = false);
 };
+
+// class VideoFileClip : public VideoClip
+// {
+// public:
+//     uint8_t ****frames = nullptr;
+//     std::string filename;
+//     VideoFileClip(uint8_t ****data, int size[2], double duration, double fps, std::string name);
+// };
