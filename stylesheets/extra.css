@@ -1,0 +1,33 @@
+[data-md-color-scheme="slate"] { 
+    --md-code-hl-number-color: #B5CEA8;
+    --md-code-hl-special-color: #DCDCAA;
+    --md-code-hl-function-color: #DCDCAA;
+    --md-code-hl-constant-color: #569CD6;
+    --md-code-hl-keyword-color: #C586C0;
+    --md-code-hl-string-color: #CE9178;
+    --md-code-hl-name-color: #9CDCFE;
+    --md-code-hl-operator-color: #D4D4D4;
+    --md-code-hl-punctuation-color: #D4D4D4;
+    --md-code-hl-comment-color: #6A9955;
+    --md-code-hl-generic-color: #9CDCFE;
+    --md-code-hl-variable-color: #9CDCFE;
+}
+
+[data-md-color-scheme="default"] {
+    --md-code-hl-number-color: #007acc; /* Darker blue */
+    --md-code-hl-special-color: #a31515; /* Darker red */
+    --md-code-hl-function-color: #6f42c1; /* Darker purple */
+    --md-code-hl-constant-color: #0366d6; /* Darker blue */
+    --md-code-hl-keyword-color: #d73a49; /* Darker red */
+    --md-code-hl-string-color: #28a745; /* Darker green */
+    --md-code-hl-name-color: #005cc5; /* Darker blue */
+    --md-code-hl-operator-color: #333; /* Dark grey */
+    --md-code-hl-punctuation-color: #333; /* Dark grey */
+    --md-code-hl-comment-color: #6a737d; /* Darker grey */
+    --md-code-hl-generic-color: #005cc5; /* Darker blue */
+    --md-code-hl-variable-color: #005cc5; /* Darker blue */
+}
+
+.md-typeset iframe.giscus-frame {
+    color-scheme: light dark !important;
+}

@@ -1,0 +1,1313 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Python Video Editing Library">
+      
+      
+        <meta name="author" content="Soham Tilekar">
+      
+      
+        <link rel="canonical" href="https://github.com/SohamTilekar/vidiopy/reference_manual/clips/audio_clips/audioclip/">
+      
+      
+        <link rel="prev" href="../../video_clips/mixing_clips/">
+      
+      
+        <link rel="next" href="../audiofileclip/">
+      
+      
+      <link rel="icon" href="../../../../media/vidiopy_logo.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.20">
+    
+    
+      
+        <title>AudioClip - VidioPy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.66ac8b77.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13.5a1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5m-5 0a1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5m-5 0A1.5 1.5 0 0 1 7.5 12 1.5 1.5 0 0 1 9 10.5a1.5 1.5 0 0 1 1.5 1.5A1.5 1.5 0 0 1 9 13.5M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.96.89 1.65.89H22a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"/></svg>');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#audioclip" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="VidioPy" class="md-header__button md-logo" aria-label="VidioPy" data-md-component="logo">
+      
+  <img src="../../../../media/vidiopy_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VidioPy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AudioClip
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SohamTilekar/vidiopy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    SohamTilekar/vidiopy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="VidioPy" class="md-nav__button md-logo" aria-label="VidioPy" data-md-component="logo">
+      
+  <img src="../../../../media/vidiopy_logo.png" alt="logo">
+
+    </a>
+    VidioPy
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SohamTilekar/vidiopy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    SohamTilekar/vidiopy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting_started/download_install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../../../getting_started/quick_presentation/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Reference Manual
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Reference Manual
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference_manual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reference Manual
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../video_clips/videoclip/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    VideoClips
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_4" id="__nav_2_3_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    AudioClips
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            AudioClips
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    AudioClip
+  </span>
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../audiofileclip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AudioFileClip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../audioarrayclip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    AudioArrayClip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../silenceclip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    SilenceClip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mixingaudio/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mixing AudioClip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../../../more/CONTRIBUTING/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Contribute
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/SohamTilekar/vidiopy/edit/master/docs/reference_manual/clips/audio_clips/audioclip.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/SohamTilekar/vidiopy/raw/master/docs/reference_manual/clips/audio_clips/audioclip.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
+    </a>
+  
+
+
+<h1 id="audioclip">AudioClip<a class="headerlink" href="#audioclip" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">class</span></code> <code class="language-py highlight"><span class="n">vidiopy</span><span class="o">.</span><span class="n">AudioClip</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>Bases: <code class="language-py highlight"><span class="n">vidiopy</span><span class="o">.</span><span class="n">Clip</span></code></p>
+<p>The AudioClip class represents an audio clip. It is a subclass of the Clip class.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">duration</span> <span class="p">(</span><span class="nb">int</span> <span class="ow">or</span> <span class="nb">float</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: The duration of the audio clip. Defaults to <code class="language-py highlight"><span class="kc">None</span></code>.</li>
+<li><code class="language-py highlight"><span class="n">fps</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: Frames per second of the audio clip. Defaults to <code class="language-py highlight"><span class="kc">None</span></code>.</li>
+</ul>
+</dd>
+<dt>Attributes:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span></code>: The frames per second of the audio clip. Defaults to <code class="language-py highlight"><span class="n">fps</span></code> Parameter.</li>
+<li><code class="language-py highlight"><span class="n">_original_dur</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span></code>: The original duration of the audio clip. Defaults to <code class="language-py highlight"><span class="n">duration</span></code> Parameter.</li>
+<li><code class="language-py highlight"><span class="n">_audio_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span></code>: The audio data of the clip. Defaults to <code class="language-py highlight"><span class="kc">None</span></code>.</li>
+<li><code class="language-py highlight"><span class="n">channels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span></code>: The number of audio channels. Defaults to <code class="language-py highlight"><span class="kc">None</span></code>.</li>
+<li><code class="language-py highlight"><span class="n">_st</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span></code>: The start time of the audio clip. Defaults to <code class="language-py highlight"><span class="mf">0.0</span></code>.</li>
+<li><code class="language-py highlight"><span class="n">_ed</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span></code>: The end time of the audio clip. Defaults to <code class="language-py highlight"><span class="n">duration</span></code> Parameter.</li>
+</ul>
+</dd>
+<dt>Properties:</dt>
+<dd>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">audio_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This property gets the audio data. If the audio data is not set, it <code class="language-py highlight"><span class="n">raises</span></code> a <code class="language-py highlight"><span class="ne">ValueError</span></code>.</p>
+<dl>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></code>: The audio data.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If the audio data is not set.</dd>
+</dl>
+<p>Example:
+:
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">()</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="n">audio_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">audio_data</span><span class="p">)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+</span></code></pre></div></p>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This property gets the duration of the audio clip. The duration is represented in seconds and can be an <code class="language-py highlight"><span class="n">integer</span></code>, a <code class="language-py highlight"><span class="nb">float</span></code>, or <code class="language-py highlight"><span class="kc">None</span></code> if the duration is not set.</p>
+<dl>
+<dt>Note:</dt>
+<dd>You Can't Set the duration of the audio clip it is not allowed to change directly.</dd>
+</dl>
+<p>Raises:
+    <code class="language-py highlight"><span class="ne">AttributeError</span></code>: Always raises an <code class="language-py highlight"><span class="ne">AttributeError</span></code> if you try to set duration.</p>
+<dl>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span></code>: The duration of the audio clip.</dd>
+</dl>
+<p>Example:
+:
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">duration</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="mi">10</span>
+</span></code></pre></div></p>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This property gets the start time of the audio clip. The start time is represented in seconds and can be an <code class="language-py highlight"><span class="n">integer</span></code> or a <code class="language-py highlight"><span class="nb">float</span></code>.</p>
+<dl>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span></code>: The start time of the audio clip.</dd>
+</dl>
+<p>Example:
+:
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">()</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="mf">0.0</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">5</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="mi">5</span>
+</span></code></pre></div></p>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This property gets the end time of the audio clip. The end time is represented in seconds and can be an <code class="language-py highlight"><span class="n">integer</span></code>, a <code class="language-py highlight"><span class="nb">float</span></code>, or <code class="language-py highlight"><span class="kc">None</span></code> if the end time is not set.</p>
+<dl>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span></code>: The end time of the audio clip.</dd>
+</dl>
+<p>Example:
+:
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">(</span><span class="n">duration</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="mi">10</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="mi">5</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="mi">5</span>
+</span></code></pre></div></p>
+</dd>
+</dl>
+</dd>
+<dt>Methods:</dt>
+<dd>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">set_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">audio_data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>This method sets the audio data and returns the instance of the class.</p>
+<dl>
+<dt>Args:</dt>
+<dd>audio_data (np.ndarray): The audio data to set.</dd>
+<dt>Returns:</dt>
+<dd>AudioClip: The instance of the class.</dd>
+</dl>
+<p>Example:
+:
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>    <span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">()</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="n">set_data</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]))</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">audio_data</span><span class="p">)</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+</span></code></pre></div></p>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">set_fps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>This method sets the frames per second (fps) for the audio clip and <code class="language-py highlight"><span class="n">returns</span></code> the instance of the <code class="language-py highlight"><span class="k">class</span></code>.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span></code>: The frames per second to set. If <code class="language-py highlight"><span class="kc">None</span></code>, the fps will be unset.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">AudioClip</span></code>: <code class="language-py highlight"><span class="n">Self</span></code> The Instance of the <code class="language-py highlight"><span class="k">class</span></code>.</dd>
+</dl>
+<p>Example:
+:
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">()</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="n">set_fps</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">fps</span><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="mi">30</span>
+</span></code></pre></div></p>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">set_start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>This method sets the start time of the audio clip and returns the instance of the class.
+The start time is represented in seconds and can be an <code class="language-py highlight"><span class="n">integer</span></code> or a <code class="language-py highlight"><span class="nb">float</span></code>.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span></code>: The start time to set in seconds.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">AudioClip</span></code>: The instance of the class with the updated start time.</dd>
+</dl>
+<p>Example:
+:
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">()</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="n">set_start</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">start</span><span class="p">)</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="mi">5</span>
+</span></code></pre></div></p>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">set_end</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>This method sets the end time of the audio clip and returns the instance of the class.
+The end time is represented in seconds and can be an <code class="language-py highlight"><span class="n">integer</span></code>, a <code class="language-py highlight"><span class="nb">float</span></code>, or <code class="language-py highlight"><span class="kc">None</span></code> if the end time is not to be set.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span></code>: The end time to set in seconds.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">AudioClip</span></code>: The instance of the class with the updated end time.</dd>
+</dl>
+<p>Example:
+:
+    <div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span> <span class="o">=</span> <span class="n">AudioClip</span><span class="p">()</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="o">&gt;&gt;&gt;</span> <span class="n">clip</span><span class="o">.</span><span class="n">set_end</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">clip</span><span class="o">.</span><span class="n">end</span><span class="p">)</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="mi">10</span>
+</span></code></pre></div></p>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">get_frame_at_t</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>This method gets the audio frame at a specific time <code>t</code>. The time <code>t</code> is represented in seconds and can be an <code class="language-py highlight"><span class="n">integer</span></code> or a <code class="language-py highlight"><span class="nb">float</span></code>.
+It calculates the frame index using the duration, total frames, and time <code>t</code>, and returns the audio data at that frame index.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span></code>: The time in seconds at which to get the audio frame.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></code>: The audio data at the specified time.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If frames per second (fps) is not set, audio data is not set, or original duration is not set.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">iterate_frames_at_fps</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This method generates audio frames at a specific frames per second (fps) rate. If no fps is provided, it uses the fps set in the AudioClip instance.
+It calculates the original fps using the duration and total frames, then generates frames at the specified fps rate.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">fps</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: The frames per second rate at which to generate frames. If not provided, the fps set in the AudioClip instance is used.</dd>
+<dt>Yields:</dt>
+<dd><code class="language-py highlight"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></code>: The audio data at each frame.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If frames per second (fps) is not set, audio data is not set, or original duration is not set.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">iterate_all_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]:</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This method generates all audio frames in the <code class="language-py highlight"><span class="n">AudioClip</span></code> instance. It iterates over each frame in the audio data and <code class="language-py highlight"><span class="n">yields</span></code> it.</p>
+<dl>
+<dt>Yields:</dt>
+<dd><code class="language-py highlight"><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span></code>: The audio data at each frame.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If audio data is not set.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">fl_frame_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This method applies a function to each frame of the audio data. The function should take a frame (an ndarray of channel data) as its first argument,
+followed by any number of additional positional and keyword arguments.</p>
+<dl>
+<dt>Args:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">func</span> <span class="p">(</span><span class="n">Callable</span><span class="p">)</span></code>: The function to apply to each frame. It should take a frame (an ndarray of channel data) as its first argument.</li>
+<li><code class="language-py highlight"><span class="o">*</span><span class="n">args</span></code>: Additional positional arguments to pass to the function.</li>
+<li><code class="language-py highlight"><span class="o">**</span><span class="n">kwargs</span></code>: Additional keyword arguments to pass to the function.</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">AudioClip</span></code>: The instance of the class with the transformed audio data.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If audio data is not set.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">fl_clip_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This method applies a function to the entire audio data. The function should take the AudioClip instance as its first argument,
+followed by any number of additional positional and keyword arguments.</p>
+<dl>
+<dt>Args:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">func</span> <span class="p">(</span><span class="n">Callable</span><span class="p">)</span></code>: The function to apply to the audio data. It should take the AudioClip instance as its first argument.</li>
+<li><code class="language-py highlight"><span class="o">*</span><span class="n">args</span></code>: Additional positional arguments to pass to the function.</li>
+<li><code class="language-py highlight"><span class="o">**</span><span class="n">kwargs</span></code>: Additional keyword arguments to pass to the function.</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">AudioClip</span></code>: The instance of the class with the transformed audio data.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If audio data is not set.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">fl_time_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This method applies a time transformation function to the <code>get_frame_at_t</code> method of the AudioClip instance.
+The transformation function should take a time (an integer or a float) as its argument and return a transformed time.</p>
+<p>The <code>get_frame_at_t</code> method is replaced with a new method that applies the transformation function to its argument before calling the original method.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">func</span> <span class="p">(</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span><span class="p">])</span></code>: The time transformation function to apply. It should take a time (an integer or a float) as its argument and return a transformed time.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">AudioClip</span></code>: The instance of the class with the transformed <code>get_frame_at_t</code> method.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If the <code>get_frame_at_t</code> method is not set.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">sub_clip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>This method creates a copy of the AudioClip instance and then creates a subclip from the audio clip starting from <code>start</code> to <code>end</code> in the copied instance.
+If <code>start</code> or <code>end</code> is not provided, it uses the start or end time set in the AudioClip instance. If neither is set, it uses 0 for start and the duration for end.</p>
+<p>It calculates the original frames per second (fps) using the duration and total frames, then calculates the start and end frame indices using the original fps.
+It then updates the audio data, original duration, end time, and start time of the copied AudioClip instance.</p>
+<dl>
+<dt>Args:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">start</span> <span class="p">(</span><span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: The start time of the subclip in seconds. If not provided, the start time set in the AudioClip instance is used. Defaults to <code class="language-py highlight"><span class="kc">None</span></code>.</li>
+<li><code class="language-py highlight"><span class="n">end</span> <span class="p">(</span><span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: The end time of the subclip in seconds. If not provided, the end time set in the AudioClip instance is used. Defaults to <code class="language-py highlight"><span class="kc">None</span></code>.</li>
+</ul>
+</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">AudioClip</span></code>: A copy of the instance of the class with the updated audio data, original duration, end time, and start time.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If audio data is not set, original duration is not set, or end time is greater than the original duration.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>This method creates a deep copy of the AudioClip instance and returns it. It uses the <code>copy_</code> function, which should be a deep copy function like <code>copy.deepcopy</code> in Python's standard library.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">AudioClip</span></code>: A deep copy of the instance of the class.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If the <code>copy_</code> function is not set or does not correctly create a deep copy.</dd>
+<dt>&gt; <code class="language-py highlight"><span class="k">def</span></code> <code class="language-py highlight"><span class="n">write_audiofile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">show_log</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span></code></dt>
+<dd>
+<p>This method writes the audio data to an audio file at the specified path.
+It uses the frames per second (fps) if provided, otherwise it uses the fps set in the <code class="language-py highlight"><span class="n">AudioClip</span></code> instance.
+It raises a <code class="language-py highlight"><span class="ne">ValueError</span></code> if fps is not set in either way.
+It also raises a <code class="language-py highlight"><span class="ne">ValueError</span></code> if audio data, original duration, or channels are not set.</p>
+<p>It creates a temporary audio data array by getting the frame at each time step from <code class="language-py highlight"><span class="mi">0</span></code> to the end or duration with a step of <code>1/fps</code>.
+It then writes the temporary audio data to the audio file using the <code class="language-py highlight"><span class="n">ffmpegio</span><span class="o">.</span><span class="n">audio</span><span class="o">.</span><span class="n">write</span></code> function.</p>
+<dl>
+<dt>Args:</dt>
+<dd>
+<ul>
+<li>path (str): The path to write the audio file to.</li>
+<li>fps (int | None, optional): The frames per second to use. If not provided, the fps set in the AudioClip instance is used. Defaults to None.</li>
+<li>overwrite (bool, optional): Whether to overwrite the audio file if it already exists. Defaults to True.</li>
+<li>show_log (bool, optional): Whether to show the log of the <code>ffmpegio.audio.write</code> function. Defaults to False.</li>
+<li>**kwargs: Additional keyword arguments to pass to the <code>ffmpegio.audio.write</code> function.</li>
+</ul>
+</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If fps is not set, audio data is not set, original duration is not set, or channels are not set.</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">Comments</h2>
+
+<script src="https://giscus.app/client.js" data-repo="SohamTilekar/vidiopy" data-repo-id="R_kgDOK8pJmw"
+  data-category="Comments" data-category-id="DIC_kwDOK8pJm84CddAn" data-mapping="pathname" data-strict="1"
+  data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-lang="en" crossorigin="anonymous"
+  async>
+  </script>
+
+<script>
+  var giscus = document.querySelector("script[src*=giscus]")
+
+  // Set palette on initial load
+  var palette = __md_get("__palette")
+  if (palette && typeof palette.color === "object") {
+    var theme = palette.color.scheme === "slate"
+      ? "transparent_dark"
+      : "light"
+
+    // Instruct Giscus to set theme
+    giscus.setAttribute("data-theme", theme)
+  }
+
+  // Register event handlers after documented loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    var ref = document.querySelector("[data-md-component=palette]")
+    ref.addEventListener("change", function () {
+      var palette = __md_get("__palette")
+      if (palette && typeof palette.color === "object") {
+        var theme = palette.color.scheme === "slate"
+          ? "transparent_dark"
+          : "light"
+
+        // Instruct Giscus to change theme
+        var frame = document.querySelector(".giscus-frame")
+        frame.contentWindow.postMessage(
+          { giscus: { setConfig: { theme } } },
+          "https://giscus.app"
+        )
+      }
+    })
+  })
+</script>
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../../video_clips/mixing_clips/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Mixing VideoClip">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Mixing VideoClip
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../audiofileclip/" class="md-footer__link md-footer__link--next" aria-label="Next: AudioFileClip">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                AudioFileClip
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 - 2024 Soham Tilekar Under MIT License
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/SohamTilekar/vidiopy" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:sohamtilekar233@gmail.com" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480v-83.6c0-4 1.5-7.8 4.2-10.7l167.6-182.9c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8l-88.3-44.2C7.1 311.3.3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["header.autohide", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.instant.preview", "navigation.path", "navigation.prune", "navigation.tracking", "content.action.edit", "content.action.view", "toc.follow"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      
+    
+  </body>
+</html>

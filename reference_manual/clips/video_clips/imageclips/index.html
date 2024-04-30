@@ -1,0 +1,1549 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Python Video Editing Library">
+      
+      
+        <meta name="author" content="Soham Tilekar">
+      
+      
+        <link rel="canonical" href="https://github.com/SohamTilekar/vidiopy/reference_manual/clips/video_clips/imageclips/">
+      
+      
+        <link rel="prev" href="../videofileclip/">
+      
+      
+        <link rel="next" href="../imagesequenceclip/">
+      
+      
+      <link rel="icon" href="../../../../media/vidiopy_logo.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.20">
+    
+    
+      
+        <title>ImageClip - VidioPy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.66ac8b77.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 13.5a1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5m-5 0a1.5 1.5 0 0 1-1.5-1.5 1.5 1.5 0 0 1 1.5-1.5 1.5 1.5 0 0 1 1.5 1.5 1.5 1.5 0 0 1-1.5 1.5m-5 0A1.5 1.5 0 0 1 7.5 12 1.5 1.5 0 0 1 9 10.5a1.5 1.5 0 0 1 1.5 1.5A1.5 1.5 0 0 1 9 13.5M22 3H7c-.69 0-1.23.35-1.59.88L0 12l5.41 8.11c.36.53.96.89 1.65.89H22a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2Z"/></svg>');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#imageclip" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="VidioPy" class="md-header__button md-logo" aria-label="VidioPy" data-md-component="logo">
+      
+  <img src="../../../../media/vidiopy_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            VidioPy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              ImageClip
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="black" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SohamTilekar/vidiopy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    SohamTilekar/vidiopy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="VidioPy" class="md-nav__button md-logo" aria-label="VidioPy" data-md-component="logo">
+      
+  <img src="../../../../media/vidiopy_logo.png" alt="logo">
+
+    </a>
+    VidioPy
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SohamTilekar/vidiopy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    SohamTilekar/vidiopy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Documentation
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Documentation
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting_started/download_install/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../../../getting_started/quick_presentation/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Reference Manual
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            Reference Manual
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../reference_manual/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Reference Manual
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../clip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Clip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2_3_3" id="__nav_2_3_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    VideoClips
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_3_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            VideoClips
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../videoclip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VideoClip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../videofileclip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    VideoFileClip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    ImageClip
+  </span>
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../imagesequenceclip/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    ImageSequenceClip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../mixing_clips/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Mixing VideoClip
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../audio_clips/audioclip/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    AudioClips
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../../../more/CONTRIBUTING/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    Contribute
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/SohamTilekar/vidiopy/edit/master/docs/reference_manual/clips/video_clips/imageclips.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4v-2m10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1 2.1 2.1Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/SohamTilekar/vidiopy/raw/master/docs/reference_manual/clips/video_clips/imageclips.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.15 8.15 0 0 1-1.23-2Z"/></svg>
+    </a>
+  
+
+
+<h1 id="imageclip">ImageClip<a class="headerlink" href="#imageclip" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">class</span></code> <code class="language-py highlight"><span class="n">vidiopy</span><span class="o">.</span><span class="n">ImageClip</span><span class="p">(</span><span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>Bases: <code class="language-py highlight"><span class="n">vidiopy</span><span class="o">.</span><span class="n">VideoClip</span></code></p>
+<p>All Methods and properties of the <code class="language-py highlight"><span class="n">VideoClip</span></code> <code class="language-py highlight"><span class="k">class</span></code> are available.</p>
+<p>A <code class="language-py highlight"><span class="k">class</span></code> representing a video clip generated from a single image.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">image</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span></code>: The image to use for the video clip. If <code class="language-py highlight"><span class="kc">None</span></code>, an empty video clip is created.</li>
+<li><code class="language-py highlight"><span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span></code>: The frames per second of the video clip. If <code class="language-py highlight"><span class="kc">None</span></code>, the fps is set to 30.</li>
+<li><code class="language-py highlight"><span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span></code>: The duration of the video clip in seconds. If <code class="language-py highlight"><span class="kc">None</span></code>, the duration is set to 1.</li>
+</ul>
+</dd>
+<dt>Attributes:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">image</span><span class="p">:</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span></code>: The image used for the video clip.</li>
+<li>Other attributes are inherited from the <code class="language-py highlight"><span class="n">VideoClip</span></code> <code class="language-py highlight"><span class="k">class</span></code>.</li>
+</ul>
+</dd>
+<dt>Methods:</dt>
+<dd>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">_import_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Import the image from various sources.</p>
+<p>Does not made for external use.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd><code class="language-py highlight"><span class="n">image</span> <span class="p">(</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span></code>: Input image data.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">Image</span><span class="o">.</span><span class="n">Image</span></code>: The imported image data.</dd>
+</dl>
+<p>This is a private method and not intended for external use.</p>
+</dd>
+</dl>
+<blockquote>
+<p>You Can Use <code class="language-py highlight"><span class="n">set_duration</span><span class="p">()</span></code> &amp; duration property to change _dur.</p>
+<p><code class="language-py highlight"><span class="n">fl_frame_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Apply a frame transformation function to the image.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd><code class="language-py highlight"><span class="n">func</span> <span class="p">(</span><span class="n">Callable</span><span class="p">)</span></code>: The frame transformation function.</dd>
+<dd><code class="language-py highlight"><span class="o">*</span><span class="n">args</span></code>: Additional positional arguments for the function.</dd>
+<dd><code class="language-py highlight"><span class="o">**</span><span class="n">kwargs</span></code>: Additional keyword arguments for the function.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">ImageClip</span></code>: A new ImageClip instance with the transformed image.</dd>
+<dt>Note:</dt>
+<dd>This method modifies the current ImageClip instance in-place.</dd>
+<dt>Example Usage:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">image_clip</span> <span class="o">=</span> <span class="n">ImageClip</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">transformed_clip</span> <span class="o">=</span> <span class="n">image_clip</span><span class="o">.</span><span class="n">fl_frame_transform</span><span class="p">(</span><span class="n">resize</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">480</span><span class="p">)</span>
+</span></code></pre></div></dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">fl_frame_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Apply a frame transformation function to the image.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd><code class="language-py highlight"><span class="n">func</span> <span class="p">(</span><span class="n">Callable</span><span class="p">)</span></code>: The frame transformation function.</dd>
+<dd><code class="language-py highlight"><span class="o">*</span><span class="n">args</span></code>: Additional positional arguments for the function.</dd>
+<dd><code class="language-py highlight"><span class="o">**</span><span class="n">kwargs</span></code>: Additional keyword arguments for the function.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">ImageClip</span></code>: A new ImageClip instance with the transformed image.</dd>
+<dt>Note:</dt>
+<dd>This method modifies the current ImageClip instance in-place.</dd>
+<dt>Example Usage:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">image_clip</span> <span class="o">=</span> <span class="n">ImageClip</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">transformed_clip</span> <span class="o">=</span> <span class="n">image_clip</span><span class="o">.</span><span class="n">fl_frame_transform</span><span class="p">(</span><span class="n">resize</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">640</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">480</span><span class="p">)</span>
+</span></code></pre></div></dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">fl_clip_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Raise a ValueError indicating that fl_clip is not applicable for ImageClip.</p>
+<p>The Clip should be converted to VideoClip using <code>to_video_clip</code> method first.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd><code class="language-py highlight"><span class="n">func</span></code>: Unused.</dd>
+<dd><code class="language-py highlight"><span class="o">*</span><span class="n">args</span></code>: Unused.</dd>
+<dd><code class="language-py highlight"><span class="o">**</span><span class="n">kwargs</span></code>: Unused.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">ImageClip</span></code>: The current ImageClip instance.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: This method is not applicable for ImageClip.</dd>
+<dt>Example Usage:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">image_clip</span> <span class="o">=</span> <span class="n">ImageClip</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">image_clip</span><span class="o">.</span><span class="n">fl_clip</span><span class="p">(</span><span class="n">some_function</span><span class="p">)</span>  <span class="c1"># Raises ValueError</span>
+</span></code></pre></div></dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">fx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">:</span> <span class="n">Callable</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Apply a generic function to the ImageClip.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd><code class="language-py highlight"><span class="n">func</span> <span class="p">(</span><span class="n">Callable</span><span class="p">)</span></code>: The function to apply.</dd>
+<dd><code class="language-py highlight"><span class="o">*</span><span class="n">args</span></code>: Additional positional arguments for the function.</dd>
+<dd><code class="language-py highlight"><span class="o">**</span><span class="n">kwargs</span></code>: Additional keyword arguments for the function.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">ImageClip</span></code>: The current ImageClip instance.</dd>
+<dt>Note:</dt>
+<dd>This method modifies the current ImageClip instance in-place.</dd>
+<dt>Example Usage:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">def</span> <span class="nf">custom_function</span><span class="p">(</span><span class="n">image</span><span class="p">):</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="c1"># Some custom processing on the image</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="k">return</span> <span class="n">modified_image</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">image_clip</span> <span class="o">=</span> <span class="n">ImageClip</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">image_clip</span><span class="o">.</span><span class="n">fx</span><span class="p">(</span><span class="n">custom_function</span><span class="p">,</span> <span class="n">some_arg</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</span></code></pre></div></dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">sub_fx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">start_t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_t</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Apply a custom function to the Image Clip.</p>
+<dl>
+<dt>Note:</dt>
+<dd>Before using the <code>sub_fx</code> method, you need to convert the image clip to a video clip using <code>to_video_clip()</code> function.</dd>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">func</span></code>: The custom function to apply to the Image Clip.</dd>
+<dd><code class="language-py highlight"><span class="o">*</span><span class="n">args</span></code>: Additional positional arguments to pass to the custom function.</dd>
+<dd><code class="language-py highlight"><span class="n">start_t</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span></code>: The start time of the subclip in seconds. If None, the subclip starts from the beginning.</dd>
+<dd><code class="language-py highlight"><span class="n">end_t</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span></code>: The end time of the subclip in seconds. If None, the subclip ends at the last frame.</dd>
+<dd><code class="language-py highlight"><span class="o">**</span><span class="n">kwargs</span></code>: Additional keyword arguments to pass to the custom function.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">Self</span></code>: The modified ImageClips instance.</dd>
+<dt>Example:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Convert the image clip to a video clip</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">video_clip</span> <span class="o">=</span> <span class="n">image_clip</span><span class="o">.</span><span class="n">to_video_clip</span><span class="p">()</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Apply a custom function to the video clip</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">modified_clip</span> <span class="o">=</span> <span class="n">video_clip</span><span class="o">.</span><span class="n">sub_fx</span><span class="p">(</span><span class="n">custom_function</span><span class="p">,</span> <span class="n">start_t</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end_t</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span></code></pre></div></dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If the method is called on an Image Clip instead of a Video Clip.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">sub_clip_copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Create a copy of the current clip and apply sub-clip operation.
+Read more about sub-clip operation in the <code>sub_clip</code> method.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">start</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span></code>: Start time of the sub-clip in seconds.
+If None, the sub-clip starts from the beginning of the original clip.</dd>
+<dd><code class="language-py highlight"><span class="n">end</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span></code>: End time of the sub-clip in seconds.
+If None, the sub-clip ends at the end of the original clip.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">Self</span></code>: A new instance of the clip with the sub-clip applied.</dd>
+<dt>Example:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">image_clip</span> <span class="o">=</span> <span class="n">ImageClip</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">sub_clip</span> <span class="o">=</span> <span class="n">image_clip</span><span class="o">.</span><span class="n">sub_clip_copy</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span></code></pre></div></dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">sub_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Returns a sub-clip of the current clip.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">start</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: The start time of the sub-clip in seconds. Defaults to None.</dd>
+<dd><code class="language-py highlight"><span class="n">end</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: The end time of the sub-clip in seconds. Defaults to None.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">Self</span></code>: The sub-clip.</dd>
+<dt>Note:</dt>
+<dd>It modifies the current clip in-place.
+If both <code>start</code> and <code>end</code> are None, the original clip is returned.
+If <code>start</code> is None, it defaults to 0.
+If <code>end</code> is None, it defaults to the end time of the original clip.</dd>
+<dt>Example:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">image_clip</span> <span class="o">=</span> <span class="n">ImageClip</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">image_clip</span><span class="o">.</span><span class="n">sub_clip</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span></code></pre></div></dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">make_frame_array</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Gives the numpy array representation of the image at a given time.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">t</span> <span class="p">(</span><span class="nb">float</span><span class="p">)</span></code>: The timestamp of the frame.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span></code>: The numpy array representation of the image.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If the image is not set.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">make_frame_pil</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Returns the image frame at a given time.</p>
+<dl>
+<dt>Args:</dt>
+<dd><code class="language-py highlight"><span class="n">t</span> <span class="p">(</span><span class="nb">float</span><span class="p">)</span></code>: The time at which to retrieve the frame.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span></code>: The image frame at the given time.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If the image is not set.</dd>
+</dl>
+</dd>
+</dl>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">to_video_clip</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Convert <code>ImageClip</code> to <code>VideoClip</code></p>
+<p>If fps or duration is not provided, it defaults to the corresponding attribute
+of the ImageClip instance. If those attributes are not available, a ValueError is raised.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd><code class="language-py highlight"><span class="n">fps</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: Frames per second of the resulting video clip.
+If not provided, it defaults to the fps attribute of the ImageClip instance.
+If that is also not available, a ValueError is raised.</dd>
+<dd><code class="language-py highlight"><span class="n">duration</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: Duration of the resulting video clip in seconds.
+If not provided, it defaults to the duration attribute of the ImageClip instance.
+If that is also not available, a ValueError is raised.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">ImageSequenceClip</span></code>: A VideoClip subclass instance generated from the ImageClip frames.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">ValueError</span></code>: If fps or duration is not provided and the corresponding attribute is not available.</dd>
+<dt>Note:</dt>
+<dd>The <code>to_video_clip</code> method returns an instance of the <code>ImageSequenceClip</code> class,
+which is a subclass of the <code>VideoClip</code> Class.</dd>
+<dt>Example Usage:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Example Usage</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">image_clip</span> <span class="o">=</span> <span class="n">ImageClip</span><span class="p">()</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">video_clip</span> <span class="o">=</span> <span class="n">image_clip</span><span class="o">.</span><span class="n">to_video_clip</span><span class="p">(</span><span class="n">fps</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">video_clip</span><span class="o">.</span><span class="n">sub_fx</span><span class="p">(</span><span class="n">custom_function</span><span class="p">,</span> <span class="n">start_t</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">end_t</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span></code></pre></div></dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<h1 id="data2imageclip">Data2ImageClip<a class="headerlink" href="#data2imageclip" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">class</span></code> <code class="language-py highlight"><span class="n">vidiopy</span><span class="o">.</span><span class="n">Data2ImageClip</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="n">fps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">duration</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>Bases: <code class="language-py highlight"><span class="n">vidiopy</span><span class="o">.</span><span class="n">ImageClip</span></code></p>
+<p>A class representing a video clip generated from raw data (numpy array or PIL Image).</p>
+<p>It extends the <code class="language-py highlight"><span class="n">ImageClip</span></code> class and allows users to create video clips from raw data, supporting either numpy arrays or PIL Images as input.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">data</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="ow">or</span> <span class="n">PIL</span> <span class="n">Image</span><span class="p">)</span></code>: The raw data to be converted into a video clip.</li>
+<li><code class="language-py highlight"><span class="n">fps</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span></code>: Frames per second of the video. If not provided, it will be inherited from the parent class (ImageClip) or set to the default value.</li>
+<li><code class="language-py highlight"><span class="n">duration</span> <span class="p">(</span><span class="nb">int</span> <span class="o">|</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span></code>: Duration of the video in seconds. If not provided, it will be inherited from the parent class (ImageClip) or set to the default value.</li>
+</ul>
+</dd>
+<dt>Attributes:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">image</span> <span class="p">(</span><span class="n">PIL</span> <span class="n">Image</span><span class="p">)</span></code>: The PIL Image representation of the provided data.</li>
+<li><code class="language-py highlight"><span class="n">size</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">)</span></code>: The size (width, height) of the image.</li>
+</ul>
+</dd>
+<dt>Methods:</dt>
+<dd>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">_import_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Image</span><span class="o">.</span><span class="n">Image</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Private method to convert the provided data (numpy array or PIL Image) into a PIL Image.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd><code class="language-py highlight"><span class="n">image</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="ow">or</span> <span class="n">PIL</span> <span class="n">Image</span><span class="p">)</span></code>: The raw data to be converted.</dd>
+<dt>Returns:</dt>
+<dd><code class="language-py highlight"><span class="n">Image</span><span class="o">.</span><span class="n">Image</span></code>: The PIL Image representation of the provided data.</dd>
+<dt>Raises:</dt>
+<dd><code class="language-py highlight"><span class="ne">TypeError</span></code>: If the input type is not supported (neither numpy array nor PIL Image).</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>Example Usage:</dt>
+<dd>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Import necessary libraries</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="c1"># Create a Data2ImageClip instance from a numpy array</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">data_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">480</span><span class="p">,</span> <span class="mi">640</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">video_clip</span> <span class="o">=</span> <span class="n">Data2ImageClip</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_array</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># Create a Data2ImageClip instance from a PIL Image</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="kn">from</span> <span class="nn">PIL</span> <span class="kn">import</span> <span class="n">Image</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">data_image</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s1">&#39;RGB&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">640</span><span class="p">,</span> <span class="mi">480</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">)</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="n">video_clip</span> <span class="o">=</span> <span class="n">Data2ImageClip</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data_image</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</span></code></pre></div>
+</dd>
+<dt>Note:</dt>
+<dd>
+<p>The <code class="language-py highlight"><span class="n">Data2ImageClip</span></code> class extends the <code class="language-py highlight"><span class="n">ImageClip</span></code>. It allows users to create video clips from raw data, supporting either numpy arrays or PIL Images as input.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<style>
+    .color-box {
+        display: inline-block;
+        border: 1px solid gray;
+        height: 18px;
+        width: 18px;
+    }
+</style>
+
+<h1 id="colorclip">ColorClip<a class="headerlink" href="#colorclip" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><code class="language-py highlight"><span class="k">class</span></code> <code class="language-py highlight"><span class="n">vidiopy</span><span class="o">.</span><span class="n">ColorClip</span><span class="p">(</span><span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;RGBA&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">fps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code></p>
+</blockquote>
+<dl>
+<dd>
+<p>Bases: #!py vidiopy.Data2ImageClip</p>
+<p>A video clip class with a solid color.</p>
+<p>It extends the <code class="language-py highlight"><span class="n">Data2ImageClip</span></code> class and allows users to create video clips with a solid color.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd>
+<ul>
+<li>
+<p><code class="language-py highlight"><span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span></code>: Color of the image. It can be a color name (e.g., 'red', 'blue') or RGB tuple.</p>
+<details class="info">
+<summary>Available Color Names</summary>
+<ul>
+<li><div class="color-box" style="background-color: #f0f8ff;"></div> <code class="language-css highlight"><span class="nt">aliceblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f0f8ff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #faebd7;"></div> <code class="language-css highlight"><span class="nt">antiquewhite</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#faebd7&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #00ffff;"></div> <code class="language-css highlight"><span class="nt">aqua</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#00ffff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #7fffd4;"></div> <code class="language-css highlight"><span class="nt">aquamarine</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#7fffd4&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f0ffff;"></div> <code class="language-css highlight"><span class="nt">azure</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f0ffff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f5f5dc;"></div> <code class="language-css highlight"><span class="nt">beige</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f5f5dc&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffe4c4;"></div> <code class="language-css highlight"><span class="nt">bisque</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffe4c4&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #000000;"></div> <code class="language-css highlight"><span class="nt">black</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#000000&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffebcd;"></div> <code class="language-css highlight"><span class="nt">blanchedalmond</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffebcd&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #0000ff;"></div> <code class="language-css highlight"><span class="nt">blue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#0000ff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #8a2be2;"></div> <code class="language-css highlight"><span class="nt">blueviolet</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#8a2be2&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #a52a2a;"></div> <code class="language-css highlight"><span class="nt">brown</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#a52a2a&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #deb887;"></div> <code class="language-css highlight"><span class="nt">burlywood</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#deb887&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #5f9ea0;"></div> <code class="language-css highlight"><span class="nt">cadetblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#5f9ea0&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #7fff00;"></div> <code class="language-css highlight"><span class="nt">chartreuse</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#7fff00&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #d2691e;"></div> <code class="language-css highlight"><span class="nt">chocolate</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#d2691e&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff7f50;"></div> <code class="language-css highlight"><span class="nt">coral</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff7f50&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #6495ed;"></div> <code class="language-css highlight"><span class="nt">cornflowerblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#6495ed&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fff8dc;"></div> <code class="language-css highlight"><span class="nt">cornsilk</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fff8dc&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #dc143c;"></div> <code class="language-css highlight"><span class="nt">crimson</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#dc143c&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #00ffff;"></div> <code class="language-css highlight"><span class="nt">cyan</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#00ffff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #00008b;"></div> <code class="language-css highlight"><span class="nt">darkblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#00008b&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #008b8b;"></div> <code class="language-css highlight"><span class="nt">darkcyan</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#008b8b&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #b8860b;"></div> <code class="language-css highlight"><span class="nt">darkgoldenrod</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#b8860b&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #a9a9a9;"></div> <code class="language-css highlight"><span class="nt">darkgray</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#a9a9a9&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #a9a9a9;"></div> <code class="language-css highlight"><span class="nt">darkgrey</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#a9a9a9&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #006400;"></div> <code class="language-css highlight"><span class="nt">darkgreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#006400&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #bdb76b;"></div> <code class="language-css highlight"><span class="nt">darkkhaki</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#bdb76b&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #8b008b;"></div> <code class="language-css highlight"><span class="nt">darkmagenta</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#8b008b&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #556b2f;"></div> <code class="language-css highlight"><span class="nt">darkolivegreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#556b2f&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff8c00;"></div> <code class="language-css highlight"><span class="nt">darkorange</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff8c00&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #9932cc;"></div> <code class="language-css highlight"><span class="nt">darkorchid</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#9932cc&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #8b0000;"></div> <code class="language-css highlight"><span class="nt">darkred</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#8b0000&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #e9967a;"></div> <code class="language-css highlight"><span class="nt">darksalmon</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#e9967a&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #8fbc8f;"></div> <code class="language-css highlight"><span class="nt">darkseagreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#8fbc8f&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #483d8b;"></div> <code class="language-css highlight"><span class="nt">darkslateblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#483d8b&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #2f4f4f;"></div> <code class="language-css highlight"><span class="nt">darkslategray</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#2f4f4f&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #2f4f4f;"></div> <code class="language-css highlight"><span class="nt">darkslategrey</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#2f4f4f&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #00ced1;"></div> <code class="language-css highlight"><span class="nt">darkturquoise</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#00ced1&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #9400d3;"></div> <code class="language-css highlight"><span class="nt">darkviolet</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#9400d3&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff1493;"></div> <code class="language-css highlight"><span class="nt">deeppink</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff1493&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #00bfff;"></div> <code class="language-css highlight"><span class="nt">deepskyblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#00bfff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #696969;"></div> <code class="language-css highlight"><span class="nt">dimgray</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#696969&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #696969;"></div> <code class="language-css highlight"><span class="nt">dimgrey</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#696969&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #1e90ff;"></div> <code class="language-css highlight"><span class="nt">dodgerblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#1e90ff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #b22222;"></div> <code class="language-css highlight"><span class="nt">firebrick</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#b22222&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fffaf0;"></div> <code class="language-css highlight"><span class="nt">floralwhite</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fffaf0&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #228b22;"></div> <code class="language-css highlight"><span class="nt">forestgreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#228b22&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff00ff;"></div> <code class="language-css highlight"><span class="nt">fuchsia</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff00ff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #dcdcdc;"></div> <code class="language-css highlight"><span class="nt">gainsboro</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#dcdcdc&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f8f8ff;"></div> <code class="language-css highlight"><span class="nt">ghostwhite</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f8f8ff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffd700;"></div> <code class="language-css highlight"><span class="nt">gold</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffd700&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #daa520;"></div> <code class="language-css highlight"><span class="nt">goldenrod</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#daa520&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #808080;"></div> <code class="language-css highlight"><span class="nt">gray</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#808080&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #808080;"></div> <code class="language-css highlight"><span class="nt">grey</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#808080&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #008000;"></div> <code class="language-css highlight"><span class="nt">green</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#008000&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #adff2f;"></div> <code class="language-css highlight"><span class="nt">greenyellow</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#adff2f&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f0fff0;"></div> <code class="language-css highlight"><span class="nt">honeydew</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f0fff0&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff69b4;"></div> <code class="language-css highlight"><span class="nt">hotpink</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff69b4&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #cd5c5c;"></div> <code class="language-css highlight"><span class="nt">indianred</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#cd5c5c&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #4b0082;"></div> <code class="language-css highlight"><span class="nt">indigo</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#4b0082&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fffff0;"></div> <code class="language-css highlight"><span class="nt">ivory</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fffff0&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f0e68c;"></div> <code class="language-css highlight"><span class="nt">khaki</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f0e68c&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #e6e6fa;"></div> <code class="language-css highlight"><span class="nt">lavender</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#e6e6fa&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fff0f5;"></div> <code class="language-css highlight"><span class="nt">lavenderblush</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fff0f5&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #7cfc00;"></div> <code class="language-css highlight"><span class="nt">lawngreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#7cfc00&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fffacd;"></div> <code class="language-css highlight"><span class="nt">lemonchiffon</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fffacd&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #add8e6;"></div> <code class="language-css highlight"><span class="nt">lightblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#add8e6&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f08080;"></div> <code class="language-css highlight"><span class="nt">lightcoral</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f08080&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #e0ffff;"></div> <code class="language-css highlight"><span class="nt">lightcyan</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#e0ffff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fafad2;"></div> <code class="language-css highlight"><span class="nt">lightgoldenrodyellow</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fafad2&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #90ee90;"></div> <code class="language-css highlight"><span class="nt">lightgreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#90ee90&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #d3d3d3;"></div> <code class="language-css highlight"><span class="nt">lightgray</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#d3d3d3&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #d3d3d3;"></div> <code class="language-css highlight"><span class="nt">lightgrey</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#d3d3d3&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffb6c1;"></div> <code class="language-css highlight"><span class="nt">lightpink</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffb6c1&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffa07a;"></div> <code class="language-css highlight"><span class="nt">lightsalmon</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffa07a&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #20b2aa;"></div> <code class="language-css highlight"><span class="nt">lightseagreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#20b2aa&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #87cefa;"></div> <code class="language-css highlight"><span class="nt">lightskyblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#87cefa&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #778899;"></div> <code class="language-css highlight"><span class="nt">lightslategray</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#778899&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #778899;"></div> <code class="language-css highlight"><span class="nt">lightslategrey</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#778899&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #b0c4de;"></div> <code class="language-css highlight"><span class="nt">lightsteelblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#b0c4de&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffffe0;"></div> <code class="language-css highlight"><span class="nt">lightyellow</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffffe0&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #00ff00;"></div> <code class="language-css highlight"><span class="nt">lime</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#00ff00&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #32cd32;"></div> <code class="language-css highlight"><span class="nt">limegreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#32cd32&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #faf0e6;"></div> <code class="language-css highlight"><span class="nt">linen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#faf0e6&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff00ff;"></div> <code class="language-css highlight"><span class="nt">magenta</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff00ff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #800000;"></div> <code class="language-css highlight"><span class="nt">maroon</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#800000&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #66cdaa;"></div> <code class="language-css highlight"><span class="nt">mediumaquamarine</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#66cdaa&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #0000cd;"></div> <code class="language-css highlight"><span class="nt">mediumblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#0000cd&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ba55d3;"></div> <code class="language-css highlight"><span class="nt">mediumorchid</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ba55d3&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #9370db;"></div> <code class="language-css highlight"><span class="nt">mediumpurple</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#9370db&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #3cb371;"></div> <code class="language-css highlight"><span class="nt">mediumseagreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#3cb371&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #7b68ee;"></div> <code class="language-css highlight"><span class="nt">mediumslateblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#7b68ee&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #00fa9a;"></div> <code class="language-css highlight"><span class="nt">mediumspringgreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#00fa9a&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #48d1cc;"></div> <code class="language-css highlight"><span class="nt">mediumturquoise</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#48d1cc&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #c71585;"></div> <code class="language-css highlight"><span class="nt">mediumvioletred</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#c71585&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #191970;"></div> <code class="language-css highlight"><span class="nt">midnightblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#191970&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f5fffa;"></div> <code class="language-css highlight"><span class="nt">mintcream</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f5fffa&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffe4e1;"></div> <code class="language-css highlight"><span class="nt">mistyrose</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffe4e1&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffe4b5;"></div> <code class="language-css highlight"><span class="nt">moccasin</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffe4b5&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffdead;"></div> <code class="language-css highlight"><span class="nt">navajowhite</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffdead&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #000080;"></div> <code class="language-css highlight"><span class="nt">navy</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#000080&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fdf5e6;"></div> <code class="language-css highlight"><span class="nt">oldlace</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fdf5e6&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #808000;"></div> <code class="language-css highlight"><span class="nt">olive</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#808000&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #6b8e23;"></div> <code class="language-css highlight"><span class="nt">olivedrab</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#6b8e23&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffa500;"></div> <code class="language-css highlight"><span class="nt">orange</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffa500&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff4500;"></div> <code class="language-css highlight"><span class="nt">orangered</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff4500&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #da70d6;"></div> <code class="language-css highlight"><span class="nt">orchid</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#da70d6&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #eee8aa;"></div> <code class="language-css highlight"><span class="nt">palegoldenrod</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#eee8aa&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #98fb98;"></div> <code class="language-css highlight"><span class="nt">palegreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#98fb98&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #afeeee;"></div> <code class="language-css highlight"><span class="nt">paleturquoise</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#afeeee&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #db7093;"></div> <code class="language-css highlight"><span class="nt">palevioletred</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#db7093&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffefd5;"></div> <code class="language-css highlight"><span class="nt">papayawhip</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffefd5&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffdab9;"></div> <code class="language-css highlight"><span class="nt">peachpuff</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffdab9&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #cd853f;"></div> <code class="language-css highlight"><span class="nt">peru</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#cd853f&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffc0cb;"></div> <code class="language-css highlight"><span class="nt">pink</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffc0cb&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #dda0dd;"></div> <code class="language-css highlight"><span class="nt">plum</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#dda0dd&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #b0e0e6;"></div> <code class="language-css highlight"><span class="nt">powderblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#b0e0e6&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #800080;"></div> <code class="language-css highlight"><span class="nt">purple</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#800080&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #663399;"></div> <code class="language-css highlight"><span class="nt">rebeccapurple</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#663399&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff0000;"></div> <code class="language-css highlight"><span class="nt">red</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff0000&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #bc8f8f;"></div> <code class="language-css highlight"><span class="nt">rosybrown</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#bc8f8f&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #4169e1;"></div> <code class="language-css highlight"><span class="nt">royalblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#4169e1&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #8b4513;"></div> <code class="language-css highlight"><span class="nt">saddlebrown</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#8b4513&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fa8072;"></div> <code class="language-css highlight"><span class="nt">salmon</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fa8072&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f4a460;"></div> <code class="language-css highlight"><span class="nt">sandybrown</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f4a460&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #2e8b57;"></div> <code class="language-css highlight"><span class="nt">seagreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#2e8b57&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fff5ee;"></div> <code class="language-css highlight"><span class="nt">seashell</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fff5ee&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #a0522d;"></div> <code class="language-css highlight"><span class="nt">sienna</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#a0522d&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #c0c0c0;"></div> <code class="language-css highlight"><span class="nt">silver</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#c0c0c0&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #87ceeb;"></div> <code class="language-css highlight"><span class="nt">skyblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#87ceeb&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #6a5acd;"></div> <code class="language-css highlight"><span class="nt">slateblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#6a5acd&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #708090;"></div> <code class="language-css highlight"><span class="nt">slategray</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#708090&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #708090;"></div> <code class="language-css highlight"><span class="nt">slategrey</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#708090&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #fffafa;"></div> <code class="language-css highlight"><span class="nt">snow</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#fffafa&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #00ff7f;"></div> <code class="language-css highlight"><span class="nt">springgreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#00ff7f&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #4682b4;"></div> <code class="language-css highlight"><span class="nt">steelblue</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#4682b4&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #d2b48c;"></div> <code class="language-css highlight"><span class="nt">tan</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#d2b48c&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #008080;"></div> <code class="language-css highlight"><span class="nt">teal</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#008080&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #d8bfd8;"></div> <code class="language-css highlight"><span class="nt">thistle</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#d8bfd8&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ff6347;"></div> <code class="language-css highlight"><span class="nt">tomato</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ff6347&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #40e0d0;"></div> <code class="language-css highlight"><span class="nt">turquoise</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#40e0d0&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ee82ee;"></div> <code class="language-css highlight"><span class="nt">violet</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ee82ee&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f5deb3;"></div> <code class="language-css highlight"><span class="nt">wheat</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f5deb3&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffffff;"></div> <code class="language-css highlight"><span class="nt">white</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffffff&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #f5f5f5;"></div> <code class="language-css highlight"><span class="nt">whitesmoke</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#f5f5f5&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #ffff00;"></div> <code class="language-css highlight"><span class="nt">yellow</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#ffff00&quot;</span></code>,<br></li>
+<li><div class="color-box" style="background-color: #9acd32;"></div> <code class="language-css highlight"><span class="nt">yellowgreen</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;#9acd32&quot;</span></code>,<br></li>
+</ul>
+</details>
+</li>
+<li>
+<p><code class="language-py highlight"><span class="n">mode</span><span class="p">:</span> <span class="nb">str</span></code>: Mode to use for the image. Default is 'RGBA'.</p>
+</li>
+<li><code class="language-py highlight"><span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span></code>: Size of the image in pixels (width, height). Default is (1, 1) for changing size afterwards.</li>
+<li><code class="language-py highlight"><span class="n">fps</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">optional</span></code>: Frames per second for the video clip.</li>
+<li><code class="language-py highlight"><span class="n">duration</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">optional</span></code>: Duration of the video clip in seconds.</li>
+</ul>
+</dd>
+<dt>Attributes:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span></code>: The color of the video clip.</li>
+<li><code class="language-py highlight"><span class="n">mode</span><span class="p">:</span> <span class="nb">str</span></code>: The mode of the video clip.</li>
+<li>Other attributes are inherited from the <code class="language-py highlight"><span class="n">Data2ImageClip</span></code> <code class="language-py highlight"><span class="k">class</span></code>.</li>
+</ul>
+</dd>
+<dt>Methods:</dt>
+<dd>
+<blockquote>
+<p><code class="language-py highlight"><span class="n">set_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span></code>:</p>
+</blockquote>
+<dl>
+<dd>
+<p>Set the size of the video clip.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd><code class="language-py highlight"><span class="n">size</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span></code>: New size of the video clip in pixels (width, height).</dd>
+<dt>Example Usage:</dt>
+<dd><div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">color_clip</span><span class="o">.</span><span class="n">set_size</span><span class="p">((</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+</span></code></pre></div></dd>
+</dl>
+</dd>
+</dl>
+</dd>
+<dt>Example Usage:</dt>
+<dd>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Create a red square video clip (500x500, 30 FPS, 5 seconds):</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">red_square</span> <span class="o">=</span> <span class="n">ColorClip</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">500</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="n">fps</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="c1"># Create a blue fullscreen video clip (1920x1080, default FPS and duration):</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">blue_fullscreen</span> <span class="o">=</span> <span class="n">ColorClip</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">1920</span><span class="p">,</span> <span class="mi">1080</span><span class="p">))</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="c1"># Create a green transparent video clip (RGBA mode, 800x600):</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="n">green_transparent</span> <span class="o">=</span> <span class="n">ColorClip</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;RGBA&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+</span></code></pre></div>
+</dd>
+</dl>
+</dd>
+</dl>
+<h1 id="textclip">TextClip<a class="headerlink" href="#textclip" title="Permanent link">&para;</a></h1>
+<dl>
+<dt><code class="language-py highlight"><span class="k">class</span></code> <code class="language-py highlight"><span class="n">vidiopy</span><span class="o">.</span><span class="n">TextClip</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">font_pth</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">font_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">txt_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">bg_color</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">fps</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code></dt>
+<dd>
+<p>Bases: #!py vidiopy.Data2ImageClip</p>
+<p>A class representing a text clip to be used in video compositions.</p>
+<dl>
+<dt>Parameters:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">text</span> <span class="p">(</span><span class="nb">str</span><span class="p">)</span></code>: The text content to be displayed in the clip.</li>
+<li><code class="language-py highlight"><span class="n">font_pth</span> <span class="p">(</span><span class="kc">None</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: The file path to the TrueType font file (.ttf). If None, the default system font is used. Defaults to None.</li>
+<li><code class="language-py highlight"><span class="n">font_size</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: The font size for the text. Defaults to 20.</li>
+<li><code class="language-py highlight"><span class="n">txt_color</span> <span class="p">(</span><span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">optional</span><span class="p">)</span></code>: The color of the text specified as either a string (e.g., 'white') or a tuple representing RGBA values. Defaults to (255, 255, 255, 0) (fully transparent white).</li>
+<li><code class="language-py highlight"><span class="n">bg_color</span> <span class="p">(</span><span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">optional</span><span class="p">)</span></code>: The background color of the text clip, specified as either a string (e.g., 'black') or a tuple representing RGBA values. Defaults to (0, 0, 0, 0) (fully transparent black).</li>
+<li><code class="language-py highlight"><span class="n">fps</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: Frames per second of the video. If None, the value is inherited from the parent class. Defaults to None.</li>
+<li><code class="language-py highlight"><span class="n">duration</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">optional</span><span class="p">)</span></code>: Duration of the video clip in seconds. If None, the value is inherited from the parent class. Defaults to None.</li>
+</ul>
+</dd>
+<dt>Attributes:</dt>
+<dd>
+<ul>
+<li><code class="language-py highlight"><span class="n">font</span> <span class="p">(</span><span class="n">PIL</span><span class="o">.</span><span class="n">ImageFont</span><span class="o">.</span><span class="n">FreeTypeFont</span><span class="p">)</span></code>: The font object used for rendering the text.</li>
+<li><code class="language-py highlight"><span class="n">image</span> <span class="p">(</span><span class="n">PIL</span><span class="o">.</span><span class="n">Image</span><span class="o">.</span><span class="n">Image</span><span class="p">)</span></code>: The image containing the rendered text.</li>
+<li><code class="language-py highlight"><span class="n">fps</span> <span class="p">(</span><span class="nb">float</span><span class="p">)</span></code>: Frames per second of the video clip.</li>
+<li><code class="language-py highlight"><span class="n">duration</span> <span class="p">(</span><span class="nb">float</span><span class="p">)</span></code>: Duration of the video clip in seconds.</li>
+<li>Other attributes are inherited from the <code class="language-py highlight"><span class="n">Data2ImageClip</span></code> <code class="language-py highlight"><span class="k">class</span></code>.</li>
+</ul>
+</dd>
+<dt>Example Usage:</dt>
+<dd>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="c1"># Create a TextClip with custom text and styling</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">text_clip</span> <span class="o">=</span> <span class="n">TextClip</span><span class="p">(</span><span class="s2">&quot;Contribute to Vidiopy&quot;</span><span class="p">,</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">txt_color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">bg_color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">duration</span><span class="o">=</span><span class="mf">5.0</span><span class="p">)</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Use the text clip in a video composition</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">composition</span> <span class="o">=</span> <span class="n">CompositeVideoClip</span><span class="p">([</span><span class="n">other_clip</span><span class="p">,</span> <span class="n">text_clip</span><span class="p">])</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="n">composition</span><span class="o">.</span><span class="n">write_videofile</span><span class="p">(</span><span class="s2">&quot;output.mp4&quot;</span><span class="p">,</span> <span class="n">codec</span><span class="o">=</span><span class="s1">&#39;libx264&#39;</span><span class="p">,</span> <span class="n">fps</span><span class="o">=</span><span class="mi">24</span><span class="p">)</span>
+</span></code></pre></div>
+</dd>
+</dl>
+</dd>
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+<h2 id="__comments">Comments</h2>
+
+<script src="https://giscus.app/client.js" data-repo="SohamTilekar/vidiopy" data-repo-id="R_kgDOK8pJmw"
+  data-category="Comments" data-category-id="DIC_kwDOK8pJm84CddAn" data-mapping="pathname" data-strict="1"
+  data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-lang="en" crossorigin="anonymous"
+  async>
+  </script>
+
+<script>
+  var giscus = document.querySelector("script[src*=giscus]")
+
+  // Set palette on initial load
+  var palette = __md_get("__palette")
+  if (palette && typeof palette.color === "object") {
+    var theme = palette.color.scheme === "slate"
+      ? "transparent_dark"
+      : "light"
+
+    // Instruct Giscus to set theme
+    giscus.setAttribute("data-theme", theme)
+  }
+
+  // Register event handlers after documented loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    var ref = document.querySelector("[data-md-component=palette]")
+    ref.addEventListener("change", function () {
+      var palette = __md_get("__palette")
+      if (palette && typeof palette.color === "object") {
+        var theme = palette.color.scheme === "slate"
+          ? "transparent_dark"
+          : "light"
+
+        // Instruct Giscus to change theme
+        var frame = document.querySelector(".giscus-frame")
+        frame.contentWindow.postMessage(
+          { giscus: { setConfig: { theme } } },
+          "https://giscus.app"
+        )
+      }
+    })
+  })
+</script>
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../videofileclip/" class="md-footer__link md-footer__link--prev" aria-label="Previous: VideoFileClip">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                VideoFileClip
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../imagesequenceclip/" class="md-footer__link md-footer__link--next" aria-label="Next: ImageSequenceClip">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                ImageSequenceClip
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 - 2024 Soham Tilekar Under MIT License
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/SohamTilekar/vidiopy" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="mailto:sohamtilekar233@gmail.com" target="_blank" rel="noopener" title="" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480v-83.6c0-4 1.5-7.8 4.2-10.7l167.6-182.9c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8l-88.3-44.2C7.1 311.3.3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["header.autohide", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.code.copy", "content.code.select", "content.code.annotate", "navigation.instant", "navigation.instant.prefetch", "navigation.instant.progress", "navigation.instant.preview", "navigation.path", "navigation.prune", "navigation.tracking", "content.action.edit", "content.action.view", "toc.follow"], "search": "../../../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.dd8806f2.min.js"></script>
+      
+    
+  </body>
+</html>
