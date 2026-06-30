@@ -743,3 +743,47 @@ class TextClip(Data2ImageClip):
 
     def __str__(self):
         return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, text={self.text}, font_size={self.font_size}"""
+
+
+class RectangleClip(Data2ImageClip):
+    """
+    A class representing a rectangle video clip.
+    """
+    def __init__(
+        self,
+        size: tuple[int, int],
+        color: str | tuple[int, ...] = "black",
+        bg_color: str | tuple[int, ...] | None = "transparent",
+        fps: float | int | None = None,
+        duration: float | int | None = None,
+    ):
+        width, height = size
+        if bg_color == "transparent" or bg_color is None:
+            image = Image.new("RGBA", size, (0, 0, 0, 0))
+        else:
+            image = Image.new("RGBA", size, bg_color)
+        draw = ImageDraw.Draw(image)
+        draw.rectangle([0, 0, width, height], fill=color)
+        super().__init__(image, fps=fps, duration=duration)
+
+
+class CircleClip(Data2ImageClip):
+    """
+    A class representing a circle video clip.
+    """
+    def __init__(
+        self,
+        radius: int,
+        color: str | tuple[int, ...] = "black",
+        bg_color: str | tuple[int, ...] | None = "transparent",
+        fps: float | int | None = None,
+        duration: float | int | None = None,
+    ):
+        diameter = radius * 2
+        if bg_color == "transparent" or bg_color is None:
+            image = Image.new("RGBA", (diameter, diameter), (0, 0, 0, 0))
+        else:
+            image = Image.new("RGBA", (diameter, diameter), bg_color)
+        draw = ImageDraw.Draw(image)
+        draw.ellipse([0, 0, diameter, diameter], fill=color)
+        super().__init__(image, fps=fps, duration=duration)

@@ -4,7 +4,7 @@ import pytest
 from PIL import Image
 import numpy as np
 from pathlib import Path
-from vidiopy import ImageClip, ImageSequenceClip
+from vidiopy import ImageClip, ImageSequenceClip, RectangleClip, CircleClip
 
 
 @pytest.fixture
@@ -145,6 +145,22 @@ def test_to_video_clip():
     with pytest.raises(ValueError):
         video_clip = image_clip.to_video_clip()
 
+
+def test_rectangle_clip():
+    clip = RectangleClip(size=(100, 50), color="blue", bg_color="red", fps=30, duration=5)
+    assert clip.size == (100, 50)
+    assert clip.duration == 5
+    assert clip.fps == 30
+    frame = clip.make_frame_array(0)
+    assert frame.shape == (50, 100, 4) # RGBA
+
+def test_circle_clip():
+    clip = CircleClip(radius=30, color="green", bg_color="transparent", fps=30, duration=5)
+    assert clip.size == (60, 60) # diameter
+    assert clip.duration == 5
+    assert clip.fps == 30
+    frame = clip.make_frame_array(0)
+    assert frame.shape == (60, 60, 4)
 
 if __name__ == "__main__":
     pytest.main([__file__, *sys.argv])

@@ -1148,3 +1148,46 @@ class VideoClip(Clip):
             >>> image_clip = video_clip.to_ImageClip(10)
         """
         return ImageClips.Data2ImageClip(self.make_frame_pil(t))
+
+    def write_gif(
+        self,
+        filename: str,
+        fps: int | float | None = None,
+        loop: int = 0,
+    ):
+        """
+        Writes the video clip to a GIF file.
+
+        Args:
+            filename (str): The path to the output GIF file.
+            fps (int | float | None, optional): The frames per second to use. If None, uses the clip's fps.
+            loop (int, optional): The number of times to loop the GIF. 0 means infinite loop. Defaults to 0.
+
+        Returns:
+            Self: Returns the instance of the class.
+        """
+        fps_to_use = fps if fps else self.fps
+        if fps_to_use is None:
+            raise ValueError("fps must be provided or set on the clip.")
+
+        frames = list(
+            progress.track(
+                self.iterate_frames_pil_t(fps_to_use),
+                description="Processing frames for GIF...",
+                transient=True
+            )
+        )
+        if not frames:
+            return self
+
+        duration = int(1000 / fps_to_use)
+        frames[0].save(
+            filename,
+            save_all=True,
+            append_images=frames[1:],
+            duration=duration,
+            loop=loop,
+            optimize=True
+        )
+        rich_print(f"[bold magenta]Vidiopy[/bold magenta] - GIF saved to {filename} :thumbs_up:")
+        return self

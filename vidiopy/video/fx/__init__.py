@@ -10,6 +10,19 @@ from .filters import (
     saturation,
     sharpness,
 )
+from .fadein import fadein
+from .fadeout import fadeout
+from .speedx import speedx
+from .time_mirror import time_mirror
+from .loop import loop
+from .resize import resize
+from .rotate import rotate
+from .blackwhite import blackwhite
+from .invert_colors import invert_colors
+from .margin import margin
+
+from .mask_color import mask_color
+
 
 __all__ = [
     "accel_decel",
@@ -22,4 +35,15 @@ __all__ = [
     "brightness",
     "saturation",
     "sharpness",
+    "fadein",
+    "fadeout",
+    "speedx",
+    "time_mirror",
+    "loop",
+    "resize",
+    "rotate",
+    "blackwhite",
+    "invert_colors",
+    "margin",
+    "mask_color",
 ]

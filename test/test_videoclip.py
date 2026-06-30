@@ -328,7 +328,7 @@ def test_sync_audio_video_s_e_d(vid_clip: VideoClip):
     assert vid_clip.audio._original_dur == vid_clip.duration
 
 
-def write_videofile(vid_clip: VideoClip):
+def test_write_videofile(vid_clip: VideoClip):
     vid_clip.set_end(1)
     vid_clip.set_fps(5)
     vid_clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
@@ -345,7 +345,7 @@ def write_videofile(vid_clip: VideoClip):
     assert len(ffmpegio.video.read(pth)[1]) == 6
 
 
-def write_videofile_audio(vid_clip: VideoClip):
+def test_write_videofile_audio(vid_clip: VideoClip):
     vid_clip.set_end(1)
     vid_clip.set_fps(5)
     vid_clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
@@ -362,3 +362,22 @@ def write_videofile_audio(vid_clip: VideoClip):
     assert ffmpegio.video.read(pth)[1][0] == vid_clip.make_frame_array(0)
     assert len(ffmpegio.video.read(pth)[1]) == 6
     assert ffmpegio.probe.audio_streams_basic(pth)
+
+
+def test_write_gif(vid_clip: VideoClip, tmp_path):
+    vid_clip.fps = 10
+    vid_clip.duration = 1
+    vid_clip.end = 1
+    
+    vid_clip.make_frame_array = lambda t: np.zeros((10, 10, 3), dtype=np.uint8)
+    vid_clip.make_frame_pil = lambda t: Image.fromarray(np.zeros((10, 10, 3), dtype=np.uint8))
+    
+    out_file = tmp_path / "test.gif"
+    vid_clip.write_gif(str(out_file), fps=10)
+    
+    assert os.path.exists(out_file)
+    assert os.path.getsize(out_file) > 0
+
+if __name__ == "__main__":
+    pytest.main([__file__, *sys.argv])
+

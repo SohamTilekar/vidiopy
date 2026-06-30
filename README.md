@@ -65,7 +65,7 @@ To contribute:
 
 ## Disclaimer
 
-**VidioPy is currently in the early stages of development and is not yet a complete product. Some features may be limited or incomplete. Currently, VidioPy does not support audio while writing video files, and there are no built-in video effects.** Use it at your own discretion, and feel free to report any issues, feature request or provide feedback.
+**VidioPy is currently in the early stages of development and is not yet a complete product. Some features may be limited or incomplete.** Use it at your own discretion, and feel free to report any issues, feature requests, or provide feedback.
 
 ## License
 
