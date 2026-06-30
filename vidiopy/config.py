@@ -18,14 +18,14 @@ try:
 except Exception:
     try:
         if os.path.exists(
-            os.path.join(os.path.expanduser("~"), "  ffmpeg", "ffmpeg")
+            os.path.join(os.path.expanduser("~"), ".ffmpeg", "ffmpeg")
         ) and os.path.exists(
-            os.path.join(os.path.expanduser("~"), "  ffmpeg", "ffprobe")
+            os.path.join(os.path.expanduser("~"), ".ffmpeg", "ffprobe")
         ):
-            ffmpegio.set_path(os.path.join(os.path.expanduser("~"), "  ffmpeg"))
-            FFMPEG_BINARY = os.path.join(os.path.expanduser("~"), "  ffmpeg", "ffmpeg")
+            ffmpegio.set_path(os.path.join(os.path.expanduser("~"), ".ffmpeg"))
+            FFMPEG_BINARY = os.path.join(os.path.expanduser("~"), ".ffmpeg", "ffmpeg")
             FFPROBE_BINARY = os.path.join(
-                os.path.expanduser("~"), "  ffmpeg", "ffprobe"
+                os.path.expanduser("~"), ".ffmpeg", "ffprobe"
             )
         elif os.path.exists(
             os.path.join(os.path.expanduser("~"), "ffmpeg", "ffmpeg.exe")

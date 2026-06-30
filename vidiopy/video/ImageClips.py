@@ -134,18 +134,6 @@ class ImageClip(VideoClip.VideoClip):
             and np.array_equal(self.image, other.image)
         )
 
-    @property
-    def duration(self):
-        return self._dur
-
-    @duration.setter
-    def duration(self, value: int | float | None):
-        self._dur = value
-        return self
-
-    def set_duration(self, value) -> Self:
-        self._dur = value
-        return self
 
     def fl_frame_transform(self, func, *args, **kwargs) -> Self:
         """
@@ -723,7 +711,11 @@ class TextClip(Data2ImageClip):
         bg_color: str | tuple[int, ...] = (0, 0, 0, 0),
         fps=None,
         duration=None,
+        **kwargs
     ):
+        font_pth = kwargs.get("font", font_pth)
+        font_size = kwargs.get("fontsize", font_size)
+        txt_color = kwargs.get("color", txt_color)
         font = (
             ImageFont.truetype(font_pth, font_size)
             if font_pth

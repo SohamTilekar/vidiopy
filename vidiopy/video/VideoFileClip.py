@@ -87,11 +87,11 @@ class VideoFileClip(VideoClip):
 
     def __repr__(self) -> str:
         return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, filename={self.filename}, id={hex(id(self))},
-        audio={(self.audio)})"""
+        audio={self.audio})"""
 
     def __str__(self) -> str:
         return f"""{self.__class__.__name__}(fps={self.fps}, size={self.size}, start={self.start}, end={self.end}, duration={self.duration}, filename={self.filename}, id={hex(id(self))},
-        audio={(self.audio)})"""
+        audio={self.audio})"""
 
     def __eq__(self, other) -> bool:
         if not hasattr(self, "clip"):
@@ -254,7 +254,7 @@ class VideoFileClip(VideoClip):
 
         if instance.audio:
             audio = instance.audio.sub_clip(t_start, t_end)
-            audio.set_start(self.start).set_end(self.end)
+            audio.set_start(instance.start).set_end(instance.end)
             instance.set_audio(audio)
         return instance
 

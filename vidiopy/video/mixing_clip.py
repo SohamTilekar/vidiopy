@@ -42,11 +42,10 @@ def composite_videoclips(
     Note:
         This function uses the ImageSequenceClip class to create the composite video clip and the composite_audioclips function to composite the audio of the clips.
     """
-    fps = int(
-        fps
-        or max(*(clip.fps if clip.fps else 0.0 for clip in clips), 0.0)
-        or (_ for _ in ()).throw(ValueError("fps is not set"))
-    )
+    fps_val = fps or max(*(clip.fps if clip.fps else 0.0 for clip in clips), 0.0)
+    if not fps_val:
+        raise ValueError("fps is not set")
+    fps = int(fps_val)
 
     if use_bg_clip:
         bg_clip = clips[0]
@@ -76,7 +75,7 @@ def composite_videoclips(
             raise ValueError("size is not set of any clip")
         if duration == 0.0:
             raise ValueError("duration is not set of any clip")
-        bg = Image.new("RGBA" or "RGB", tuple(size), bg_color)
+        bg = Image.new("RGBA", tuple(size), bg_color)
 
         def bg_make_frame(t):
             return bg.copy()
@@ -86,13 +85,11 @@ def composite_videoclips(
     while t < duration:
         f = bg_make_frame(t)
         for clip in clips:
-            if clip.start <= t + clip.start < (clip.end or float("inf")):
+            if clip.start <= t < (clip.end or float("inf")):
                 pos_x = 0
                 pos_y = 0
-                frame = clip.make_frame_pil(t + clip.start)
-                pos_: tuple[int | str | float, int | str | float] = clip.pos(
-                    t + clip.start
-                )
+                frame = clip.make_frame_pil(t - clip.start)
+                pos_: tuple[int | str | float, int | str | float] = clip.pos(t - clip.start)
                 if isinstance(pos_[0], str):
                     if pos_[0] == "center":
                         pos_x = f.size[0] // 2 - frame.size[0] // 2
@@ -202,22 +199,16 @@ def concatenate_videoclips(
     fps = (
         fps if fps is not None else max(clip.fps if clip.fps else 0.0 for clip in clips)
     )
-    duration_per_clip: list[int | float] = [
-        (
-            clip.end
-            if clip.end
-            else (
-                clip.duration
-                if clip.duration
-                else (_ for _ in ()).throw(
-                    ValueError(
-                        f"Clip duration and end is not set __str__={clip.__str__()}"
-                    )
-                )
-            )
-        )
-        for clip in clips
-    ]
+    duration_per_clip: list[int | float] = []
+    for clip in clips:
+        if clip.end:
+            duration_per_clip.append(clip.end)
+        elif clip.duration:
+            duration_per_clip.append(clip.duration)
+        else:
+            raise ValueError(f"Clip duration and end is not set __str__={clip.__str__()}")
+    if fps == 0:
+        raise ValueError("fps is 0")
     td = 1 / fps
     duration: int | float = sum(duration_per_clip)
 
@@ -236,20 +227,12 @@ def concatenate_videoclips(
             )
             return new_frame
 
-        size: tuple[int, int] = max(
-            tuple(
-                (
-                    clip.size
-                    if clip.size and clip.size[0] and clip.size[1]
-                    else (_ for _ in ()).throw(
-                        ValueError(
-                            f"Clip Size is not set, clip.__str__ = {clip.__str__()}"
-                        )
-                    )
-                )
-                for clip in clips
-            )
-        )
+        sizes = []
+        for clip in clips:
+            if not clip.size or not clip.size[0] or not clip.size[1]:
+                raise ValueError(f"Clip Size is not set, clip.__str__ = {clip.__str__()}")
+            sizes.append(clip.size)
+        size: tuple[int, int] = (max(s[0] for s in sizes), max(s[1] for s in sizes))
 
         frames = []
         for i, clip in enumerate(clips):
@@ -291,20 +274,12 @@ def concatenate_videoclips(
                 "RGBA" if transparent else "RGB"
             )
 
-        size: tuple[int, int] = max(
-            tuple(
-                (
-                    clip.size
-                    if clip.size and clip.size[0] and clip.size[1]
-                    else (_ for _ in ()).throw(
-                        ValueError(
-                            f"Clip Size is not set, clip.__str__ = {clip.__str__()}"
-                        )
-                    )
-                )
-                for clip in clips
-            )
-        )
+        sizes = []
+        for clip in clips:
+            if not clip.size or not clip.size[0] or not clip.size[1]:
+                raise ValueError(f"Clip Size is not set, clip.__str__ = {clip.__str__()}")
+            sizes.append(clip.size)
+        size: tuple[int, int] = (max(s[0] for s in sizes), max(s[1] for s in sizes))
         frames = []
         for i, clip in enumerate(clips):
             current_clip_current_time = 0.0
@@ -344,20 +319,12 @@ def concatenate_videoclips(
                 "RGBA" if transparent else "RGB"
             )
 
-        size: tuple[int, int] = max(
-            tuple(
-                (
-                    clip.size
-                    if clip.size and clip.size[0] and clip.size[1]
-                    else (_ for _ in ()).throw(
-                        ValueError(
-                            f"Clip Size is not set, clip.__str__ = {clip.__str__()}"
-                        )
-                    )
-                )
-                for clip in clips
-            )
-        )
+        sizes = []
+        for clip in clips:
+            if not clip.size or not clip.size[0] or not clip.size[1]:
+                raise ValueError(f"Clip Size is not set, clip.__str__ = {clip.__str__()}")
+            sizes.append(clip.size)
+        size: tuple[int, int] = (max(s[0] for s in sizes), max(s[1] for s in sizes))
         frames = []
         for i, clip in enumerate(clips):
             current_clip_current_time = 0.0

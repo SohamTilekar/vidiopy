@@ -8,8 +8,6 @@ If the required attributes are not set or are None, the decorators will raise a 
 from functools import wraps
 
 # Decorator implementations...
-from functools import wraps
-
 
 def requires_duration(f):
     """

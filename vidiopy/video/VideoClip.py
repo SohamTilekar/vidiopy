@@ -216,45 +216,18 @@ class VideoClip(Clip):
         return self._dur
 
     @duration.setter
-    def duration(self, dur: int | float) -> "VideoClip":
+    def duration(self, dur: int | float) -> None:
         """
         Setter for the duration of the video clip.
-        it raises a ValueError since duration is not allowed to be set.
-        but you can change the duration using clip._dur = value or _set_duration method.
-
+        
         Args:
             dur (int | float): The duration to set for the video clip.
-
-        Returns:
-            NoReturn: Raises a ValueError since duration is not allowed to be set.
-
-        Raises:
-            ValueError: If an attempt is made to set the duration, a ValueError is raised.
         """
         self.set_duration(dur)
-        return self
 
-    def set_duration(self, value) -> "VideoClip":
+    def set_duration(self, value: int | float) -> "VideoClip":
         """
-        Setter for the duration of the video clip.
-        it raises a ValueError since duration is not allowed to be set.
-        but you can change the duration using clip._dur = value or the _set_duration method.
-
-        Args:
-            dur (int | float): The duration to set for the video clip.
-
-        Returns:
-            NoReturn: Raises a ValueError since duration is not allowed to be set.
-
-        Raises:
-            ValueError: If an attempt is made to set the duration, a ValueError is raised.
-        """
-        raise ValueError("Duration is not allowed to be set")
-        return self
-
-    def _set_duration(self, value: int | float) -> "VideoClip":
-        """
-        Private method to set the duration of the video clip.
+        Method to set the duration of the video clip.
 
         Args:
             value (int | float): The duration to set for the video clip.
@@ -956,8 +929,18 @@ class VideoClip(Clip):
                 # Combine video and audio using ffmpeg
                 with progress.Progress(transient=True) as progress_bar:
                     sp = progress_bar.add_task("Combining Video & Audio", total=None)
+                    args = [
+                        config.FFMPEG_BINARY,
+                        "-i", temp_video_file_name,
+                        "-i", audio_file_name,
+                        "-vcodec", "copy",
+                        "-acodec", "aac",
+                    ]
+                    if over_write_output:
+                        args.append("-y")
+                    args.append(filename)
                     subprocess.run(
-                        f'{config.FFMPEG_BINARY} -i "{temp_video_file_name}" -i "{audio_file_name}" -acodec copy {"-y " if over_write_output else ""} "{filename}"',
+                        args,
                         capture_output=True,
                         text=True,
                     )

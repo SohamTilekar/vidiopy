@@ -149,18 +149,11 @@ class AudioClip(Clip):
         return self._original_dur
 
     @duration.setter
-    def duration(self, duration: int | float) -> NoReturn:
+    def duration(self, duration: int | float) -> None:
         """
-        This setter method raises an AttributeError when trying to set the duration directly.
-        The duration of an AudioClip should be set using the set_duration method instead.
-
-        Args:
-            duration (int | float): The duration to set.
-
-        Raises:
-            AttributeError: Always raises an AttributeError to prevent direct setting of the duration.
+        Setter for the duration of the audio clip.
         """
-        raise AttributeError("Not Allowed to set duration")
+        self.set_duration(duration)
 
     def set_duration(self, duration: int | float) -> Self:
         """
@@ -421,17 +414,12 @@ class AudioClip(Clip):
         if start is None:
             start = self.start if self.start is not None else 0
         if end is None:
-            end = (
-                self.end
-                if self.end
-                else (
-                    self.duration
-                    if self.duration
-                    else (_ for _ in ()).throw(
-                        ValueError("end or duration must be set.")
-                    )
-                )
-            )
+            if self.end is not None:
+                end = self.end
+            elif self.duration is not None:
+                end = self.duration
+            else:
+                raise ValueError("end or duration must be set.")
         # Add check for end value
         if end > self.duration:
             raise ValueError("End value cannot be greater than the original duration")
@@ -476,17 +464,12 @@ class AudioClip(Clip):
         if start is None:
             start = self.start if self.start is not None else 0
         if end is None:
-            end = (
-                self.end
-                if self.end
-                else (
-                    self.duration
-                    if self.duration
-                    else (_ for _ in ()).throw(
-                        ValueError("end or duration must be set.")
-                    )
-                )
-            )
+            if self.end is not None:
+                end = self.end
+            elif self.duration is not None:
+                end = self.duration
+            else:
+                raise ValueError("end or duration must be set.")
         # Add check for end value
         if end > self.duration:
             raise ValueError("End value cannot be greater than the original duration")
@@ -633,17 +616,15 @@ class AudioFileClip(SilenceClip):
         Raises:
             ValueError: If the audio file is empty and duration is not provided.
         """
-        info = ffmpegio.probe.audio_streams_basic(str(path))
+        try:
+            info = ffmpegio.probe.audio_streams_basic(str(path))
+        except Exception:
+            info = None
         if not info:
             self.fps = 44100
             self.channels = 1
-            duration = (
-                duration
-                if duration
-                else (_ for _ in ()).throw(
-                    ValueError("Audio is empty and duration is not provided")
-                )
-            )
+            if not duration:
+                raise ValueError("Audio is empty and duration is not provided")
             super().__init__(duration, self.fps, self.channels)
         else:
             info = info[0]
@@ -717,32 +698,24 @@ def concatenate_audioclips(
     fps = fps if fps else max([c.fps if c.fps else 0 for c in clips])
     if not fps:
         raise ValueError("No fps value found place set fps value or fps value in clips")
-    duration = sum(
-        [
-            (
-                c.end - c.start
-                if c.end
-                else c.duration if c.duration else (_ for _ in ()).throw(ValueError(""))
-            )
-            for c in clips
-        ]
-    )
-    channels: int = max(
-        [
-            (
-                c.channels
-                if c.channels
-                else (_ for _ in ()).throw(ValueError("clip channels is not set"))
-            )
-            for c in clips
-        ]
-    )
+    duration = 0
     for c in clips:
-        c_channels: int = (
-            c.channels
-            if c.channels
-            else (_ for _ in ()).throw(ValueError("clip channels is not set"))
-        )
+        if c.end is not None:
+            duration += (c.end - c.start)
+        elif c.duration is not None:
+            duration += c.duration
+        else:
+            raise ValueError("Clip duration is not set")
+    channels_list = []
+    for c in clips:
+        if not c.channels:
+            raise ValueError("clip channels is not set")
+        channels_list.append(c.channels)
+    channels: int = max(channels_list)
+    for c in clips:
+        if not c.channels:
+            raise ValueError("clip channels is not set")
+        c_channels: int = c.channels
         dif_channels = channels - c_channels
         for f in c.iterate_frames_at_fps(fps):
             clip.append(np.concatenate((f, [f.mean()] * dif_channels)))
@@ -777,14 +750,13 @@ def composite_audioclips(
     If a clip's end time is set, it is used to calculate its duration; otherwise, its duration attribute is used.
     If neither is set, a ValueError is raised.
     """
-    fps = int(
-        fps
-        or max(*(clip.fps if clip.fps else 0.0 for clip in clips), 0.0)
-        or (_ for _ in ()).throw(ValueError("fps is not set"))
-    )
-    channels = max(*(clip.channels if clip.channels else 0 for clip in clips), 0) or (
-        _ for _ in ()
-    ).throw(ValueError("No Channels"))
+    fps_val = fps or max(*(clip.fps if clip.fps else 0.0 for clip in clips), 0.0)
+    if not fps_val:
+        raise ValueError("fps is not set")
+    fps = int(fps_val)
+    channels = max(*(clip.channels if clip.channels else 0 for clip in clips), 0)
+    if not channels:
+        raise ValueError("No Channels")
 
     if use_bg_audio:
         bg_audio = clips[0]
@@ -805,7 +777,9 @@ def composite_audioclips(
     frames = []
     t = 0.0
     td = 1 / fps
-    while t < (bg_audio.duration or (_ for _ in ()).throw(ValueError(""))):
+    if not bg_audio.duration:
+        raise ValueError("Background audio duration is not set")
+    while t < bg_audio.duration:
         f: list = bg_audio.get_frame_at_t(t).tolist()
         if len(f) < channels:
             f.append((sum(f) / len(f)) * (channels - len(f)))
@@ -822,5 +796,5 @@ def composite_audioclips(
     return AudioArrayClip(
         np.array(frames),
         fps,
-        bg_audio.duration or (_ for _ in ()).throw(ValueError("")),
+        bg_audio.duration,
     )
