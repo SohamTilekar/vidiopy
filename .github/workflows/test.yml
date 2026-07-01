@@ -29,8 +29,6 @@ jobs:
 
       - name: Install FFMPEG
         uses: AnimMouse/setup-ffmpeg@v1
-        with:
-          version: master
 
       - name: Pre Install
         run: |
