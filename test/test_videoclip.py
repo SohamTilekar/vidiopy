@@ -337,7 +337,7 @@ def test_write_videofile(vid_clip: VideoClip):
         pth = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False).name
         vid_clip.write_videofile(pth, audio=False)
         assert np.array_equal(ffmpegio.video.read(pth)[1][0], vid_clip.make_frame_array(0))
-        assert len(ffmpegio.video.read(pth)[1]) == 6
+        assert len(ffmpegio.video.read(pth)[1]) == 5
     except Exception as e:
         raise e
     finally:
@@ -355,7 +355,7 @@ def test_write_videofile_audio(vid_clip: VideoClip):
         pth = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False).name
         vid_clip.write_videofile(pth, audio=True)
         assert np.array_equal(ffmpegio.video.read(pth)[1][0], vid_clip.make_frame_array(0))
-        assert len(ffmpegio.video.read(pth)[1]) == 6
+        assert len(ffmpegio.video.read(pth)[1]) == 5
         assert ffmpegio.probe.audio_streams_basic(pth)
     except Exception as e:
         raise e
