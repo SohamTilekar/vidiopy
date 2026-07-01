@@ -5,10 +5,10 @@ from pathlib import Path
 
 __version__ = Path("vidiopy/__version__.py").read_text().strip().split('"')[1]
 
-with open(Path(r"./requirements.txt")) as f:
+with open(Path(r"./requirements.txt"), encoding="utf-8") as f:
     requirements = f.read().splitlines()
 
-with open(Path(r"./README.md")) as f:
+with open(Path(r"./README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
