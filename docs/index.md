@@ -1,22 +1,76 @@
-# VidioPy
+# 🎬 VidioPy
 
-VidioPy is a Python library for video processing. It provides a simple API for common video processing tasks such as reading and writing video files, transforming video clips, performing basic operations like cuts, concatenations, and title insertions. It also supports video compositing (a.k.a. non-linear editing), advanced video effects, and video processing.
+[![PyPI version](https://badge.fury.io/py/vidiopy.svg)](https://badge.fury.io/py/vidiopy)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Overview
+**VidioPy** is a modern, Pythonic video editing and manipulation library. Born as a robust alternative to MoviePy, it aims to provide a cleaner, highly extensible interface for developers looking to programmatically edit videos, generate dynamic content, and composite multimedia assets.
 
-1.[Download & Install](getting_started/download_install.md)
+Whether you're building automated video generation tools, adding text overlays, or creating simple video effects, VidioPy gives you the reliable building blocks to do it effortlessly.
 
-1.[Getting Started](getting_started/quick_presentation.md)
+---
 
-1.[Reference Manual](reference_manual/reference_manual.md)
+## 📖 Table of Contents
 
-<!-- 1.[Galleries](galleries.md)
+- 📥 **[Download & Install](getting_started/download_install.md)**
+- 🚀 **[Getting Started](getting_started/quick_presentation.md)**
+- 📚 **[Reference Manual](reference_manual/reference_manual.md)**
 
-1.[examples](examples.md)
+---
 
-1.[FAQ](faq.md) -->
+## ✨ Features
 
-## Contributing
+- **Intuitive API**: Chainable methods and straightforward class structures (`VideoClip`, `AudioClip`, `TextClip`, etc.).
+- **Media Compositing**: Overlay text, images, and other videos to build complex scenes.
+- **Audio & Video Integration**: First-class support for audio mixing and manipulation alongside your video frames.
+- **Programmatic Effects**: Apply mathematical transformations and lambda functions to video frames dynamically over time.
+- **Familiar Tools Under the Hood**: Built on top of `numpy`, `Pillow`, and `ffmpegio` for blazing fast frame manipulations.
 
-VidioPy is an open source project originally developed by [Soham](https://github.com/SohamTilekar) & released under the [MIT license](https://opensource.org/licenses/MIT). It is currently maintained by [Soham](https://github.com/SohamTilekar). The code is hosted on Github, where you can push improvements, report bugs and ask for help.
-We welcome all kinds of contributions, from code to documentation, to bug reports. Please read the [contribution guidelines](more/CONTRIBUTING.md) first.
+---
+
+## 🚀 Quick Start
+
+Creating your first video with VidioPy is as simple as:
+
+```python
+import vidiopy
+
+# 1. Load an existing video
+video = vidiopy.VideoFileClip("path/to/video.mp4")
+
+# 2. Create a text overlay
+text = vidiopy.TextClip("Hello, VidioPy!", fontsize=70, color="white")
+
+# 3. Animate the text to move downwards over time
+text = text.set_position(lambda t: (100, 50 + 10 * t))
+
+# 4. Composite the text over the video
+final_video = vidiopy.CompositeVideoClip([video, text])
+
+# 5. Export the result
+final_video.write_videofile("output.mp4")
+```
+
+---
+
+## 🤝 Contributing
+
+VidioPy is a community-driven project and we would love your help! Whether you want to fix bugs, propose new features, or improve the documentation, all contributions are welcome.
+
+To get started:
+1. Check out our [Contribution Guidelines](more/CONTRIBUTING.md).
+2. Fork the repository and create your feature branch.
+3. Make your changes and test them thoroughly.
+4. Submit a Pull Request!
+
+---
+
+## ⚠️ Disclaimer
+
+**VidioPy is currently in the active early stages of development.** 
+While the core features work wonderfully, you might find some edge cases or missing capabilities compared to older libraries. We encourage you to use it, test it, and report any bugs or feature requests in the Issues tab!
+
+---
+
+## 📜 License
+
+VidioPy is open-sourced software licensed under the [MIT License](https://opensource.org/licenses/MIT).
