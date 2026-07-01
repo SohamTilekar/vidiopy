@@ -235,6 +235,8 @@ class VideoClip(Clip):
         Returns:
             VideoClip: The instance of the VideoClip after setting the duration.
         """
+        if value <= 0:
+            raise ValueError("Duration must be greater than 0")
         self._dur = value
         return self
 

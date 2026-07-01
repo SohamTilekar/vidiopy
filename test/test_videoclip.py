@@ -123,7 +123,7 @@ def test_duration(vid_clip: VideoClip):
 
     # Test set_duration method
     with pytest.raises(ValueError):
-        vid_clip.set_duration(15.0)
+        vid_clip.set_duration(-15.0)
     with pytest.raises(ValueError):
         vid_clip.duration = 0.0
     assert vid_clip.duration == 5.0
@@ -334,15 +334,15 @@ def test_write_videofile(vid_clip: VideoClip):
     vid_clip.make_frame_array = lambda t: np.zeros((100, 100, 3), dtype=np.uint8)
     pth = ""
     try:
-        pth = tempfile.NamedTemporaryFile(suffix=".mp4", delete=True).name
+        pth = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False).name
         vid_clip.write_videofile(pth, audio=False)
+        assert np.array_equal(ffmpegio.video.read(pth)[1][0], vid_clip.make_frame_array(0))
+        assert len(ffmpegio.video.read(pth)[1]) == 6
     except Exception as e:
         raise e
     finally:
         if os.path.exists(pth) and pth:
             os.remove(pth)
-    assert ffmpegio.video.read(pth)[1][0] == vid_clip.make_frame_array(0)
-    assert len(ffmpegio.video.read(pth)[1]) == 6
 
 
 def test_write_videofile_audio(vid_clip: VideoClip):
@@ -352,16 +352,16 @@ def test_write_videofile_audio(vid_clip: VideoClip):
     vid_clip.audio = SilenceClip(vid_clip.end, 44100, 2)
     pth = ""
     try:
-        pth = tempfile.NamedTemporaryFile(suffix=".mp4", delete=True).name
+        pth = tempfile.NamedTemporaryFile(suffix=".mp4", delete=False).name
         vid_clip.write_videofile(pth, audio=True)
+        assert np.array_equal(ffmpegio.video.read(pth)[1][0], vid_clip.make_frame_array(0))
+        assert len(ffmpegio.video.read(pth)[1]) == 6
+        assert ffmpegio.probe.audio_streams_basic(pth)
     except Exception as e:
         raise e
     finally:
         if os.path.exists(pth) and pth:
             os.remove(pth)
-    assert ffmpegio.video.read(pth)[1][0] == vid_clip.make_frame_array(0)
-    assert len(ffmpegio.video.read(pth)[1]) == 6
-    assert ffmpegio.probe.audio_streams_basic(pth)
 
 
 def test_write_gif(vid_clip: VideoClip, tmp_path):

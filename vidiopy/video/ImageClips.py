@@ -423,8 +423,8 @@ class Data2ImageClip(ImageClip):
         # Import the image from the provided data
         self.image = self._import_image(data)
 
-        # Set the size attribute based on the image size
-        self.size = self.image.shape[:2]
+        # Set the size attribute based on the image size (width, height)
+        self.size = (self.image.shape[1], self.image.shape[0])
 
     def _import_image(self, image) -> npt.NDArray[np.uint8]:
         """
