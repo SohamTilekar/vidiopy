@@ -51,7 +51,7 @@ flowchart LR
 ## Example code
 
 ```python linenums="1"
-from vidiopy import VideoFileClip, TextClip
+from vidiopy import VideoFileClip, TextClip, CompositeVideoClip
 
 # Load myHolidays.mp4 and trimming it to 10 seconds. 50s to 60s.
 clip = VideoFileClip("myHolidays.mp4").subclip(50,60)

@@ -45,7 +45,7 @@ clip = ImageClip("path/to/image.png")
 A `VideoClip` has several attributes such as fps, duration, size, audio, start, end, etc. These can be modified using the corresponding `set` methods:
 
 ```python linenums="1"
-clip = clip.set_duration(10) # Not Allowed for the VideoClips only for the ImageClips
+clip = clip._set_duration(10) # Generally handled internally, but available if needed
 clip = clip.set_fps(24) # Should be int or float
 clip = clip.set_start(5) # Use Full for the Compositing & Concatenating Video Clip. More in the Mixing clips Section
 clip = clip.set_end(15) # Use Full for the Compositing & Concatenating Video Clip. More in the Mixing clips Section
@@ -59,8 +59,8 @@ clip = clip.set_audio(audio) # Set the audio of the clip. use full for the Image
 Various effects can be applied to a VideoClip, including resize, crop, subclip, fx, etc.:
 
 ```python linenums="1"
-clip = resize(clip, width=360) # Resize the clip to the given width
-clip = crop(clip, x1=10, y1=10, x2=100, y2=100) # Crop the clip to the given dimensions
+clip = clip.resize(width=360) # Resize the clip to the given width
+clip = clip.crop(x1=10, y1=10, x2=100, y2=100) # Crop the clip to the given dimensions
 clip = clip.subclip(t1=5, t2=10) # Cut the clip to the given duration
 clip = clip.fx(vidiopy.brightness, 1.5) # Apply the brightness effect to the clip
 ...
@@ -121,7 +121,7 @@ clip = SilenceClip(duration=10) # Create a silent audio clip
 An `AudioClip` has several attributes such as audio_data, fps, start, end, etc. These can be modified using the corresponding `set` methods:
 
 ```python linenums="1"
-clip.fps = 24 # Set the fps of the clip
+clip = clip.set_fps(24) # Set the fps of the clip
 clip.start = 5 # Set the start time of the clip
 clip.end = 15 # Set the end time of the clip
 clip.audio_data = audio_data # Set the audio data of the clip

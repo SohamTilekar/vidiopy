@@ -56,13 +56,13 @@ Now video plays `clip1`, and `clip2` on top of `clip1`, and `clip3` on top of `c
 
 In a CompositionClip, all the clips start to play at a time that is specified by the clip.start attribute. You can set this starting time as follows:
 
-clip1 = clip1.with_start(5) # start after 5 seconds
+clip1 = clip1.set_start(5) # start after 5 seconds
 So for instance your composition will look like
 
 ```python linenums="1"
 video = CompositeVideoClip([clip1, # starts at t=0
-                            clip2.with_start(5), # start at t=5s
-                            clip3.with_start(9)]) # start at t=9s
+                            clip2.set_start(5), # start at t=5s
+                            clip3.set_start(9)]) # start at t=9s
 ```
 
 In the example above, maybe clip2 will start before clip1 is over.
@@ -73,28 +73,28 @@ If clip2 and clip3 are smaller than clip1, you can decide where they will appear
 
 ```python linenums="1"
 video = CompositeVideoClip([clip1,
-                           clip2.with_position((45,150)),
-                           clip3.with_position((90,100))])
+                           clip2.set_position((45,150)),
+                           clip3.set_position((90,100))])
 ```
 
 There are many ways to specify the position:
 
 ```python linenums="1"
-clip2.with_position((45,150)) # x=45, y=150 , in pixels
+clip2.set_position((45,150)) # x=45, y=150 , in pixels
 
-clip2.with_position("center") # automatically centered
+clip2.set_position("center") # automatically centered
 
 # clip2 is horizontally centered, and at the top of the picture
-clip2.with_position(("center","top"))
+clip2.set_position(("center","top"))
 
 # clip2 is vertically centered, at the left of the picture
-clip2.with_position(("left","center"))
+clip2.set_position(("left","center"))
 
 # clip2 is at 40% of the width, 70% of the height of the screen:
-clip2.with_position((0.4,0.7), relative=True)
+clip2.set_position((0.4,0.7), relative=True)
 
 # clip2's position is horizontally centered, and moving down!
-clip2.with_position(lambda t: ('center', 50+t) )
+clip2.set_position(lambda t: ('center', 50+t) )
 ```
 
 When indicating the position keep in mind that the `y` coordinate has its zero at the top of the picture:
@@ -105,15 +105,15 @@ When indicating the position keep in mind that the `y` coordinate has its zero a
 
 ### Compositing audio clips
 
-When you mix video clips together, MoviePy will automatically compose their respective audio tracks to form the audio track of the final clip, so you don’t need to worry about compositing these tracks yourself.
+When you mix video clips together, VidioPy will automatically compose their respective audio tracks to form the audio track of the final clip, so you don’t need to worry about compositing these tracks yourself.
 
-If you want to make a custom audiotrack from several audio sources: audioc clips can be mixed together with CompositeAudioClip and concatenate_audioclips:
+If you want to make a custom audiotrack from several audio sources: audioc clips can be mixed together with composite_audioclips and concatenate_audioclips:
 
 ```python linenums="1"
-from moviepy import *
+from vidiopy import *
 # ... make some audio clips aclip1, aclip2, aclip3
 concat = concatenate_audioclips([aclip1, aclip2, aclip3])
-compo = CompositeAudioClip([aclip1.multiply_volume(1.2),
-                            aclip2.with_start(5), # start at t=5s
-                            aclip3.with_start(9)])
+compo = composite_audioclips([aclip1.multiply_volume(1.2),
+                            aclip2.set_start(5), # start at t=5s
+                            aclip3.set_start(9)])
 ```
